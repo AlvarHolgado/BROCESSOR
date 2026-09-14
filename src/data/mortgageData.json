@@ -1,0 +1,373 @@
+{
+  "metadata": {
+    "description": "Generic, source-attributed benchmark data for the simulator defaults: CCAA transfer/stamp taxes (general rate, progressive brackets and reduced-rate categories with per-field citations) and national-average market rates. Contains no individual institution's commercial offer.",
+    "lastUpdated": "2026-08-24",
+    "disclaimer": "This file holds ONLY two categories of data: (1) CCAA tax rates, including progressive ITP brackets and reduced-rate categories (jóvenes, familia numerosa, discapacidad, VPO, violencia de género, etc.) each individually source-cited via `sources`/`notes`/`status`, and (2) national-average market benchmarks (Euribor, INE aggregate TIN/TAE). The original 16-CCAA flat-rate figures were extracted verbatim from /docs and are attributed by source in /MISSING_DATA_REPORT.md. The full 19-jurisdiction breakdown (general rate, progressive brackets, and reduced-rate categories) was added on 2026-08-24 from a dedicated web research pass across official regional/foral tax authorities and BOE texts, at the user's explicit one-off authorization to override RULE 1's 'schema-only' constraint for this file — see /docs/ITP_CCAA_2025_2026.html for the full dossier and per-entry sources, also embedded directly in each ccaaTaxRates[].sources array below. Fields marked status:'unverified' or 'not-found' should NOT be treated as closed/official without further direct verification. `bankOffers` and `brokerOffers` are empty by design: they are populated at runtime from user input (Screens 4-5 of the wizard) or, if a true aggregate benchmark (e.g. a Banco de España published average across multiple entities) becomes available, added here explicitly labeled as an aggregate, never as a single institution's quote. See /DATA_ENTRY_GUIDE.md, section 0, for the full Global Benchmark vs. Case Study distinction."
+  },
+  "ccaaTaxRates": [
+    {
+      "code": "AND", "name": "Andalusia",
+      "itpPercentage": 7, "itpBrackets": null, "ajdPercentage": null,
+      "generalNote": "Tipo reducido general para vivienda habitual, sin necesidad de pertenecer a ningún colectivo: 6% si el valor <=150.000 EUR.",
+      "cautionNote": null,
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <35 años, víctimas de violencia doméstica, víctimas de terrorismo, y compra en municipios con riesgo de despoblación", "rate": 3.5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 150000, "ageLimit": 35, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Sin límite de ingresos.", "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": 3.5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 250000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Sin límite de ingresos.", "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Personas con discapacidad", "rate": 3.5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 250000, "ageLimit": null, "disabilityMinPercentage": 33, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Sin límite de ingresos.", "status": "verified" },
+        { "category": "VPO", "label": "Vivienda de Protección Oficial", "rate": 3.5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 150000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Solo citado por un agregador privado (guiafiscal.es); no confirmado en el articulado de la Ley 5/2021.", "status": "unverified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": 3.5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 150000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "El texto oficial habla de 'violencia doméstica'; no está confirmado si distingue 'violencia de género' en sentido estricto.", "status": "unverified" }
+      ],
+      "sources": [
+        { "label": "Junta de Andalucía — Impuestos cedidos, Transmisiones", "url": "https://www.juntadeandalucia.es/organismos/economiahaciendayfondoseuropeos/areas/tributos-juego/tributos/paginas/impuestos-cedidos-transmisiones.html" },
+        { "label": "Junta de Andalucía — Medidas vigentes ITPAJD", "url": "https://www.juntadeandalucia.es/organismos/economiahaciendayfondoseuropeos/areas/tributos-juego/tributos/paginas/MedidasITPAJD.html" },
+        { "label": "BOJA — Ley 5/2021", "url": "https://www.juntadeandalucia.es/boja/2021/206/1" }
+      ]
+    },
+    {
+      "code": "ARA", "name": "Arago",
+      "itpPercentage": 8, "ajdPercentage": null,
+      "itpBrackets": [ { "upTo": 400000, "rate": 8 }, { "upTo": 450000, "rate": 8.5 }, { "upTo": 500000, "rate": 9 }, { "upTo": 750000, "rate": 9.5 }, { "upTo": null, "rate": 10 } ],
+      "generalNote": null,
+      "cautionNote": "Varios agregadores privados citan una bonificación del 100% para menores de 30 años. No aparece en el texto legal consolidado oficial (BOE, actualizado a 07/07/2025) — no se ha incluido por no poder verificarse.",
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <35 años", "rate": null, "rateBrackets": null, "bonusPercentage": 12.5, "priceLimit": 100000, "ageLimit": 35, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Bonificación del 12,5% sobre la cuota calculada con la escala general (no un tipo reducido directo).", "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Personas con discapacidad >=65%", "rate": null, "rateBrackets": null, "bonusPercentage": 12.5, "priceLimit": 100000, "ageLimit": null, "disabilityMinPercentage": 65, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Mujeres víctimas de violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": 12.5, "priceLimit": 100000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Requiere orden de protección vigente o sentencia firme en los últimos 10 años.", "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": null, "rateBrackets": null, "bonusPercentage": 50, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "60% en Régimen Especial de Fiscalidad Rural. Exige venta de la vivienda anterior (-2/+4 años), nueva vivienda >10% más grande, e ingresos <=35.000 EUR + 6.000 EUR por hijo que exceda el mínimo legal de familia numerosa.", "status": "verified" },
+        { "category": "VPO", "label": "Vivienda de Protección Oficial", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No existe tipo reducido para la compra de VPO ya construida; solo bonificación del 100% para la cesión de derechos sobre VPO en construcción.", "status": "not-applicable" }
+      ],
+      "sources": [
+        { "label": "BOE — Decreto Legislativo 1/2005 (texto consolidado)", "url": "https://www.boe.es/buscar/pdf/2005/BOA-d-2005-90006-consolidado.pdf" },
+        { "label": "Gobierno de Aragón — Transmisiones patrimoniales onerosas", "url": "https://www.aragon.es/-/transmisiones-patrimoniales-onerosas" }
+      ]
+    },
+    {
+      "code": "AST", "name": "Asturies",
+      "itpPercentage": 8, "ajdPercentage": null,
+      "itpBrackets": [ { "upTo": 300000, "rate": 8 }, { "upTo": 500000, "rate": 9 }, { "upTo": null, "rate": 10 } ],
+      "generalNote": null,
+      "cautionNote": null,
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <=35 años", "rate": null, "rateBrackets": [ { "upTo": 150000, "rate": 4 }, { "upTo": null, "rate": 6 } ], "bonusPercentage": null, "priceLimit": null, "ageLimit": 35, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Requiere ocupación efectiva en 6 meses y residencia mínima de 3 años.", "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas y monoparentales", "rate": null, "rateBrackets": [ { "upTo": 150000, "rate": 4 }, { "upTo": null, "rate": 6 } ], "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Mujeres víctimas de violencia de género", "rate": null, "rateBrackets": [ { "upTo": 150000, "rate": 4 }, { "upTo": null, "rate": 6 } ], "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "RURAL_DESPOBLACION", "label": "Compra en zona rural en riesgo de despoblamiento (cualquier comprador)", "rate": null, "rateBrackets": [ { "upTo": 150000, "rate": 4 }, { "upTo": null, "rate": 6 } ], "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Personas con discapacidad", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Confirmado que NO existe reducción de ITP por discapacidad (solo hay deducción en el IRPF, impuesto distinto).", "status": "not-applicable" },
+        { "category": "VPO", "label": "VPO — segunda o ulterior transmisión, vivienda habitual", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" }
+      ],
+      "sources": [
+        { "label": "BOE — Decreto Legislativo 2/2014 (texto consolidado)", "url": "https://www.boe.es/buscar/pdf/2015/BOE-A-2015-945-consolidado.pdf" },
+        { "label": "Servicios Tributarios del Principado de Asturias", "url": "https://sede.tributasenasturias.es/sites/epstpa/default/es_ES/tributos/transmisiones-patrimoniales/Beneficios-fiscales/Principado-de-Asturias" }
+      ]
+    },
+    {
+      "code": "BAL", "name": "Illes Balears",
+      "itpPercentage": 8, "ajdPercentage": null,
+      "itpBrackets": [ { "upTo": 400000, "rate": 8 }, { "upTo": 600000, "rate": 9 }, { "upTo": 1000000, "rate": 10 }, { "upTo": 2000000, "rate": 12 }, { "upTo": null, "rate": 13 } ],
+      "generalNote": "Tipo reducido general vivienda habitual (cualquier comprador, sin colectivo): 4% si el valor <=270.151,20 EUR y no dispone de otra vivienda.",
+      "cautionNote": "Se ha detectado una posible Ley 4/2026 (11 de junio) con modificaciones adicionales al Decreto Legislativo 1/2014, cuyo contenido no se ha podido verificar en detalle — confirmar con la ATIB antes de producción.",
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <36 años", "rate": 2, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 270151.2, "ageLimit": 36, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Personas con derecho al mínimo por discapacidad en IRPF", "rate": 2, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 270151.2, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas y monoparentales", "rate": 2, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 350000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "2% hasta 270.151,20 EUR + 8% sobre el exceso. Límite de 270.151,20 EUR para monoparentales de categoría general.", "status": "verified" },
+        { "category": "JOVENES", "label": "Jóvenes <30 años o discapacidad >=33% (bonificación del 100%, exención efectiva)", "rate": null, "rateBrackets": null, "bonusPercentage": 100, "priceLimit": 270151.2, "ageLimit": 30, "disabilityMinPercentage": 33, "incomeLimitIndividual": 52800, "incomeLimitJoint": 84480, "notes": "Requiere 3 años de residencia previa en Illes Balears y préstamo hipotecario >=60% del valor de tasación.", "status": "verified" },
+        { "category": "VPO", "label": "Vivienda de Protección Oficial", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-found" }
+      ],
+      "sources": [
+        { "label": "ATIB — Impuesto de Transmisiones Patrimoniales", "url": "https://www.atib.es/TA/contenido.aspx?Id=16198&lang=es" },
+        { "label": "ATIB — Vivienda habitual", "url": "https://www.atib.es/TA/contenido.aspx?Id=9854&lang=es" }
+      ]
+    },
+    {
+      "code": "CAN", "name": "Canaries",
+      "itpPercentage": 6.5, "itpBrackets": null, "ajdPercentage": null,
+      "generalNote": "Tipo reducido general vivienda habitual: 5% (límite de valor <=150.000 EUR citado solo por fuente secundaria, no confirmado textualmente en el articulado).",
+      "cautionNote": null,
+      "reducedRates": [
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": 1, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "MONOPARENTAL", "label": "Familias monoparentales", "rate": 1, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Personas con discapacidad", "rate": 1, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": 33, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Grado exacto no confirmado textualmente en la guía oficial (fuentes privadas asumen 33%).", "status": "unverified" },
+        { "category": "VPO", "label": "VPO — primera vivienda habitual", "rate": 0, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "JOVENES", "label": "Jóvenes <35 años", "rate": null, "rateBrackets": null, "bonusPercentage": 20, "priceLimit": 150000, "ageLimit": 35, "disabilityMinPercentage": null, "incomeLimitIndividual": 24000, "incomeLimitJoint": null, "notes": "El límite de 24.000 EUR de base imponible IRPF se aplica individualmente a cada comprador, no como suma conjunta. No aplicable a no residentes.", "status": "verified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Mujeres víctimas de violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": 20, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" }
+      ],
+      "sources": [
+        { "label": "Agencia Tributaria Canaria — Guía completa ITP y AJD (PDF)", "url": "https://www3.gobiernodecanarias.org/tributos/atc/estatico/asistencia_contribuyente/guias/pdf/guia_completa_itp_y_ajd.pdf" }
+      ]
+    },
+    {
+      "code": "CTB", "name": "Cantabria",
+      "itpPercentage": 7, "ajdPercentage": null,
+      "itpBrackets": [ { "upTo": 300000, "rate": 7 }, { "upTo": null, "rate": 9 } ],
+      "generalNote": "Escala vigente desde el 1 de mayo de 2026 (Ley de Cantabria 5/2026). Existe además un tipo del 5% para rehabilitación inmediata de vivienda y una bonificación del 90% de la cuota en municipios de 'reto demográfico'.",
+      "cautionNote": null,
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <40 años", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 300000, "ageLimit": 40, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No se ha localizado límite de ingresos.", "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas y monoparentales", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 300000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad 33%-65%", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 300000, "ageLimit": null, "disabilityMinPercentage": 33, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad >=65%", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 300000, "ageLimit": null, "disabilityMinPercentage": 65, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "VPO", "label": "Vivienda de Protección Oficial", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 300000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No confirmado si distingue régimen general/especial.", "status": "unverified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-found" }
+      ],
+      "sources": [
+        { "label": "Agencia Cántabra de Administración Tributaria — Transmisiones Patrimoniales", "url": "https://www.agenciacantabratributaria.es/tributos/transmisiones-patrimoniales-y-actos-juridicos-documentados/transmisiones-patrimoniales" },
+        { "label": "BOE — Ley de Cantabria 5/2026", "url": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-10431" }
+      ]
+    },
+    {
+      "code": "CLM", "name": "Castella-La Manxa",
+      "itpPercentage": 9, "itpBrackets": null, "ajdPercentage": null,
+      "generalNote": "Tipo reducido general vivienda habitual (sin colectivo especial): 6% — citado de forma consistente por fuentes fiscales privadas, pero no confirmado literalmente en el portal oficial JCCM.",
+      "cautionNote": "Existe una posible bonificación adicional en zonas de riesgo de despoblación, con datos contradictorios entre fuentes (100% de la cuota vs. escala progresiva 3%-5%) — no incluida por falta de certeza.",
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <36 años", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 240000, "ageLimit": 36, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Reducido desde el 5% por la Ley 1/2026. Exige financiar >50% de la compra con préstamo hipotecario.", "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": 5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 240000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad >=65%", "rate": 5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 240000, "ageLimit": null, "disabilityMinPercentage": 65, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "MONOPARENTAL", "label": "Familias monoparentales", "rate": 5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 240000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "VPO", "label": "Vivienda de Protección Oficial", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-found" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-found" }
+      ],
+      "sources": [
+        { "label": "Portal Tributario JCCM — Beneficios Fiscales en ITP y AJD", "url": "https://portaltributario.jccm.es/informacion-tributaria/beneficios-fiscales-en-el-impuesto-sobre-transmisiones-patrimoniales-y-actos" },
+        { "label": "BOE — Ley 1/2026, de 26 de marzo", "url": "https://www.boe.es/buscar/doc.php?id=DOCM-q-2026-90065" }
+      ]
+    },
+    {
+      "code": "CYL", "name": "Castella i Lleo",
+      "itpPercentage": 8, "ajdPercentage": null,
+      "itpBrackets": [ { "upTo": 250000, "rate": 8 }, { "upTo": null, "rate": 10 } ],
+      "generalNote": null,
+      "cautionNote": null,
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <36 años — núcleo urbano", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": 36, "disabilityMinPercentage": null, "incomeLimitIndividual": 31500, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "JOVENES", "label": "Jóvenes <36 años — núcleo rural (valor <150.000 EUR)", "rate": 0.01, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 150000, "ageLimit": 36, "disabilityMinPercentage": null, "incomeLimitIndividual": 31500, "incomeLimitJoint": null, "notes": "Municipio <10.000 hab., o <3.000 hab. si está a menos de 30 km de la capital de provincia.", "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": 37800, "notes": "37.800 EUR + 6.000 EUR por cada miembro que exceda el mínimo legal de familia numerosa.", "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad >=65%", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": 65, "incomeLimitIndividual": 31500, "incomeLimitJoint": null, "notes": "Si el comprador ya tiene otra vivienda, debe venderla en el plazo máximo de 1 año.", "status": "verified" },
+        { "category": "VPO", "label": "Vivienda de Protección Oficial", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No confirmado si distingue régimen general/especial.", "status": "unverified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género / monoparentalidad", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-found" }
+      ],
+      "sources": [
+        { "label": "Tributos JCyL — ITP, beneficios fiscales", "url": "https://tributos.jcyl.es/web/es/beneficios-fiscales/impuesto-sobre-transmisiones-patrimoniales.html" },
+        { "label": "Tributos JCyL — Beneficios fiscales para jóvenes", "url": "https://tributos.jcyl.es/web/es/informa-preguntas-frecuentes/beneficios-fiscales-para-jovenes.html" }
+      ]
+    },
+    {
+      "code": "CAT", "name": "Catalunya",
+      "itpPercentage": 10, "ajdPercentage": null,
+      "itpBrackets": [ { "upTo": 600000, "rate": 10 }, { "upTo": 900000, "rate": 11 }, { "upTo": 1500000, "rate": 12 }, { "upTo": null, "rate": 13 } ],
+      "generalNote": "Escala vigente desde el 27/06/2025 (Decret-llei 5/2025). Existe además un tipo agravado del 20% para 'grandes tenedores' de vivienda.",
+      "cautionNote": null,
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <=35 años (ampliado desde 32 en junio de 2025)", "rate": 5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": 35, "disabilityMinPercentage": null, "incomeLimitIndividual": 36000, "incomeLimitJoint": null, "notes": "Base imponible general del IRPF. No se distingue explícitamente un umbral separado para tributación conjunta.", "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": 5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": 36000, "incomeLimitJoint": null, "notes": "+14.000 EUR por cada hijo adicional al mínimo legal de familia numerosa.", "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad >=65%", "rate": 5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": 65, "incomeLimitIndividual": 36000, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "MONOPARENTAL", "label": "Familias monoparentales", "rate": 5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": 36000, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Víctimas de violencia de género", "rate": 5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": 36000, "incomeLimitJoint": null, "notes": "Vigente desde el 27/06/2025.", "status": "verified" },
+        { "category": "VPO", "label": "Habitatge de Protecció Oficial", "rate": 7, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No confirmado si distingue régimen general/especial.", "status": "unverified" }
+      ],
+      "sources": [
+        { "label": "Agència Tributària de Catalunya — Tarifes i tipus impositius", "url": "https://atc.gencat.cat/es/tributs/itpajd/tpo/tarifes-tipus/" },
+        { "label": "ATC — Noves mesures fiscals, 27/06/2025", "url": "https://atc.gencat.cat/ca/agencia/noticies/detall-noticia/20250627-mesures-fiscals-2025-itpajd-isd" }
+      ]
+    },
+    {
+      "code": "VAL", "name": "Comunitat Valenciana",
+      "itpPercentage": 9, "ajdPercentage": null,
+      "itpBrackets": [ { "upTo": 1000000, "rate": 9 }, { "upTo": null, "rate": 11 } ],
+      "generalNote": "El tipo general bajó del 10% al 9% el 1 de junio de 2026 (Ley 5/2025). Para operaciones anteriores a esa fecha, el tipo aplicable era 10% (tramo único).",
+      "cautionNote": null,
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <35 años", "rate": null, "rateBrackets": [ { "upTo": 180000, "rate": 6 }, { "upTo": null, "rate": 8 } ], "bonusPercentage": null, "priceLimit": null, "ageLimit": 35, "disabilityMinPercentage": null, "incomeLimitIndividual": 30000, "incomeLimitJoint": 47000, "notes": "Importes de renta confirmados por múltiples fuentes coincidentes.", "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas y monoparentales", "rate": null, "rateBrackets": [ { "upTo": 180000, "rate": 3 }, { "upTo": null, "rate": 4 } ], "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": 30000, "incomeLimitJoint": 47000, "notes": null, "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad >=65% física/sensorial o >=33% psíquica", "rate": null, "rateBrackets": [ { "upTo": 180000, "rate": 3 }, { "upTo": null, "rate": 4 } ], "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": 33, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Sin límite de ingresos.", "status": "verified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": null, "rateBrackets": [ { "upTo": 180000, "rate": 3 }, { "upTo": null, "rate": 4 } ], "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": 30000, "incomeLimitJoint": 47000, "notes": null, "status": "verified" },
+        { "category": "VPO", "label": "VPO — Régimen general", "rate": null, "rateBrackets": [ { "upTo": 180000, "rate": 6 }, { "upTo": null, "rate": 8 } ], "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "VPO_ESPECIAL", "label": "VPO — Régimen especial", "rate": null, "rateBrackets": [ { "upTo": 180000, "rate": 3 }, { "upTo": null, "rate": 4 } ], "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" }
+      ],
+      "sources": [
+        { "label": "ATV — Tarifes ITPAJD (tabla oficial)", "url": "https://atv.gva.es/es/tarifes-itpajd" },
+        { "label": "Hisenda GVA — Novedades tributarias 2026", "url": "https://hisenda.gva.es/es/web/tributos/novetats-tributaries-2026" }
+      ]
+    },
+    {
+      "code": "EXT", "name": "Extremadura",
+      "itpPercentage": 8, "ajdPercentage": null,
+      "itpBrackets": [ { "upTo": 360000, "rate": 8 }, { "upTo": 600000, "rate": 10 }, { "upTo": null, "rate": 11 } ],
+      "generalNote": "Escala vigente desde el 5/08/2026 (Ley 2/2026). No se ha podido confirmar si el tipo reducido general anterior del 7% (vivienda habitual <=200.000 EUR, sin colectivo especial) sigue vigente tras esta ley.",
+      "cautionNote": "La Ley 2/2026 permite además fraccionar el pago del ITP hasta en 10 años para jóvenes, familias numerosas, monoparentales y personas con discapacidad.",
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <=36 años", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 200000, "ageLimit": 36, "disabilityMinPercentage": null, "incomeLimitIndividual": 30000, "incomeLimitJoint": 55000, "notes": null, "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 200000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": 30000, "incomeLimitJoint": 55000, "notes": null, "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad >=65%", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 200000, "ageLimit": null, "disabilityMinPercentage": 65, "incomeLimitIndividual": 30000, "incomeLimitJoint": 55000, "notes": null, "status": "verified" },
+        { "category": "MONOPARENTAL", "label": "Familias monoparentales (2+ hijos)", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 200000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Agrupado junto a los colectivos anteriores según una fuente; no confirmado en el texto legal oficial.", "status": "unverified" },
+        { "category": "VPO", "label": "Vivienda de Protección Oficial", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 200000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": 30000, "incomeLimitJoint": 55000, "notes": null, "status": "verified" },
+        { "category": "RURAL_DESPOBLACION", "label": "Municipios <3.000 habitantes", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Límite de valor contradictorio entre fuentes (180.000 EUR sin test de renta frente a 200.000 EUR con test de renta).", "status": "unverified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-found" }
+      ],
+      "sources": [
+        { "label": "BOE — Ley 2/2026, de 3 de agosto, Presupuestos de Extremadura", "url": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-17839" }
+      ]
+    },
+    {
+      "code": "GAL", "name": "Galicia",
+      "itpPercentage": 8, "itpBrackets": null, "ajdPercentage": null,
+      "generalNote": "Tipo reducido general vivienda habitual: 7% si el patrimonio de los adquirentes + unidad familiar no supera 200.000 EUR (+30.000 EUR/miembro adicional). En zonas rurales declaradas, el tipo baja a 6% general / 5% habitual, con deducción del 100% para los colectivos reducidos.",
+      "cautionNote": null,
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <36 años", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": 36, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Límite de patrimonio (no de renta anual): 200.000 EUR + 30.000 EUR por miembro adicional.", "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Límite de patrimonio familiar conjunto <=400.000 EUR (+50.000 EUR por miembro que exceda el mínimo legal).", "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad >=65%", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": 65, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Sin límite de patrimonio.", "status": "verified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 150000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Único colectivo con límite de precio de vivienda en Galicia.", "status": "verified" },
+        { "category": "MONOPARENTAL", "label": "Familias monoparentales", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Citado por portales privados (código 'TUH') pero no aparece como categoría diferenciada en el texto oficial consolidado.", "status": "unverified" },
+        { "category": "VPO", "label": "Vivienda de Protección Oficial", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No existe tipo reducido para el comprador particular; solo deducción del 100% para adquisiciones de suelo por el Instituto Galego da Vivenda e Solo (entidades públicas).", "status": "not-applicable" }
+      ],
+      "sources": [
+        { "label": "Axencia Tributaria de Galicia — Compra de vivienda usada", "url": "https://www.atriga.gal" }
+      ]
+    },
+    {
+      "code": "MAD", "name": "Madrid",
+      "itpPercentage": 6, "itpBrackets": null, "ajdPercentage": 0.75,
+      "generalNote": "Bonificación general del 10% de la cuota para cualquier comprador de vivienda habitual <=250.000 EUR (no exclusiva de ningún colectivo).",
+      "cautionNote": null,
+      "reducedRates": [
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 250000, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Exige venta de la vivienda anterior en +/-2 años (salvo unión de inmueble contiguo).", "status": "verified" },
+        { "category": "JOVENES", "label": "Jóvenes <35 años, municipios <2.500 habitantes (bonificación del 100%)", "rate": null, "rateBrackets": null, "bonusPercentage": 100, "priceLimit": 250000, "ageLimit": 35, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Vigente desde el 29/11/2024 (Ley 5/2024).", "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Personas con discapacidad", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Fuentes privadas citan un 4%, pero no se encuentra en el texto consolidado oficial vigente (BOE, última modificación 30/06/2026) — posiblemente desactualizado.", "status": "unverified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-found" },
+        { "category": "VPO", "label": "Vivienda de Protección Oficial", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No hay tipo reducido de TPO para VPO (solo reducciones en AJD, 0,2%-0,75% según valor).", "status": "not-applicable" }
+      ],
+      "sources": [
+        { "label": "BOE — Decreto Legislativo 1/2010 (texto consolidado)", "url": "https://www.boe.es/buscar/pdf/2010/BOCM-m-2010-90068-consolidado.pdf" },
+        { "label": "BOE — Ley 5/2024 (medidas fiscales vivienda)", "url": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2025-3303" }
+      ]
+    },
+    {
+      "code": "MUR", "name": "Murcia",
+      "itpPercentage": 7.75, "itpBrackets": null, "ajdPercentage": null,
+      "generalNote": "Reducido desde el 8% el 25/07/2025 (Ley 3/2025 de Presupuestos).",
+      "cautionNote": null,
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <=40 años", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": 40, "disabilityMinPercentage": null, "incomeLimitIndividual": 40000, "incomeLimitJoint": null, "notes": "Base imponible general menos mínimo personal/familiar <40.000 EUR; base del ahorro <=1.800 EUR.", "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": 44000, "incomeLimitJoint": null, "notes": "<44.000 EUR (+6.000 EUR por hijo adicional al mínimo legal).", "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad >=65%", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": 65, "incomeLimitIndividual": 40000, "incomeLimitJoint": null, "notes": "Mismos límites de renta que jóvenes.", "status": "verified" },
+        { "category": "VPO_ESPECIAL", "label": "VPO — Régimen especial", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "MONOPARENTAL", "label": "Familias monoparentales", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No existe reducción en ITP; solo deducción de 303 EUR/año en el IRPF autonómico.", "status": "not-applicable" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-found" }
+      ],
+      "sources": [
+        { "label": "BOE — Decreto Legislativo 1/2010 (texto consolidado)", "url": "https://www.boe.es/buscar/pdf/2011/BOE-A-2011-10542-consolidado.pdf" },
+        { "label": "Agencia Tributaria de la Región de Murcia — Novedades 2025", "url": "https://agenciatributaria.carm.es" }
+      ]
+    },
+    {
+      "code": "NAV", "name": "Navarra",
+      "itpPercentage": 6, "itpBrackets": null, "ajdPercentage": null,
+      "generalNote": "Régimen foral propio (Convenio Económico) — no segmenta tipos por tantos colectivos como el resto de España.",
+      "cautionNote": null,
+      "reducedRates": [
+        { "category": "FAMILIA_NUMEROSA", "label": "Unidad familiar con 2 o más hijos (no coincide exactamente con el concepto legal de 'familia numerosa' de la Ley 40/2003)", "rate": 5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 180304, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "El exceso sobre 180.304 EUR tributa al 6% general. Exige que ningún miembro sea propietario de >25% de otra vivienda en Navarra.", "status": "verified" },
+        { "category": "RURAL_DESPOBLACION", "label": "Vivienda habitual en municipio en riesgo de despoblación", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" },
+        { "category": "JOVENES", "label": "Jóvenes", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No existe tipo reducido por edad en el texto vigente. Un 5% para <30 años citado por fuentes privadas no se localizó tras revisión exhaustiva del Decreto Foral Legislativo 129/1999 — posiblemente erróneo.", "status": "not-applicable" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No existe reducción en ITP-TPO; solo exención en AJD para aportaciones a patrimonios protegidos.", "status": "not-applicable" },
+        { "category": "VPO", "label": "Vivienda de Protección Oficial (primera transmisión)", "rate": null, "rateBrackets": null, "bonusPercentage": 100, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Exención completa dentro de los 6 años desde la calificación definitiva.", "status": "verified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Existe una exención puntual para transmisiones derivadas de sentencias de violencia de género, sin relación directa con la compra de vivienda habitual.", "status": "not-found" }
+      ],
+      "sources": [
+        { "label": "Gobierno de Navarra — Lexnavarra, Decreto Foral Legislativo 129/1999", "url": "https://www.lexnavarra.navarra.es/detalle.asp?r=28044" }
+      ]
+    },
+    {
+      "code": "PVA", "name": "Pais Basc",
+      "itpPercentage": 4, "itpBrackets": null, "ajdPercentage": 0,
+      "generalNote": "Sistema prácticamente uniforme entre las 3 Diputaciones Forales (Álava, Bizkaia, Gipuzkoa). No articulan reducciones por edad ni discapacidad — el criterio central es destino a vivienda habitual + límite de superficie.",
+      "cautionNote": "Gipuzkoa aplica un 6% cuando el adquirente es titular de más de 5 inmuebles con >50% de propiedad en cada uno y no cumple los requisitos del tipo reducido. Bizkaia (Norma Foral 2/2025) elimina, desde el 1/1/2026, la restricción de reutilizar el tipo reducido en una compra posterior.",
+      "reducedRates": [
+        { "category": "GENERAL_REDUCIDO", "label": "Vivienda habitual (cualquier comprador)", "rate": 2.5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Superficie construida <=120m2 (Gipuzkoa admite alternativamente <=96m2 útiles; unifamiliares con parcela <=300m2). Ocupación en 12 meses, mantenimiento 3 años.", "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": 2.5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Exentas del límite de superficie — mantienen el 2,5% con independencia del tamaño de la vivienda.", "status": "verified" },
+        { "category": "JOVENES", "label": "Jóvenes", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No existe tipo diferenciado por edad en ninguno de los 3 territorios forales.", "status": "not-applicable" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No localizado en ninguna de las 3 Normas Forales revisadas.", "status": "not-found" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-found" }
+      ],
+      "sources": [
+        { "label": "Diputación Foral de Gipuzkoa — Tipos impositivos", "url": "https://www.gipuzkoa.eus/es/web/ogasuna/impuestos/modelo/60t/tipos-impositivos" },
+        { "label": "Bizkaia.eus — Norma Foral 1/2011, Art. 13", "url": "https://www.bizkaia.eus/documents/1135059/1352576/ITP+Tarifa.pdf" },
+        { "label": "Diputación Foral de Álava — Norma Foral 11/2003, Art. 43", "url": "https://web.araba.eus/es/hacienda/transmisiones-y-actos-juridicos-documentados" }
+      ]
+    },
+    {
+      "code": "RIO", "name": "La Rioja",
+      "itpPercentage": 7, "itpBrackets": null, "ajdPercentage": null,
+      "generalNote": null,
+      "cautionNote": null,
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes <40 años", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": 40, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Sin límite de precio ni de ingresos. Tipo del 3% en municipios de despoblación del Anexo I de la Ley 10/2017 (desde la Ley 1/2025).", "status": "verified" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": 5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Tipo super-reducido del 3% si además: compra dentro de 5 años del título de familia numerosa, venta de la vivienda anterior en ese plazo, nueva vivienda >10% más grande, e ingresos (bases liquidables IRPF) <=30.600 EUR.", "status": "verified" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad >=33%", "rate": 5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": 33, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Sin límite de ingresos.", "status": "verified" },
+        { "category": "VPO", "label": "VPO — primera vivienda habitual", "rate": 5, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": 18030, "incomeLimitJoint": 30050, "notes": "Base del ahorro <=1.800 EUR.", "status": "verified" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-found" }
+      ],
+      "sources": [
+        { "label": "Gobierno de La Rioja — Transmisiones Patrimoniales Onerosas", "url": "https://www.larioja.org/tributos/es/tributos-cedidos/impuesto-transmisiones-patrimoniales-actos-juridicos-docume/informacion/transmisiones-patrimoniales-onerosas" },
+        { "label": "BOE — Ley 1/2025, de 28 de febrero", "url": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2025-5052" }
+      ]
+    },
+    {
+      "code": "CEU", "name": "Ceuta",
+      "itpPercentage": 6, "itpBrackets": null, "ajdPercentage": null,
+      "generalNote": "Ceuta no tiene competencias normativas cedidas en ITP; se aplica la Ley estatal (RDLeg 1/1993). Bonificación automática del 50% sobre la cuota para cualquier inmueble en Ceuta (Art. 57 bis), sin requisito de colectivo -> tipo efectivo para cualquier comprador: 3%.",
+      "cautionNote": "Una fuente privada (forohipotecario.es) afirma que el tipo general es del 8% y que la bonificación del 50% solo aplica en Ceuta, no en Melilla. Esto contradice el texto legal oficial (Art. 11.1.a y 57 bis RDLeg 1/1993), que fija el 6% con bonificación del 50% aplicada por igual a ambas ciudades. Se prioriza la fuente legal oficial.",
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No existen tipos reducidos estatales por edad para vivienda de segunda mano.", "status": "not-applicable" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-applicable" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-applicable" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-applicable" },
+        { "category": "VPO", "label": "Vivienda de Protección Oficial (segunda transmisión)", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Se aplica el 6% general con la bonificación del 50% (efectivo 3%), igual que cualquier vivienda usada.", "status": "not-applicable" }
+      ],
+      "sources": [
+        { "label": "BOE — RDLeg 1/1993, texto refundido Ley ITP y AJD", "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1993-25359" },
+        { "label": "AEAT — ITP y AJD en Ceuta y Melilla", "url": "https://sede.agenciatributaria.gob.es/Sede/declaraciones-informativas-otros-impuestos-tasas/impuesto-sobre-transmisiones-patrimoniales-actos-juridicos.html" }
+      ]
+    },
+    {
+      "code": "MEL", "name": "Melilla",
+      "itpPercentage": 6, "itpBrackets": null, "ajdPercentage": null,
+      "generalNote": "Régimen idéntico al de Ceuta (mismo marco legal estatal, RDLeg 1/1993). Bonificación automática del 50% sobre la cuota (Art. 57 bis) -> tipo efectivo para cualquier comprador: 3%.",
+      "cautionNote": "La misma fuente privada que discrepa para Ceuta afirma que Melilla NO recibe la bonificación del 50% — contradice el Art. 57 bis, que no distingue entre ambas ciudades. Se prioriza la fuente legal oficial.",
+      "reducedRates": [
+        { "category": "JOVENES", "label": "Jóvenes", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-applicable" },
+        { "category": "FAMILIA_NUMEROSA", "label": "Familias numerosas", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-applicable" },
+        { "category": "DISCAPACIDAD", "label": "Discapacidad", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-applicable" },
+        { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-applicable" },
+        { "category": "VPO", "label": "Vivienda de Protección Oficial (segunda transmisión)", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Se aplica el 6% general con la bonificación del 50% (efectivo 3%).", "status": "not-applicable" }
+      ],
+      "sources": [
+        { "label": "BOE — RDLeg 1/1993, texto refundido Ley ITP y AJD", "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1993-25359" },
+        { "label": "AEAT — ITP y AJD en Ceuta y Melilla", "url": "https://sede.agenciatributaria.gob.es/Sede/declaraciones-informativas-otros-impuestos-tasas/impuesto-sobre-transmisiones-patrimoniales-actos-juridicos.html" }
+      ]
+    }
+  ],
+  "baselineMarketRates": {
+    "euriborReference": {
+      "value": 1.96,
+      "asOfDate": "2025-12-31"
+    },
+    "byMortgageType": {
+      "FIXED": {
+        "tin": 2.95,
+        "tae": 3.48
+      },
+      "VARIABLE": {
+        "differentialOverEuribor": null,
+        "tae": 3.21
+      },
+      "MIXED": {
+        "fixedPeriodYears": null,
+        "fixedPeriodTin": null,
+        "postFixedDifferentialOverEuribor": null
+      }
+    }
+  },
+  "bankOffers": [],
+  "brokerOffers": []
+}

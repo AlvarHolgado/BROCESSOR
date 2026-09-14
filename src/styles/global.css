@@ -1,0 +1,160 @@
+/* "Midnight & mustard" brand theme: declares color-scheme so native form
+   controls (select popups, scrollbars) render dark automatically, and sets
+   the page background/text pairing the component-level color tokens in
+   theme.ts are contrast-checked against (COLORS.background/COLORS.textPrimary). */
+:root {
+  color-scheme: dark;
+}
+
+/* html/body/#root are intentionally left scrollable by the browser's normal
+   document flow: no fixed/100% height and no overflow:hidden anywhere in
+   this chain, since either would cap the box at the viewport and clip or
+   trap scroll for any content taller than one screen. min-height (not
+   height) lets each box grow past 100vh when content demands it while
+   still filling the viewport for short pages. */
+html,
+body,
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+html {
+  /* Disables Chromium's native overscroll "glow"/bounce effect at the top
+     and bottom scroll boundaries, which can read as a stuck overlay even
+     though the page itself keeps scrolling normally underneath it. This is
+     a browser compositor effect, not a DOM element, so it never shows up in
+     the render tree — and it only ever engages at the scroll boundary, so
+     it has no effect on in-bounds scrolling. */
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  background-color: #0e1b38;
+  color: #ffffff;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  position: relative;
+}
+
+/* Editorial display serif for every real heading tag (question titles, card
+   titles, section headings, the BROSSESSOR wordmark) — see FONTS.serif in
+   theme.ts for the same stack, used only where a non-heading element needs
+   it explicitly. Form <label>/<input>/<select>/<button> elements are
+   untouched, so data-entry stays on the clean system sans-serif. */
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-weight: 600;
+}
+
+/* Generous line-height on the big hero wordmark (Screen0LanguageSelect,
+   Screen1Welcome, Screen8Closing) so Playfair Display's serifs/descenders
+   never feel cramped at display size, even though it's visually one line. */
+h1 {
+  line-height: 1.15;
+}
+
+/* Screen 1's split layout (heading question left, controls right) collapses
+   to a single stacked column on narrow viewports — see WizardFormControls.tsx. */
+@media (max-width: 640px) {
+  .wizard-question-block {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Brief highlight pulse applied by ChatAssistant.tsx (via focusQuestion) to
+   whichever field it just scrolled into view, so the user's eye lands on
+   the right input as the chat assistant progresses through the questionnaire. */
+@keyframes chatHighlightPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(217, 159, 38, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(217, 159, 38, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(217, 159, 38, 0);
+  }
+}
+
+.chat-highlight-target {
+  animation: chatHighlightPulse 0.8s ease-out 2;
+  border-radius: 0.75rem;
+}
+
+/*
+ * Glossy capsule/pill button system for genuine action buttons (primary
+ * submit/continue, PDF-download triggers, the chat send button/launcher,
+ * and the amortization channel toggle) — NOT applied to the card-style
+ * multi-choice selectors (CardOptionGroup, language chips), which keep
+ * their existing bordered-chip look since they're a selection grid, not a
+ * single CTA. `.btn-pill` is the solid/primary treatment: a multi-stop
+ * blue gradient (lighter steel-blue top fading through mid-navy to the
+ * deep navy-trim at the bottom) simulates a glossy capsule catching light
+ * from above, `inset` box-shadows add the top specular highlight and a
+ * bottom inner shadow for depth, and a low-opacity gold border reads as a
+ * quiet "micro-accent" at rest that blooms into a full gold glow on
+ * hover/focus. `.btn-pill-outline` is the secondary/back-button variant:
+ * a translucent navy fill with a steel-blue border, same gold hover
+ * treatment. Both rely on the real `disabled` DOM attribute already set by
+ * every consumer, so no extra JS/state is needed here.
+ */
+.btn-pill,
+.btn-pill-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.12s ease, filter 0.2s ease;
+}
+
+.btn-pill {
+  border: 1.5px solid rgba(217, 159, 38, 0.4);
+  background-image: linear-gradient(180deg, #3a5a94 0%, #1e3766 48%, #0e1b38 100%);
+  color: #ffffff;
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.32), inset 0 -2px 3px rgba(0, 0, 0, 0.35), 0 6px 16px rgba(2, 8, 20, 0.45);
+}
+
+.btn-pill:hover:not(:disabled) {
+  border-color: #d99f26;
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.4), inset 0 -2px 3px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(217, 159, 38, 0.25),
+    0 0 16px rgba(217, 159, 38, 0.5), 0 8px 18px rgba(2, 8, 20, 0.5);
+  filter: brightness(1.06);
+}
+
+.btn-pill:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 10px rgba(217, 159, 38, 0.35);
+}
+
+.btn-pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+}
+
+.btn-pill-outline {
+  border: 1.5px solid rgba(89, 120, 176, 0.55);
+  background-color: rgba(21, 41, 81, 0.55);
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.btn-pill-outline:hover:not(:disabled) {
+  border-color: #d99f26;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 12px rgba(217, 159, 38, 0.35);
+}
+
+.btn-pill-outline:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-pill-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "description": "Official Spanish notary and property-registry arancel schedules for the formalization-cost engine (FASE 5). Supplied at the user's explicit direction on 2026-08-25.",
+    "asOfDate": "2025",
+    "disclaimer": "These schedules apply cleanly to the PURCHASE deed (base = purchase price) — that base is unambiguous. The user's own source flags that the calculation base for the separate MORTGAGE deed (constitution of the loan: capital vs. 'responsabilitat hipotecaria total') could not be confirmed against the consolidated BOE text, so mortgage-deed notary/registry fees are intentionally NOT computed by this engine — see formalizationCosts.ts. Per Llei 5/2019 (LCCI), gestoria costs for the mortgage deed are legally borne by the bank, not the buyer, so no buyer-facing gestoria figure is modeled. No additional 'regional CCAA commission' beyond ITP/AJD (already in mortgageData.json) was found to exist."
+  },
+  "notaryFeeSchedule": {
+    "brackets": [
+      { "upTo": 6010.12, "ratePerMille": 4.5 },
+      { "upTo": 30050.61, "ratePerMille": 1.5 },
+      { "upTo": 60101.21, "ratePerMille": 1.0 },
+      { "upTo": 150253.03, "ratePerMille": 0.5 },
+      { "upTo": 601012.10, "ratePerMille": 0.3 },
+      { "upTo": null, "ratePerMille": 0.2 }
+    ],
+    "fixedComponentBeforeVat": 30.05,
+    "vatPercentage": 21,
+    "source": "Reial Decret 1426/1989, vigent el 2025 (aranzel dels notaris)."
+  },
+  "registryFeeSchedule": {
+    "brackets": [
+      { "upTo": 6010.12, "flatFee": 24.040484 },
+      { "upTo": 30050.61, "ratePerMille": 1.75 },
+      { "upTo": 60101.21, "ratePerMille": 1.25 },
+      { "upTo": 150253.03, "ratePerMille": 0.75 },
+      { "upTo": 601012.10, "ratePerMille": 0.30 },
+      { "upTo": null, "ratePerMille": 0.20 }
+    ],
+    "source": "Reial Decret 1427/1989, vigent el 2025 (aranzel dels registradors de la propietat)."
+  }
+}

@@ -1,0 +1,134 @@
+/**
+ * Unified initial-contribution card for a single mortgage path: itemizes
+ * own capital, regional taxes (ITP/AJD) and formalization costs (notary,
+ * registry, gestoria) as one connected breakdown instead of separate,
+ * disconnected tables. All figures are read straight from the already
+ * computed RegionalTaxResult / FormalizationCostsResult / MortgagePathResult
+ * — purely presentational, per .clauderules Rule 3. Text comes from the
+ * active language's Dictionary (see /i18n) via useLanguage().
+ */
+
+import type { CSSProperties } from 'react';
+import type { RegionalTaxResult } from '../engine/mortgageEngine';
+import type { FormalizationCostsResult } from '../engine/formalizationCosts';
+import type { MortgagePathResult } from '../engine/simulate';
+import type { SimulatorInput } from '../types/simulator';
+import { COLORS } from '../styles/theme';
+import { useLanguage } from '../i18n/LanguageContext';
+
+export interface InitialContributionCardProps {
+  input: SimulatorInput;
+  path: MortgagePathResult;
+  taxBreakdown: RegionalTaxResult;
+  formalizationCosts: FormalizationCostsResult;
+}
+
+const cardStyle: CSSProperties = {
+  border: `1px solid ${COLORS.border}`,
+  borderRadius: '0.5rem',
+  padding: '0.9rem 1.1rem',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.2rem',
+};
+
+const titleStyle: CSSProperties = {
+  margin: '0 0 0.4rem 0',
+  fontSize: '1rem',
+};
+
+const rowStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  gap: '1rem',
+  padding: '0.35rem 0',
+};
+
+const noteStyle: CSSProperties = {
+  color: COLORS.textSecondary,
+  fontSize: '0.8rem',
+  margin: '0 0 0.3rem 0',
+};
+
+const totalRowStyle: CSSProperties = {
+  ...rowStyle,
+  fontWeight: 700,
+  borderTop: `1px solid ${COLORS.border}`,
+  marginTop: '0.3rem',
+  paddingTop: '0.6rem',
+};
+
+const warningStyle: CSSProperties = {
+  color: COLORS.risk.YELLOW.text,
+  fontStyle: 'italic',
+};
+
+export function InitialContributionCard({ input, path, taxBreakdown, formalizationCosts }: InitialContributionCardProps) {
+  const { t, formatters } = useLanguage();
+  const ownCapital = input.purchaseValue - path.loanPrincipal;
+
+  return (
+    <div style={cardStyle}>
+      <h4 style={titleStyle}>{t.initialContribution.title}</h4>
+
+      <div style={rowStyle}>
+        <span>{t.initialContribution.ownCapitalLabel}</span>
+        <strong>{formatters.currency0.format(ownCapital)}</strong>
+      </div>
+      <p style={noteStyle}>
+        {t.initialContribution.ownCapitalNote(
+          formatters.currency0.format(input.purchaseValue),
+          formatters.currency0.format(path.loanPrincipal)
+        )}
+      </p>
+
+      <div style={rowStyle}>
+        <span>{t.initialContribution.taxesLabel}</span>
+        <strong>{formatters.currency0.format(taxBreakdown.totalTaxAmount)}</strong>
+      </div>
+      {taxBreakdown.itp.applicable && (
+        <p style={noteStyle}>
+          {t.initialContribution.itpLine(
+            taxBreakdown.itp.usedProgressiveBrackets
+              ? t.initialContribution.itpProgressive
+              : `${formatters.percent2.format(taxBreakdown.itp.ratePercentage ?? 0)}%`,
+            formatters.currency0.format(taxBreakdown.itp.amount)
+          )}
+        </p>
+      )}
+      {taxBreakdown.ajd.applicable && (
+        <p style={taxBreakdown.ajd.dataAvailable ? noteStyle : { ...noteStyle, ...warningStyle }}>
+          {taxBreakdown.ajd.dataAvailable
+            ? t.initialContribution.ajdLine(
+                `${formatters.percent2.format(taxBreakdown.ajd.ratePercentage ?? 0)}%`,
+                formatters.currency0.format(taxBreakdown.ajd.amount)
+              )
+            : t.initialContribution.ajdUnavailable}
+        </p>
+      )}
+      {!taxBreakdown.itp.applicable && !taxBreakdown.ajd.applicable && <p style={noteStyle}>{t.initialContribution.noTaxesApplicable}</p>}
+
+      <div style={rowStyle}>
+        <span>{t.initialContribution.formalizationLabel}</span>
+        <strong>{formatters.currency0.format(formalizationCosts.totalAmount)}</strong>
+      </div>
+      <p style={noteStyle}>
+        {t.initialContribution.formalizationNote(
+          formatters.currency0.format(formalizationCosts.notaryFeePurchase.totalAmount),
+          formatters.currency0.format(formalizationCosts.registryFeePurchase)
+        )}
+      </p>
+
+      <div style={totalRowStyle}>
+        <span>{t.initialContribution.totalLabel}</span>
+        <strong>{formatters.currency0.format(path.initialContributionRequired)}</strong>
+      </div>
+
+      {!path.isFullyFinanceable && (
+        <p role="alert" style={{ color: COLORS.error, fontSize: '0.85rem', margin: '0.3rem 0 0 0' }}>
+          {t.initialContribution.notFullyFinanceableWarning}
+        </p>
+      )}
+    </div>
+  );
+}

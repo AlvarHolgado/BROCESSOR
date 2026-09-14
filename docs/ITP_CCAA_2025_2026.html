@@ -1,0 +1,907 @@
+<title>Dossier ITP Autonómico</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#62e70a;
+  --surface:#ffffff;
+  --surface-alt:#e2e8de;
+  --ink:#1c2622;
+  --ink-muted:#11e711;
+  --ink-faint:#8b9389;
+  --border:#c9d2c3;
+  --border-strong:#a9b5a2;
+  --accent:#33604f;
+  --accent-strong:#234a3c;
+  --accent-tint:#dfeae4;
+  --warn:#8a5a17;
+  --warn-bg:#f7e9d2;
+  --warn-border:#e2c48c;
+  --miss:#7a4632;
+  --miss-bg:#f3e0d6;
+  --miss-border:#dcb49e;
+  --na-bg:#e6e6e2;
+  --na-ink:#5c5f58;
+  --shadow: 0 1px 2px rgba(28,38,34,0.06), 0 6px 20px rgba(28,38,34,0.05);
+  --font-display: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-body: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121815;
+    --surface:#182019;
+    --surface-alt:#1f2a22;
+    --ink:#e7ede6;
+    --ink-muted:#a7b3a4;
+    --ink-faint:#728073;
+    --border:#2c3831;
+    --border-strong:#3e4d43;
+    --accent:#7bc4a3;
+    --accent-strong:#a3dabf;
+    --accent-tint:#213a30;
+    --warn:#e3b268;
+    --warn-bg:#3a2c14;
+    --warn-border:#6b5325;
+    --miss:#e0a184;
+    --miss-bg:#3a2620;
+    --miss-border:#69412f;
+    --na-bg:#232a26;
+    --na-ink:#8b968a;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121815;
+  --surface:#182019;
+  --surface-alt:#1f2a22;
+  --ink:#e7ede6;
+  --ink-muted:#a7b3a4;
+  --ink-faint:#728073;
+  --border:#2c3831;
+  --border-strong:#3e4d43;
+  --accent:#7bc4a3;
+  --accent-strong:#a3dabf;
+  --accent-tint:#213a30;
+  --warn:#e3b268;
+  --warn-bg:#3a2c14;
+  --warn-border:#6b5325;
+  --miss:#e0a184;
+  --miss-bg:#3a2620;
+  --miss-border:#69412f;
+  --na-bg:#232a26;
+  --na-ink:#8b968a;
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+}
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{ background:var(--accent-tint); color:var(--accent-strong); }
+
+.wrap{ max-width:960px; margin:0 auto; padding:0 24px 96px; }
+
+/* ---------- Masthead ---------- */
+.masthead{
+  border-bottom:1px solid var(--border-strong);
+  padding:44px 0 28px;
+  margin-bottom:32px;
+}
+.masthead .eyebrow{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:var(--accent);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:14px;
+}
+.masthead .eyebrow::before{
+  content:"";
+  width:7px;height:7px;
+  background:var(--accent);
+  border-radius:1px;
+  transform:rotate(45deg);
+  flex:none;
+}
+h1{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:clamp(30px,4.4vw,42px);
+  line-height:1.12;
+  margin:0 0 12px;
+  text-wrap:balance;
+  letter-spacing:-.01em;
+}
+.masthead .dek{
+  font-size:16.5px;
+  color:var(--ink-muted);
+  max-width:62ch;
+  margin:0 0 18px;
+}
+.masthead .meta-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 22px;
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  color:var(--ink-faint);
+}
+.masthead .meta-row b{ color:var(--ink-muted); font-weight:500; }
+
+/* ---------- Callout / methodology ---------- */
+.callout{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  border-radius:6px;
+  padding:18px 22px;
+  margin:0 0 40px;
+  box-shadow:var(--shadow);
+}
+.callout h2{
+  font-family:var(--font-body);
+  font-weight:700;
+  font-size:12.5px;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  color:var(--accent-strong);
+  margin:0 0 10px;
+}
+.callout p{ margin:0 0 10px; font-size:14.5px; color:var(--ink-muted); }
+.callout p:last-child{ margin-bottom:0; }
+.legend{ display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:12px; }
+.legend-item{ display:flex; align-items:center; gap:7px; font-size:13px; color:var(--ink-muted); }
+
+.pill{
+  display:inline-flex; align-items:center; gap:5px;
+  font-family:var(--font-mono);
+  font-size:11px; font-weight:500;
+  letter-spacing:.02em;
+  padding:2.5px 8px;
+  border-radius:99px;
+  border:1px solid transparent;
+  white-space:nowrap;
+}
+.pill-verified{ background:var(--accent-tint); color:var(--accent-strong); border-color:var(--border-strong); }
+.pill-unverified{ background:var(--warn-bg); color:var(--warn); border-color:var(--warn-border); }
+.pill-missing{ background:var(--miss-bg); color:var(--miss); border-color:var(--miss-border); }
+.pill-na{ background:var(--na-bg); color:var(--na-ink); }
+
+/* ---------- Toolbar / search ---------- */
+.toolbar{
+  display:flex; align-items:center; gap:12px;
+  margin-bottom:18px;
+}
+#search{
+  flex:1;
+  font-family:var(--font-body);
+  font-size:14px;
+  padding:10px 14px;
+  border-radius:6px;
+  border:1px solid var(--border-strong);
+  background:var(--surface);
+  color:var(--ink);
+}
+#search:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+#search::placeholder{ color:var(--ink-faint); }
+
+/* ---------- Index grid ---------- */
+.index-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:10px;
+  margin-bottom:56px;
+}
+.index-card{
+  display:block;
+  text-decoration:none;
+  color:var(--ink);
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:13px 15px;
+  transition:border-color .15s ease, transform .15s ease;
+}
+.index-card:hover{ border-color:var(--accent); transform:translateY(-1px); }
+.index-card .zone{
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:var(--ink-faint);
+}
+.index-card .name{
+  font-family:var(--font-display);
+  font-size:16px;
+  font-weight:600;
+  margin:2px 0 8px;
+}
+.index-card .rate{
+  font-family:var(--font-mono);
+  font-size:19px;
+  font-weight:600;
+  color:var(--accent-strong);
+  font-variant-numeric:tabular-nums;
+}
+.index-card .rate small{ font-size:11px; color:var(--ink-faint); font-weight:400; margin-left:3px;}
+
+/* ---------- Section heading ---------- */
+.section-label{
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+  border-top:1px solid var(--border-strong);
+  padding-top:10px;
+  margin:0 0 24px;
+}
+
+/* ---------- Region dossier card ---------- */
+.region{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:28px 30px 26px;
+  margin-bottom:22px;
+  scroll-margin-top:20px;
+  box-shadow:var(--shadow);
+}
+.region-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:20px;
+  flex-wrap:wrap;
+  border-bottom:1px solid var(--border);
+  padding-bottom:18px;
+  margin-bottom:18px;
+}
+.region-head .id{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.region-code{
+  font-family:var(--font-mono);
+  font-size:12px;
+  color:var(--ink-faint);
+  border:1px solid var(--border-strong);
+  border-radius:4px;
+  padding:1px 6px;
+}
+.region-head h3{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:23px;
+  margin:0;
+}
+.region-headline{ text-align:right; }
+.region-headline .big{
+  font-family:var(--font-mono);
+  font-size:30px;
+  font-weight:600;
+  color:var(--accent-strong);
+  font-variant-numeric:tabular-nums;
+  line-height:1;
+}
+.region-headline .big small{ font-size:14px; color:var(--ink-faint); font-weight:400; }
+.region-headline .caption{ font-size:11.5px; color:var(--ink-faint); margin-top:4px; }
+
+.brackets{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  color:var(--ink-muted);
+  display:flex; flex-direction:column; gap:2px; margin-top:6px;
+  align-items:flex-end;
+}
+
+.general-note{
+  font-size:14px;
+  color:var(--ink-muted);
+  background:var(--surface-alt);
+  border-radius:6px;
+  padding:10px 14px;
+  margin-bottom:18px;
+}
+.caution-note{
+  font-size:13.5px;
+  color:var(--warn);
+  background:var(--warn-bg);
+  border:1px solid var(--warn-border);
+  border-radius:6px;
+  padding:10px 14px;
+  margin-bottom:18px;
+}
+.caution-note b{ text-transform:uppercase; font-size:11px; letter-spacing:.06em; display:block; margin-bottom:3px; font-family:var(--font-mono); }
+
+/* table of reduced rates */
+.rr-table{ display:flex; flex-direction:column; gap:10px; }
+.rr-row{
+  display:grid;
+  grid-template-columns: 1.7fr 1fr auto;
+  gap:14px 18px;
+  align-items:start;
+  padding:13px 14px;
+  border:1px solid var(--border);
+  border-radius:7px;
+}
+.rr-label{ font-size:14.5px; font-weight:500; }
+.rr-notes{ font-size:12.5px; color:var(--ink-muted); margin-top:4px; }
+.rr-rate{
+  font-family:var(--font-mono);
+  font-size:17px;
+  font-weight:600;
+  color:var(--accent-strong);
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.rr-rate.dim{ color:var(--ink-faint); font-size:13px; font-weight:500;}
+.rr-meta{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.chip{
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--ink-muted);
+  background:var(--surface-alt);
+  border-radius:4px;
+  padding:2px 7px;
+  white-space:nowrap;
+}
+.rr-status{ justify-self:end; }
+
+@media (max-width:600px){
+  .rr-row{ grid-template-columns:1fr; }
+  .rr-status{ justify-self:start; }
+  .region-head{ flex-direction:column; }
+  .region-headline{ text-align:left; }
+  .brackets{ align-items:flex-start; }
+}
+
+.sources{ margin-top:18px; padding-top:14px; border-top:1px dashed var(--border-strong); }
+.sources .label{ font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); margin-bottom:6px; }
+.sources ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:3px; }
+.sources a{ font-size:12.5px; color:var(--ink-muted); text-decoration:none; border-bottom:1px solid var(--border-strong); }
+.sources a:hover{ color:var(--accent); border-color:var(--accent); }
+
+/* ---------- JSON appendix ---------- */
+.appendix{
+  margin-top:56px;
+}
+.appendix-head{
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+  margin-bottom:14px;
+}
+.appendix-head p{ font-size:14px; color:var(--ink-muted); margin:6px 0 0; max-width:56ch; }
+button.copy{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  font-weight:500;
+  letter-spacing:.02em;
+  background:var(--accent);
+  color:#f4faf6;
+  border:none;
+  border-radius:6px;
+  padding:9px 16px;
+  cursor:pointer;
+  transition:background .15s ease;
+}
+button.copy:hover{ background:var(--accent-strong); }
+button.copy:focus-visible{ outline:2px solid var(--accent-strong); outline-offset:2px; }
+.json-box{
+  background:var(--ink);
+  border-radius:10px;
+  overflow:auto;
+  max-height:560px;
+  box-shadow:var(--shadow);
+}
+:root:not([data-theme="light"]) .json-box{ background:#0d1210; border:1px solid var(--border); }
+:root[data-theme="dark"] .json-box{ background:#0d1210; border:1px solid var(--border); }
+.json-box pre{
+  margin:0; padding:22px 24px;
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  line-height:1.6;
+  color:#cfe6da;
+  white-space:pre;
+}
+:root:not([data-theme="light"]) .json-box pre{ color:#b9d8c8; }
+:root[data-theme="dark"] .json-box pre{ color:#b9d8c8; }
+
+footer{
+  margin-top:60px;
+  padding-top:20px;
+  border-top:1px solid var(--border);
+  font-size:12.5px;
+  color:var(--ink-faint);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .index-card{ transition:none; }
+}
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">Dossier fiscal · BROCESSOR</div>
+    <h1>ITP en la compra de vivienda de segunda mano</h1>
+    <p class="dek">Tipo general y bonificaciones autonómicas del Impuesto de Transmisiones Patrimoniales para las 17 Comunidades Autónomas y las ciudades autónomas de Ceuta y Melilla.</p>
+    <div class="meta-row">
+      <span><b>Fecha de consulta:</b> 24 ago. 2026</span>
+      <span><b>Alcance:</b> vivienda usada / segunda mano — modalidad TPO</span>
+      <span><b>Jurisdicciones:</b> 19</span>
+    </div>
+  </header>
+
+  <section class="callout">
+    <h2>Metodología y cómo leer esta ficha</h2>
+    <p>Cada dato procede de una fuente oficial (agencia tributaria autonómica o foral, BOE, portal del gobierno regional) siempre que ha sido posible. Cuando un dato solo aparece en una fuente fiscal privada, o el texto oficial es ambiguo, se marca explícitamente en vez de darse por bueno — ningún porcentaje de este documento ha sido estimado o interpolado.</p>
+    <p>Los porcentajes indicados son los <b>tipos legales</b>; no incluyen AJD, notaría, registro ni gestoría. Cuando una comunidad aplica una escala por tramos (no un tipo único), se muestra el desglose completo junto al tramo base.</p>
+    <div class="legend">
+      <div class="legend-item"><span class="pill pill-verified">Confirmado</span> fuente oficial primaria</div>
+      <div class="legend-item"><span class="pill pill-unverified">No verificado</span> solo fuente privada / texto ambiguo</div>
+      <div class="legend-item"><span class="pill pill-missing">No encontrado</span> no localizado en ninguna fuente</div>
+      <div class="legend-item"><span class="pill pill-na">No aplica</span> confirmado que no existe esa categoría</div>
+    </div>
+  </section>
+
+  <div class="toolbar">
+    <input id="search" type="text" placeholder="Filtrar por comunidad… (ej. “Cataluña”, “foral”, “6%”)" />
+  </div>
+
+  <div class="index-grid" id="index-grid"></div>
+
+  <p class="section-label">Ficha detallada por jurisdicción</p>
+  <div id="regions"></div>
+
+  <section class="appendix">
+    <div class="appendix-head">
+      <div>
+        <p class="section-label" style="margin:0;">Objeto JSON</p>
+        <p>Mismo dataset que alimenta esta página, listo para integrarse en la aplicación (<code style="font-family:var(--font-mono);font-size:12px;">itpPercentage</code> + lista de <code style="font-family:var(--font-mono);font-size:12px;">reducedRates</code> por CCAA).</p>
+      </div>
+      <button class="copy" id="copy-btn" type="button">Copiar JSON</button>
+    </div>
+    <div class="json-box"><pre id="json-out"></pre></div>
+  </section>
+
+  <footer>
+    Documento de investigación fiscal, no constituye asesoramiento tributario. Verificar con la agencia tributaria correspondiente antes de tomar decisiones económicas. Generado para el simulador de hipotecas BROCESSOR.
+  </footer>
+
+</div>
+
+<script>
+const ITP_DATA = {
+  metadata: {
+    asOfDate: "2026-08-24",
+    scope: "ITP (Impuesto/Impost sobre Transmissions Patrimonials Oneroses) — compra de vivienda de segunda mano, modalidad TPO",
+    disclaimer: "Cada tipo cita su fuente. Los campos marcados como 'unverified' o 'not-found' no deben tratarse como datos oficiales cerrados sin una verificación adicional directa con la agencia tributaria correspondiente."
+  },
+  regions: [
+    { code:"AND", name:"Andalucía", zone:"Sur", itpPercentage:7, itpBrackets:null,
+      generalNote:"Tipo reducido general para vivienda habitual, sin necesidad de pertenecer a ningún colectivo: 6% si el valor ≤150.000€.",
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes <35 años, víctimas de violencia doméstica, víctimas de terrorismo, y compra en municipios con riesgo de despoblación", rate:3.5, priceLimit:150000, ageLimit:35, status:"verified", notes:"Sin límite de ingresos." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", rate:3.5, priceLimit:250000, status:"verified", notes:"Sin límite de ingresos." },
+        { category:"DISCAPACIDAD", label:"Personas con discapacidad", rate:3.5, priceLimit:250000, disabilityMin:33, status:"verified", notes:"Sin límite de ingresos." },
+        { category:"VPO", label:"Vivienda de Protección Oficial", rate:3.5, priceLimit:150000, status:"unverified", notes:"Solo citado por un agregador privado (guiafiscal.es); no confirmado en el articulado de la Ley 5/2021." },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", rate:3.5, priceLimit:150000, status:"unverified", notes:"El texto oficial habla de 'violencia doméstica'; no está confirmado si distingue 'violencia de género' en sentido estricto." }
+      ],
+      sources:[
+        { label:"Junta de Andalucía — Impuestos cedidos, Transmisiones", url:"https://www.juntadeandalucia.es/organismos/economiahaciendayfondoseuropeos/areas/tributos-juego/tributos/paginas/impuestos-cedidos-transmisiones.html" },
+        { label:"Junta de Andalucía — Medidas vigentes ITPAJD", url:"https://www.juntadeandalucia.es/organismos/economiahaciendayfondoseuropeos/areas/tributos-juego/tributos/paginas/MedidasITPAJD.html" },
+        { label:"BOJA — Ley 5/2021", url:"https://www.juntadeandalucia.es/boja/2021/206/1" }
+      ]
+    },
+    { code:"ARA", name:"Aragón", zone:"Noreste", itpPercentage:8,
+      itpBrackets:[{upTo:400000,rate:8},{upTo:450000,rate:8.5},{upTo:500000,rate:9},{upTo:750000,rate:9.5},{upTo:null,rate:10}],
+      generalNote:null,
+      cautionNote:"Varios agregadores privados citan una bonificación del 100% para menores de 30 años. No aparece en el texto legal consolidado oficial (BOE, actualizado a 07/07/2025) — no se ha incluido por no poder verificarse.",
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes <35 años", bonusPercentage:12.5, priceLimit:100000, ageLimit:35, status:"verified", notes:"Bonificación del 12,5% sobre la cuota calculada con la escala general (no un tipo reducido directo)." },
+        { category:"DISCAPACIDAD", label:"Personas con discapacidad ≥65%", bonusPercentage:12.5, priceLimit:100000, disabilityMin:65, status:"verified" },
+        { category:"VIOLENCIA_GENERO", label:"Mujeres víctimas de violencia de género", bonusPercentage:12.5, priceLimit:100000, status:"verified", notes:"Requiere orden de protección vigente o sentencia firme en los últimos 10 años." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", bonusPercentage:50, status:"verified", notes:"60% en Régimen Especial de Fiscalidad Rural. Exige venta de la vivienda anterior (−2/+4 años), nueva vivienda >10% más grande, e ingresos ≤35.000€ + 6.000€ por hijo que exceda el mínimo legal de familia numerosa." },
+        { category:"VPO", label:"Vivienda de Protección Oficial", status:"not-applicable", notes:"No existe tipo reducido para la compra de VPO ya construida; solo bonificación del 100% para la cesión de derechos sobre VPO en construcción." }
+      ],
+      sources:[
+        { label:"BOE — Decreto Legislativo 1/2005 (texto consolidado)", url:"https://www.boe.es/buscar/pdf/2005/BOA-d-2005-90006-consolidado.pdf" },
+        { label:"Gobierno de Aragón — Transmisiones patrimoniales onerosas", url:"https://www.aragon.es/-/transmisiones-patrimoniales-onerosas" }
+      ]
+    },
+    { code:"AST", name:"Asturias", zone:"Norte", itpPercentage:8,
+      itpBrackets:[{upTo:300000,rate:8},{upTo:500000,rate:9},{upTo:null,rate:10}],
+      generalNote:null,
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes ≤35 años", rateBrackets:[{upTo:150000,rate:4},{upTo:null,rate:6}], ageLimit:35, status:"verified", notes:"Requiere ocupación efectiva en 6 meses y residencia mínima de 3 años." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas y monoparentales", rateBrackets:[{upTo:150000,rate:4},{upTo:null,rate:6}], status:"verified" },
+        { category:"VIOLENCIA_GENERO", label:"Mujeres víctimas de violencia de género", rateBrackets:[{upTo:150000,rate:4},{upTo:null,rate:6}], status:"verified" },
+        { category:"RURAL_DESPOBLACION", label:"Compra en zona rural en riesgo de despoblamiento (cualquier comprador)", rateBrackets:[{upTo:150000,rate:4},{upTo:null,rate:6}], status:"verified" },
+        { category:"DISCAPACIDAD", label:"Personas con discapacidad", status:"not-applicable", notes:"Confirmado que NO existe reducción de ITP por discapacidad (solo hay deducción en el IRPF, impuesto distinto)." },
+        { category:"VPO", label:"VPO — segunda o ulterior transmisión, vivienda habitual", rate:3, status:"verified" }
+      ],
+      sources:[
+        { label:"BOE — Decreto Legislativo 2/2014 (texto consolidado)", url:"https://www.boe.es/buscar/pdf/2015/BOE-A-2015-945-consolidado.pdf" },
+        { label:"Servicios Tributarios del Principado de Asturias", url:"https://sede.tributasenasturias.es/sites/epstpa/default/es_ES/tributos/transmisiones-patrimoniales/Beneficios-fiscales/Principado-de-Asturias" }
+      ]
+    },
+    { code:"BAL", name:"Illes Balears", zone:"Insular", itpPercentage:8,
+      itpBrackets:[{upTo:400000,rate:8},{upTo:600000,rate:9},{upTo:1000000,rate:10},{upTo:2000000,rate:12},{upTo:null,rate:13}],
+      generalNote:"Tipo reducido general vivienda habitual (cualquier comprador, sin colectivo): 4% si el valor ≤270.151,20€ y no dispone de otra vivienda.",
+      cautionNote:"Se ha detectado una posible Ley 4/2026 (11 de junio) con modificaciones adicionales al Decreto Legislativo 1/2014, cuyo contenido no se ha podido verificar en detalle — confirmar con la ATIB antes de producción.",
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes <36 años", rate:2, priceLimit:270151.2, ageLimit:36, status:"verified" },
+        { category:"DISCAPACIDAD", label:"Personas con derecho al mínimo por discapacidad en IRPF", rate:2, priceLimit:270151.2, status:"verified" },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas y monoparentales", rate:2, priceLimit:350000, status:"verified", notes:"2% hasta 270.151,20€ + 8% sobre el exceso. Límite de 270.151,20€ para monoparentales de categoría general." },
+        { category:"JOVENES", label:"Jóvenes <30 años o discapacidad ≥33% (bonificación del 100%, exención efectiva)", bonusPercentage:100, priceLimit:270151.2, ageLimit:30, disabilityMin:33, incomeIndividual:52800, incomeJoint:84480, status:"verified", notes:"Requiere 3 años de residencia previa en Illes Balears y préstamo hipotecario ≥60% del valor de tasación." },
+        { category:"VPO", label:"Vivienda de Protección Oficial", status:"not-found" }
+      ],
+      sources:[
+        { label:"ATIB — Impuesto de Transmisiones Patrimoniales", url:"https://www.atib.es/TA/contenido.aspx?Id=16198&lang=es" },
+        { label:"ATIB — Vivienda habitual", url:"https://www.atib.es/TA/contenido.aspx?Id=9854&lang=es" }
+      ]
+    },
+    { code:"CAN", name:"Canarias", zone:"Insular", itpPercentage:6.5, itpBrackets:null,
+      generalNote:"Tipo reducido general vivienda habitual: 5% (límite de valor ≤150.000€ citado solo por fuente secundaria, no confirmado textualmente en el articulado).",
+      reducedRates:[
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", rate:1, status:"verified" },
+        { category:"MONOPARENTAL", label:"Familias monoparentales", rate:1, status:"verified" },
+        { category:"DISCAPACIDAD", label:"Personas con discapacidad", rate:1, disabilityMin:33, status:"unverified", notes:"Grado exacto no confirmado textualmente en la guía oficial (fuentes privadas asumen 33%)." },
+        { category:"VPO", label:"VPO — primera vivienda habitual", rate:0, status:"verified" },
+        { category:"JOVENES", label:"Jóvenes <35 años", bonusPercentage:20, priceLimit:150000, ageLimit:35, incomeIndividual:24000, status:"verified", notes:"El límite de 24.000€ de base imponible IRPF se aplica individualmente a cada comprador, no como suma conjunta. No aplicable a no residentes." },
+        { category:"VIOLENCIA_GENERO", label:"Mujeres víctimas de violencia de género", bonusPercentage:20, status:"verified" }
+      ],
+      sources:[
+        { label:"Agencia Tributaria Canaria — Guía completa ITP y AJD (PDF)", url:"https://www3.gobiernodecanarias.org/tributos/atc/estatico/asistencia_contribuyente/guias/pdf/guia_completa_itp_y_ajd.pdf" }
+      ]
+    },
+    { code:"CTB", name:"Cantabria", zone:"Norte", itpPercentage:7,
+      itpBrackets:[{upTo:300000,rate:7},{upTo:null,rate:9}],
+      generalNote:"Escala vigente desde el 1 de mayo de 2026 (Ley de Cantabria 5/2026). Existe además un tipo del 5% para rehabilitación inmediata de vivienda y una bonificación del 90% de la cuota en municipios de 'reto demográfico'.",
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes <40 años", rate:4, priceLimit:300000, ageLimit:40, status:"verified", notes:"No se ha localizado límite de ingresos." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas y monoparentales", rate:4, priceLimit:300000, status:"verified" },
+        { category:"DISCAPACIDAD", label:"Discapacidad 33%–65%", rate:4, priceLimit:300000, disabilityMin:33, status:"verified" },
+        { category:"DISCAPACIDAD", label:"Discapacidad ≥65%", rate:3, priceLimit:300000, disabilityMin:65, status:"verified" },
+        { category:"VPO", label:"Vivienda de Protección Oficial", rate:4, priceLimit:300000, status:"unverified", notes:"No confirmado si distingue régimen general/especial." },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", status:"not-found" }
+      ],
+      sources:[
+        { label:"Agencia Cántabra de Administración Tributaria — Transmisiones Patrimoniales", url:"https://www.agenciacantabratributaria.es/tributos/transmisiones-patrimoniales-y-actos-juridicos-documentados/transmisiones-patrimoniales" },
+        { label:"BOE — Ley de Cantabria 5/2026", url:"https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-10431" }
+      ]
+    },
+    { code:"CLM", name:"Castilla-La Mancha", zone:"Centro", itpPercentage:9, itpBrackets:null,
+      generalNote:"Tipo reducido general vivienda habitual (sin colectivo especial): 6% — citado de forma consistente por fuentes fiscales privadas, pero no confirmado literalmente en el portal oficial JCCM.",
+      cautionNote:"Existe una posible bonificación adicional en zonas de riesgo de despoblación, con datos contradictorios entre fuentes (100% de la cuota vs. escala progresiva 3%–5%) — no incluida por falta de certeza.",
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes <36 años", rate:3, priceLimit:240000, ageLimit:36, status:"verified", notes:"Reducido desde el 5% por la Ley 1/2026. Exige financiar >50% de la compra con préstamo hipotecario." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", rate:5, priceLimit:240000, status:"verified" },
+        { category:"DISCAPACIDAD", label:"Discapacidad ≥65%", rate:5, priceLimit:240000, disabilityMin:65, status:"verified" },
+        { category:"MONOPARENTAL", label:"Familias monoparentales", rate:5, priceLimit:240000, status:"verified" },
+        { category:"VPO", label:"Vivienda de Protección Oficial", status:"not-found" },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", status:"not-found" }
+      ],
+      sources:[
+        { label:"Portal Tributario JCCM — Beneficios Fiscales en ITP y AJD", url:"https://portaltributario.jccm.es/informacion-tributaria/beneficios-fiscales-en-el-impuesto-sobre-transmisiones-patrimoniales-y-actos" },
+        { label:"BOE — Ley 1/2026, de 26 de marzo", url:"https://www.boe.es/buscar/doc.php?id=DOCM-q-2026-90065" }
+      ]
+    },
+    { code:"CYL", name:"Castilla y León", zone:"Centro", itpPercentage:8,
+      itpBrackets:[{upTo:250000,rate:8},{upTo:null,rate:10}],
+      generalNote:null,
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes <36 años — núcleo urbano", rate:4, ageLimit:36, incomeIndividual:31500, status:"verified" },
+        { category:"JOVENES", label:"Jóvenes <36 años — núcleo rural (valor <150.000€)", rate:0.01, priceLimit:150000, ageLimit:36, incomeIndividual:31500, status:"verified", notes:"Municipio <10.000 hab., o <3.000 hab. si está a menos de 30 km de la capital de provincia." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", rate:4, incomeJoint:37800, status:"verified", notes:"37.800€ + 6.000€ por cada miembro que exceda el mínimo legal de familia numerosa." },
+        { category:"DISCAPACIDAD", label:"Discapacidad ≥65%", rate:4, disabilityMin:65, incomeIndividual:31500, status:"verified", notes:"Si el comprador ya tiene otra vivienda, debe venderla en el plazo máximo de 1 año." },
+        { category:"VPO", label:"Vivienda de Protección Oficial", rate:4, status:"unverified", notes:"No confirmado si distingue régimen general/especial." },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género / monoparentalidad", status:"not-found" }
+      ],
+      sources:[
+        { label:"Tributos JCyL — ITP, beneficios fiscales", url:"https://tributos.jcyl.es/web/es/beneficios-fiscales/impuesto-sobre-transmisiones-patrimoniales.html" },
+        { label:"Tributos JCyL — Beneficios fiscales para jóvenes", url:"https://tributos.jcyl.es/web/es/informa-preguntas-frecuentes/beneficios-fiscales-para-jovenes.html" }
+      ]
+    },
+    { code:"CAT", name:"Cataluña", zone:"Noreste", itpPercentage:10,
+      itpBrackets:[{upTo:600000,rate:10},{upTo:900000,rate:11},{upTo:1500000,rate:12},{upTo:null,rate:13}],
+      generalNote:"Escala vigente desde el 27/06/2025 (Decret-llei 5/2025). Existe además un tipo agravado del 20% para 'grandes tenedores' de vivienda.",
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes ≤35 años (ampliado desde 32 en junio de 2025)", rate:5, ageLimit:35, incomeIndividual:36000, status:"verified", notes:"Base imponible general del IRPF. No se distingue explícitamente un umbral separado para tributación conjunta." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", rate:5, incomeIndividual:36000, status:"verified", notes:"+14.000€ por cada hijo adicional al mínimo legal de familia numerosa." },
+        { category:"DISCAPACIDAD", label:"Discapacidad ≥65%", rate:5, disabilityMin:65, incomeIndividual:36000, status:"verified" },
+        { category:"MONOPARENTAL", label:"Familias monoparentales", rate:5, incomeIndividual:36000, status:"verified" },
+        { category:"VIOLENCIA_GENERO", label:"Víctimas de violencia de género", rate:5, incomeIndividual:36000, status:"verified", notes:"Vigente desde el 27/06/2025." },
+        { category:"VPO", label:"Habitatge de Protecció Oficial", rate:7, status:"unverified", notes:"No confirmado si distingue régimen general/especial." }
+      ],
+      sources:[
+        { label:"Agència Tributària de Catalunya — Tarifes i tipus impositius", url:"https://atc.gencat.cat/es/tributs/itpajd/tpo/tarifes-tipus/" },
+        { label:"ATC — Noves mesures fiscals, 27/06/2025", url:"https://atc.gencat.cat/ca/agencia/noticies/detall-noticia/20250627-mesures-fiscals-2025-itpajd-isd" }
+      ]
+    },
+    { code:"VAL", name:"Comunitat Valenciana", zone:"Este", itpPercentage:9,
+      itpBrackets:[{upTo:1000000,rate:9},{upTo:null,rate:11}],
+      generalNote:"El tipo general bajó del 10% al 9% el 1 de junio de 2026 (Ley 5/2025). Para operaciones anteriores a esa fecha, el tipo aplicable era 10% (tramo único).",
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes <35 años", rateBrackets:[{upTo:180000,rate:6},{upTo:null,rate:8}], ageLimit:35, incomeIndividual:30000, incomeJoint:47000, status:"verified", notes:"Importes de renta confirmados por múltiples fuentes coincidentes." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas y monoparentales", rateBrackets:[{upTo:180000,rate:3},{upTo:null,rate:4}], incomeIndividual:30000, incomeJoint:47000, status:"verified" },
+        { category:"DISCAPACIDAD", label:"Discapacidad ≥65% física/sensorial o ≥33% psíquica", rateBrackets:[{upTo:180000,rate:3},{upTo:null,rate:4}], disabilityMin:33, status:"verified", notes:"Sin límite de ingresos." },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", rateBrackets:[{upTo:180000,rate:3},{upTo:null,rate:4}], incomeIndividual:30000, incomeJoint:47000, status:"verified" },
+        { category:"VPO", label:"VPO — Régimen general", rateBrackets:[{upTo:180000,rate:6},{upTo:null,rate:8}], status:"verified" },
+        { category:"VPO_ESPECIAL", label:"VPO — Régimen especial", rateBrackets:[{upTo:180000,rate:3},{upTo:null,rate:4}], status:"verified" }
+      ],
+      sources:[
+        { label:"ATV — Tarifes ITPAJD (tabla oficial)", url:"https://atv.gva.es/es/tarifes-itpajd" },
+        { label:"Hisenda GVA — Novedades tributarias 2026", url:"https://hisenda.gva.es/es/web/tributos/novetats-tributaries-2026" }
+      ]
+    },
+    { code:"EXT", name:"Extremadura", zone:"Centro", itpPercentage:8,
+      itpBrackets:[{upTo:360000,rate:8},{upTo:600000,rate:10},{upTo:null,rate:11}],
+      generalNote:"Escala vigente desde el 5/08/2026 (Ley 2/2026). No se ha podido confirmar si el tipo reducido general anterior del 7% (vivienda habitual ≤200.000€, sin colectivo especial) sigue vigente tras esta ley.",
+      cautionNote:"La Ley 2/2026 permite además fraccionar el pago del ITP hasta en 10 años para jóvenes, familias numerosas, monoparentales y personas con discapacidad.",
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes ≤36 años", rate:4, priceLimit:200000, ageLimit:36, incomeIndividual:30000, incomeJoint:55000, status:"verified" },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", rate:4, priceLimit:200000, incomeIndividual:30000, incomeJoint:55000, status:"verified" },
+        { category:"DISCAPACIDAD", label:"Discapacidad ≥65%", rate:4, priceLimit:200000, disabilityMin:65, incomeIndividual:30000, incomeJoint:55000, status:"verified" },
+        { category:"MONOPARENTAL", label:"Familias monoparentales (2+ hijos)", rate:4, priceLimit:200000, status:"unverified", notes:"Agrupado junto a los colectivos anteriores según una fuente; no confirmado en el texto legal oficial." },
+        { category:"VPO", label:"Vivienda de Protección Oficial", rate:4, priceLimit:200000, incomeIndividual:30000, incomeJoint:55000, status:"verified" },
+        { category:"RURAL_DESPOBLACION", label:"Municipios <3.000 habitantes", rate:4, status:"unverified", notes:"Límite de valor contradictorio entre fuentes (180.000€ sin test de renta frente a 200.000€ con test de renta)." },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", status:"not-found" }
+      ],
+      sources:[
+        { label:"BOE — Ley 2/2026, de 3 de agosto, Presupuestos de Extremadura", url:"https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-17839" }
+      ]
+    },
+    { code:"GAL", name:"Galicia", zone:"Noroeste", itpPercentage:8, itpBrackets:null,
+      generalNote:"Tipo reducido general vivienda habitual: 7% si el patrimonio de los adquirentes + unidad familiar no supera 200.000€ (+30.000€/miembro adicional). En zonas rurales declaradas, el tipo baja a 6% general / 5% habitual, con deducción del 100% para los colectivos reducidos.",
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes <36 años", rate:3, ageLimit:36, status:"verified", notes:"Límite de patrimonio (no de renta anual): 200.000€ + 30.000€ por miembro adicional." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", rate:3, status:"verified", notes:"Límite de patrimonio familiar conjunto ≤400.000€ (+50.000€ por miembro que exceda el mínimo legal)." },
+        { category:"DISCAPACIDAD", label:"Discapacidad ≥65%", rate:3, disabilityMin:65, status:"verified", notes:"Sin límite de patrimonio." },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", rate:3, priceLimit:150000, status:"verified", notes:"Único colectivo con límite de precio de vivienda en Galicia." },
+        { category:"MONOPARENTAL", label:"Familias monoparentales", rate:3, status:"unverified", notes:"Citado por portales privados (código 'TUH') pero no aparece como categoría diferenciada en el texto oficial consolidado." },
+        { category:"VPO", label:"Vivienda de Protección Oficial", status:"not-applicable", notes:"No existe tipo reducido para el comprador particular; solo deducción del 100% para adquisiciones de suelo por el Instituto Galego da Vivenda e Solo (entidades públicas)." }
+      ],
+      sources:[
+        { label:"Axencia Tributaria de Galicia — Compra de vivienda usada", url:"https://www.atriga.gal" }
+      ]
+    },
+    { code:"MAD", name:"Madrid", zone:"Centro", itpPercentage:6, itpBrackets:null, ajdPercentage:0.75,
+      generalNote:"Bonificación general del 10% de la cuota para cualquier comprador de vivienda habitual ≤250.000€ (no exclusiva de ningún colectivo).",
+      reducedRates:[
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", rate:4, priceLimit:250000, status:"verified", notes:"Exige venta de la vivienda anterior en ±2 años (salvo unión de inmueble contiguo)." },
+        { category:"JOVENES", label:"Jóvenes <35 años, municipios <2.500 habitantes (bonificación del 100%)", bonusPercentage:100, priceLimit:250000, ageLimit:35, status:"verified", notes:"Vigente desde el 29/11/2024 (Ley 5/2024)." },
+        { category:"DISCAPACIDAD", label:"Personas con discapacidad", status:"unverified", notes:"Fuentes privadas citan un 4%, pero no se encuentra en el texto consolidado oficial vigente (BOE, última modificación 30/06/2026) — posiblemente desactualizado." },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", status:"not-found" },
+        { category:"VPO", label:"Vivienda de Protección Oficial", status:"not-applicable", notes:"No hay tipo reducido de TPO para VPO (solo reducciones en AJD, 0,2%–0,75% según valor)." }
+      ],
+      sources:[
+        { label:"BOE — Decreto Legislativo 1/2010 (texto consolidado)", url:"https://www.boe.es/buscar/pdf/2010/BOCM-m-2010-90068-consolidado.pdf" },
+        { label:"BOE — Ley 5/2024 (medidas fiscales vivienda)", url:"https://www.boe.es/diario_boe/txt.php?id=BOE-A-2025-3303" }
+      ]
+    },
+    { code:"MUR", name:"Región de Murcia", zone:"Este", itpPercentage:7.75, itpBrackets:null,
+      generalNote:"Reducido desde el 8% el 25/07/2025 (Ley 3/2025 de Presupuestos).",
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes ≤40 años", rate:3, ageLimit:40, incomeIndividual:40000, status:"verified", notes:"Base imponible general menos mínimo personal/familiar <40.000€; base del ahorro ≤1.800€." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", rate:3, incomeIndividual:44000, status:"verified", notes:"<44.000€ (+6.000€ por hijo adicional al mínimo legal)." },
+        { category:"DISCAPACIDAD", label:"Discapacidad ≥65%", rate:3, disabilityMin:65, incomeIndividual:40000, status:"verified", notes:"Mismos límites de renta que jóvenes." },
+        { category:"VPO_ESPECIAL", label:"VPO — Régimen especial", rate:4, status:"verified" },
+        { category:"MONOPARENTAL", label:"Familias monoparentales", status:"not-applicable", notes:"No existe reducción en ITP; solo deducción de 303€/año en el IRPF autonómico." },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", status:"not-found" }
+      ],
+      sources:[
+        { label:"BOE — Decreto Legislativo 1/2010 (texto consolidado)", url:"https://www.boe.es/buscar/pdf/2011/BOE-A-2011-10542-consolidado.pdf" },
+        { label:"Agencia Tributaria de la Región de Murcia — Novedades 2025", url:"https://agenciatributaria.carm.es" }
+      ]
+    },
+    { code:"NAV", name:"Navarra", zone:"Foral", itpPercentage:6, itpBrackets:null,
+      generalNote:"Régimen foral propio (Convenio Económico) — no segmenta tipos por tantos colectivos como el resto de España.",
+      reducedRates:[
+        { category:"FAMILIA_NUMEROSA", label:"Unidad familiar con 2 o más hijos (no coincide exactamente con el concepto legal de 'familia numerosa' de la Ley 40/2003)", rate:5, priceLimit:180304, status:"verified", notes:"El exceso sobre 180.304€ tributa al 6% general. Exige que ningún miembro sea propietario de >25% de otra vivienda en Navarra." },
+        { category:"RURAL_DESPOBLACION", label:"Vivienda habitual en municipio en riesgo de despoblación", rate:4, status:"verified" },
+        { category:"JOVENES", label:"Jóvenes", status:"not-applicable", notes:"No existe tipo reducido por edad en el texto vigente. Un 5% para <30 años citado por fuentes privadas no se localizó tras revisión exhaustiva del Decreto Foral Legislativo 129/1999 — posiblemente erróneo." },
+        { category:"DISCAPACIDAD", label:"Discapacidad", status:"not-applicable", notes:"No existe reducción en ITP-TPO; solo exención en AJD para aportaciones a patrimonios protegidos." },
+        { category:"VPO", label:"Vivienda de Protección Oficial (primera transmisión)", bonusPercentage:100, status:"verified", notes:"Exención completa dentro de los 6 años desde la calificación definitiva." },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", status:"not-found", notes:"Existe una exención puntual para transmisiones derivadas de sentencias de violencia de género, sin relación directa con la compra de vivienda habitual." }
+      ],
+      sources:[
+        { label:"Gobierno de Navarra — Lexnavarra, Decreto Foral Legislativo 129/1999", url:"https://www.lexnavarra.navarra.es/detalle.asp?r=28044" }
+      ]
+    },
+    { code:"PVA", name:"País Vasco", zone:"Foral", itpPercentage:4, itpBrackets:null, ajdPercentage:0,
+      generalNote:"Sistema prácticamente uniforme entre las 3 Diputaciones Forales (Álava, Bizkaia, Gipuzkoa). No articulan reducciones por edad ni discapacidad — el criterio central es destino a vivienda habitual + límite de superficie.",
+      cautionNote:"Gipuzkoa aplica un 6% cuando el adquirente es titular de más de 5 inmuebles con >50% de propiedad en cada uno y no cumple los requisitos del tipo reducido. Bizkaia (Norma Foral 2/2025) elimina, desde el 1/1/2026, la restricción de reutilizar el tipo reducido en una compra posterior.",
+      reducedRates:[
+        { category:"GENERAL_REDUCIDO", label:"Vivienda habitual (cualquier comprador)", rate:2.5, status:"verified", notes:"Superficie construida ≤120m² (Gipuzkoa admite alternativamente ≤96m² útiles; unifamiliares con parcela ≤300m²). Ocupación en 12 meses, mantenimiento 3 años." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", rate:2.5, status:"verified", notes:"Exentas del límite de superficie — mantienen el 2,5% con independencia del tamaño de la vivienda." },
+        { category:"JOVENES", label:"Jóvenes", status:"not-applicable", notes:"No existe tipo diferenciado por edad en ninguno de los 3 territorios forales." },
+        { category:"DISCAPACIDAD", label:"Discapacidad", status:"not-found", notes:"No localizado en ninguna de las 3 Normas Forales revisadas." },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", status:"not-found" }
+      ],
+      sources:[
+        { label:"Diputación Foral de Gipuzkoa — Tipos impositivos", url:"https://www.gipuzkoa.eus/es/web/ogasuna/impuestos/modelo/60t/tipos-impositivos" },
+        { label:"Bizkaia.eus — Norma Foral 1/2011, Art. 13", url:"https://www.bizkaia.eus/documents/1135059/1352576/ITP+Tarifa.pdf" },
+        { label:"Diputación Foral de Álava — Norma Foral 11/2003, Art. 43", url:"https://web.araba.eus/es/hacienda/transmisiones-y-actos-juridicos-documentados" }
+      ]
+    },
+    { code:"RIO", name:"La Rioja", zone:"Norte", itpPercentage:7, itpBrackets:null,
+      generalNote:null,
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes <40 años", rate:4, ageLimit:40, status:"verified", notes:"Sin límite de precio ni de ingresos. Tipo del 3% en municipios de despoblación del Anexo I de la Ley 10/2017 (desde la Ley 1/2025)." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", rate:5, status:"verified", notes:"Tipo super-reducido del 3% si además: compra dentro de 5 años del título de familia numerosa, venta de la vivienda anterior en ese plazo, nueva vivienda >10% más grande, e ingresos (bases liquidables IRPF) ≤30.600€." },
+        { category:"DISCAPACIDAD", label:"Discapacidad ≥33%", rate:5, disabilityMin:33, status:"verified", notes:"Sin límite de ingresos." },
+        { category:"VPO", label:"VPO — primera vivienda habitual", rate:5, incomeIndividual:18030, incomeJoint:30050, status:"verified", notes:"Base del ahorro ≤1.800€." },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", status:"not-found" }
+      ],
+      sources:[
+        { label:"Gobierno de La Rioja — Transmisiones Patrimoniales Onerosas", url:"https://www.larioja.org/tributos/es/tributos-cedidos/impuesto-transmisiones-patrimoniales-actos-juridicos-docume/informacion/transmisiones-patrimoniales-onerosas" },
+        { label:"BOE — Ley 1/2025, de 28 de febrero", url:"https://www.boe.es/diario_boe/txt.php?id=BOE-A-2025-5052" }
+      ]
+    },
+    { code:"CEU", name:"Ceuta", zone:"Ciudad autónoma", itpPercentage:6, itpBrackets:null,
+      generalNote:"Ceuta no tiene competencias normativas cedidas en ITP; se aplica la Ley estatal (RDLeg 1/1993). Bonificación automática del 50% sobre la cuota para cualquier inmueble en Ceuta (Art. 57 bis), sin requisito de colectivo → tipo efectivo para cualquier comprador: 3%.",
+      cautionNote:"Una fuente privada (forohipotecario.es) afirma que el tipo general es del 8% y que la bonificación del 50% solo aplica en Ceuta, no en Melilla. Esto contradice el texto legal oficial (Art. 11.1.a y 57 bis RDLeg 1/1993), que fija el 6% con bonificación del 50% aplicada por igual a ambas ciudades. Se prioriza la fuente legal oficial.",
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes", status:"not-applicable", notes:"No existen tipos reducidos estatales por edad para vivienda de segunda mano." },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", status:"not-applicable" },
+        { category:"DISCAPACIDAD", label:"Discapacidad", status:"not-applicable" },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", status:"not-applicable" },
+        { category:"VPO", label:"Vivienda de Protección Oficial (segunda transmisión)", status:"not-applicable", notes:"Se aplica el 6% general con la bonificación del 50% (efectivo 3%), igual que cualquier vivienda usada." }
+      ],
+      sources:[
+        { label:"BOE — RDLeg 1/1993, texto refundido Ley ITP y AJD", url:"https://www.boe.es/buscar/act.php?id=BOE-A-1993-25359" },
+        { label:"AEAT — ITP y AJD en Ceuta y Melilla", url:"https://sede.agenciatributaria.gob.es/Sede/declaraciones-informativas-otros-impuestos-tasas/impuesto-sobre-transmisiones-patrimoniales-actos-juridicos.html" }
+      ]
+    },
+    { code:"MEL", name:"Melilla", zone:"Ciudad autónoma", itpPercentage:6, itpBrackets:null,
+      generalNote:"Régimen idéntico al de Ceuta (mismo marco legal estatal, RDLeg 1/1993). Bonificación automática del 50% sobre la cuota (Art. 57 bis) → tipo efectivo para cualquier comprador: 3%.",
+      cautionNote:"La misma fuente privada que discrepa para Ceuta afirma que Melilla NO recibe la bonificación del 50% — contradice el Art. 57 bis, que no distingue entre ambas ciudades. Se prioriza la fuente legal oficial.",
+      reducedRates:[
+        { category:"JOVENES", label:"Jóvenes", status:"not-applicable" },
+        { category:"FAMILIA_NUMEROSA", label:"Familias numerosas", status:"not-applicable" },
+        { category:"DISCAPACIDAD", label:"Discapacidad", status:"not-applicable" },
+        { category:"VIOLENCIA_GENERO", label:"Violencia de género", status:"not-applicable" },
+        { category:"VPO", label:"Vivienda de Protección Oficial (segunda transmisión)", status:"not-applicable", notes:"Se aplica el 6% general con la bonificación del 50% (efectivo 3%)." }
+      ],
+      sources:[
+        { label:"BOE — RDLeg 1/1993, texto refundido Ley ITP y AJD", url:"https://www.boe.es/buscar/act.php?id=BOE-A-1993-25359" },
+        { label:"AEAT — ITP y AJD en Ceuta y Melilla", url:"https://sede.agenciatributaria.gob.es/Sede/declaraciones-informativas-otros-impuestos-tasas/impuesto-sobre-transmisiones-patrimoniales-actos-juridicos.html" }
+      ]
+    }
+  ]
+};
+
+const STATUS_META = {
+  verified:    { cls:"pill-verified",   text:"Confirmado" },
+  unverified:  { cls:"pill-unverified", text:"No verificado" },
+  "not-found": { cls:"pill-missing",    text:"No encontrado" },
+  "not-applicable": { cls:"pill-na",    text:"No aplica" }
+};
+
+function fmtPct(n){ return String(n).replace(".", ",") + "%"; }
+function fmtEUR(n){ return n.toLocaleString("es-ES") + " €"; }
+
+function bracketLine(b){
+  return b.map((t,i)=>{
+    if(t.upTo == null) return "Resto: " + fmtPct(t.rate);
+    const from = i===0 ? 0 : b[i-1].upTo;
+    return (from>0 ? "De "+fmtEUR(from)+" a " : "Hasta ") + fmtEUR(t.upTo) + ": " + fmtPct(t.rate);
+  }).join(" · ");
+}
+
+function rateCell(r){
+  if(r.rateBrackets){
+    return '<div class="rr-rate">' + r.rateBrackets.map(t => fmtPct(t.rate)).join(" / ") + '</div>' +
+           '<div class="rr-notes" style="margin-top:2px;">' + r.rateBrackets.map((t,i)=>{
+              const from = i===0?0:r.rateBrackets[i-1].upTo;
+              return t.upTo==null ? "&gt;"+fmtEUR(from) : "≤"+fmtEUR(t.upTo);
+           }).join(" · ") + '</div>';
+  }
+  if(r.bonusPercentage != null){
+    return '<div class="rr-rate">Bonif. ' + fmtPct(r.bonusPercentage) + '</div><div class="rr-notes" style="margin-top:2px;">sobre la cuota</div>';
+  }
+  if(r.rate != null){
+    return '<div class="rr-rate">' + fmtPct(r.rate) + '</div>';
+  }
+  return '<div class="rr-rate dim">—</div>';
+}
+
+function metaChips(r){
+  const chips = [];
+  if(r.priceLimit) chips.push("Inmueble ≤ " + fmtEUR(r.priceLimit));
+  if(r.ageLimit) chips.push("Edad < " + r.ageLimit);
+  if(r.disabilityMin) chips.push("Discapacidad ≥ " + r.disabilityMin + "%");
+  if(r.incomeIndividual) chips.push("Renta ind. ≤ " + fmtEUR(r.incomeIndividual));
+  if(r.incomeJoint) chips.push("Renta conj. ≤ " + fmtEUR(r.incomeJoint));
+  if(!chips.length) return "";
+  return '<div class="rr-meta">' + chips.map(c=>'<span class="chip">'+c+'</span>').join("") + '</div>';
+}
+
+function renderIndex(){
+  const grid = document.getElementById("index-grid");
+  grid.innerHTML = ITP_DATA.regions.map(r=>{
+    const rate = r.itpBrackets ? fmtPct(r.itpBrackets[0].rate)+'<small>+tramos</small>' : fmtPct(r.itpPercentage);
+    return '<a class="index-card" href="#'+r.code+'" data-name="'+r.name.toLowerCase()+'" data-zone="'+r.zone.toLowerCase()+'">' +
+      '<div class="zone">'+r.zone+'</div>' +
+      '<div class="name">'+r.name+'</div>' +
+      '<div class="rate">'+rate+'</div>' +
+    '</a>';
+  }).join("");
+}
+
+function renderRegions(){
+  const root = document.getElementById("regions");
+  root.innerHTML = ITP_DATA.regions.map(r=>{
+    const headline = r.itpBrackets
+      ? '<div class="brackets">' + r.itpBrackets.map((t,i)=>{
+          const from = i===0?0:r.itpBrackets[i-1].upTo;
+          return '<span>'+(t.upTo==null? "&gt;"+fmtEUR(from) : (from>0? fmtEUR(from)+"–"+fmtEUR(t.upTo) : "≤"+fmtEUR(t.upTo)))+' &nbsp;'+fmtPct(t.rate)+'</span>';
+        }).join("") + '</div>'
+      : '<div class="big">'+fmtPct(r.itpPercentage)+'</div><div class="caption">tipo general</div>';
+
+    const rows = r.reducedRates.map(rr=>{
+      const meta = STATUS_META[rr.status] || STATUS_META["not-found"];
+      return '<div class="rr-row">' +
+        '<div><div class="rr-label">'+rr.label+'</div>' + (rr.notes ? '<div class="rr-notes">'+rr.notes+'</div>' : '') + metaChips(rr) + '</div>' +
+        '<div>'+rateCell(rr)+'</div>' +
+        '<div class="rr-status"><span class="pill '+meta.cls+'">'+meta.text+'</span></div>' +
+      '</div>';
+    }).join("");
+
+    const sources = '<div class="sources"><div class="label">Fuentes</div><ul>' +
+      r.sources.map(s=>'<li><a href="'+s.url+'" target="_blank" rel="noopener">'+s.label+'</a></li>').join("") +
+      '</ul></div>';
+
+    return '<article class="region" id="'+r.code+'" data-name="'+r.name.toLowerCase()+'" data-zone="'+r.zone.toLowerCase()+'">' +
+      '<div class="region-head">' +
+        '<div class="id"><span class="region-code">'+r.code+'</span><h3>'+r.name+'</h3></div>' +
+        '<div class="region-headline">'+headline+'</div>' +
+      '</div>' +
+      (r.generalNote ? '<div class="general-note">'+r.generalNote+'</div>' : '') +
+      (r.cautionNote ? '<div class="caution-note"><b>Aviso de discrepancia</b>'+r.cautionNote+'</div>' : '') +
+      '<div class="rr-table">'+rows+'</div>' +
+      sources +
+    '</article>';
+  }).join("");
+}
+
+function renderJson(){
+  document.getElementById("json-out").textContent = JSON.stringify(ITP_DATA, null, 2);
+}
+
+document.getElementById("search").addEventListener("input", (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll(".index-card").forEach(el=>{
+    const hit = !q || el.dataset.name.includes(q) || el.dataset.zone.includes(q);
+    el.style.display = hit ? "" : "none";
+  });
+  document.querySelectorAll(".region").forEach(el=>{
+    const hit = !q || el.dataset.name.includes(q) || el.dataset.zone.includes(q);
+    el.style.display = hit ? "" : "none";
+  });
+});
+
+document.getElementById("copy-btn").addEventListener("click", async ()=>{
+  const btn = document.getElementById("copy-btn");
+  try{
+    await navigator.clipboard.writeText(JSON.stringify(ITP_DATA, null, 2));
+    btn.textContent = "Copiado ✓";
+  }catch(e){
+    btn.textContent = "No se pudo copiar";
+  }
+  setTimeout(()=>{ btn.textContent = "Copiar JSON"; }, 1800);
+});
+
+renderIndex();
+renderRegions();
+renderJson();
+</script>
