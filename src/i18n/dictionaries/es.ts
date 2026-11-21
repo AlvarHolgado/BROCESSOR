@@ -106,10 +106,10 @@ export const es: Dictionary = {
       reasonLtv: 'el porcentaje de financiación solicitado supera el límite del banco',
       reasonDsti: (threshold) => `la ratio de endeudamiento (DSTI) superaría el ${threshold}`,
       reasonSavings: 'los ahorros disponibles más la financiación máxima del banco no cubren el precio de compra',
-      structureWithExtra: (ltv, extra) =>
-        `Estructura: el bróker negocia la operación hasta el ${ltv} de LTV (el máximo del canal), de modo que financia ${extra} más que el banco y la aportación inicial se reduce en ese mismo importe.`,
-      structureNoExtra: (ltv) =>
-        `Estructura: el bróker negocia la operación con un límite del ${ltv} de LTV (el máximo del canal); con los ahorros disponibles, el importe financiado coincide con el del banco.`,
+      structureWithExtra: (ceilingLtv, loan, actualLtv, extra, contributionSaving) =>
+        `Estructura: el bróker negocia la operación con un límite del ${ceilingLtv} de LTV (el máximo del canal) y la financia con un préstamo de ${loan} (${actualLtv} de LTV real), es decir, ${extra} más que el banco; la aportación inicial se reduce en ${contributionSaving}.`,
+      structureNoExtra: (ceilingLtv, loan, actualLtv) =>
+        `Estructura: el bróker negocia la operación con un límite del ${ceilingLtv} de LTV (el máximo del canal); con los ahorros disponibles, el préstamo es de ${loan} (${actualLtv} de LTV real), el mismo importe que con el banco.`,
       conditionDstiWithin: (dsti, threshold) =>
         `Con este importe, la ratio de endeudamiento (DSTI) es del ${dsti}, dentro del límite del ${threshold}.`,
       conditionDstiAbove: (dsti, threshold) =>
@@ -120,8 +120,8 @@ export const es: Dictionary = {
         `El ${ltv} de LTV es la convención de mercado del canal bróker, no una garantía: la aprobación final depende de la entidad financiera.`,
       feesNote: 'Los honorarios del bróker no están incluidos en este cálculo.',
       lowestCostTitle: 'Estrategia del bróker: condiciones más económicas',
-      lowestCostWhy: (ltv, dsti) =>
-        `La financiación bancaria directa es viable con este perfil, así que el bróker no aumenta el endeudamiento: mantiene la financiación solicitada (${ltv} de LTV, ratio de endeudamiento DSTI del ${dsti}) y busca la combinación de condiciones más económica del mercado.`,
+      lowestCostWhy: (loan, ltv, dsti) =>
+        `La financiación bancaria directa es viable con este perfil, así que el bróker no aumenta el endeudamiento: mantiene la financiación necesaria (préstamo de ${loan}, ${ltv} de LTV real, ratio de endeudamiento DSTI del ${dsti}) y busca la combinación de condiciones más económica del mercado.`,
       lowestCostSaving: (quota, cost) =>
         `Resultado: ${quota} menos de cuota mensual y ${cost} menos de coste total del crédito respecto al banco directo.`,
       lowestCostNoSaving:
@@ -210,6 +210,9 @@ export const es: Dictionary = {
       tinLabel: 'Diferencia de TIN',
       taeLabel: 'Diferencia de TAE',
       ltvLabel: 'Diferencia de LTV máximo',
+      loanLabel: 'Diferencia de importe financiado',
+      differentLoansNote:
+        'La cuota y el coste total no se comparan directamente porque el bróker y el banco financian importes distintos: la diferencia reflejaría sobre todo la financiación adicional, no qué canal es más económico.',
       quotaLabel: 'Diferencia de cuota mensual',
       totalCostLabel: 'Diferencia de coste total del crédito',
       betterSuffix: ' (mejor con el bróker)',

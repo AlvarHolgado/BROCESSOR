@@ -8,7 +8,7 @@
  */
 
 import { calculateLtvPercentage, calculateMaxLoanFromMonthlyBudget } from './mortgageEngine';
-import { DSTI_GREEN_THRESHOLD, calculateMaxRecommendedQuota } from './scoring';
+import { DSTI_COMPARISON_EPSILON, DSTI_GREEN_THRESHOLD, calculateMaxRecommendedQuota } from './scoring';
 
 /**
  * Structured (non-localized) reason code for why a requested offer was not
@@ -45,7 +45,7 @@ export function assessBankViability(
   bankMaxLtvPercentage: number
 ): BankViabilityAssessment {
   const ltvExceeded = ltvWasCapped;
-  const dstiExceeded = immediateDstiRatio > DSTI_GREEN_THRESHOLD;
+  const dstiExceeded = immediateDstiRatio > DSTI_GREEN_THRESHOLD + DSTI_COMPARISON_EPSILON;
 
   const maxAffordableMonthlyQuota = calculateMaxRecommendedQuota(monthlyDebts, netAnnualIncome);
   const maxLoanFromDsti = calculateMaxLoanFromMonthlyBudget(maxAffordableMonthlyQuota, tin, durationYears);

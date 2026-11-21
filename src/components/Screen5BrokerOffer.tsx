@@ -71,7 +71,6 @@ export function Screen5BrokerOffer({ input, output }: Screen5BrokerOfferProps) {
               input={input}
               path={path}
               taxBreakdown={output.taxBreakdown}
-              formalizationCosts={output.formalizationCosts}
             />
             <PricingDifferentialCard differential={output.pricingDifferential} />
           </>

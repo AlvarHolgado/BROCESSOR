@@ -109,10 +109,10 @@ export const ca = {
       reasonLtv: 'el percentatge de finançament sol·licitat supera el límit del banc',
       reasonDsti: (threshold: string) => `la ràtio d’endeutament (DSTI) superaria el ${threshold}`,
       reasonSavings: 'els estalvis disponibles més el finançament màxim del banc no cobreixen el preu de compra',
-      structureWithExtra: (ltv: string, extra: string) =>
-        `Estructura: el broker negocia l’operació fins al ${ltv} de LTV (el màxim del canal), de manera que finança ${extra} més que el banc i l’aportació inicial es redueix en aquest mateix import.`,
-      structureNoExtra: (ltv: string) =>
-        `Estructura: el broker negocia l’operació amb un límit de ${ltv} de LTV (el màxim del canal); amb els estalvis disponibles, l’import finançat coincideix amb el del banc.`,
+      structureWithExtra: (ceilingLtv: string, loan: string, actualLtv: string, extra: string, contributionSaving: string) =>
+        `Estructura: el broker negocia l’operació amb un límit de ${ceilingLtv} de LTV (el màxim del canal) i la finança amb un préstec de ${loan} (${actualLtv} de LTV real), és a dir, ${extra} més que el banc; l’aportació inicial es redueix en ${contributionSaving}.`,
+      structureNoExtra: (ceilingLtv: string, loan: string, actualLtv: string) =>
+        `Estructura: el broker negocia l’operació amb un límit de ${ceilingLtv} de LTV (el màxim del canal); amb els estalvis disponibles, el préstec és de ${loan} (${actualLtv} de LTV real), el mateix import que amb el banc.`,
       conditionDstiWithin: (dsti: string, threshold: string) =>
         `Amb aquest import, la ràtio d’endeutament (DSTI) és del ${dsti}, dins del límit del ${threshold}.`,
       conditionDstiAbove: (dsti: string, threshold: string) =>
@@ -123,8 +123,8 @@ export const ca = {
         `El ${ltv} de LTV és la convenció de mercat del canal broker, no una garantia: l’aprovació final depèn de l’entitat financera.`,
       feesNote: 'Els honoraris del broker no estan inclosos en aquest càlcul.',
       lowestCostTitle: 'Estratègia del broker: condicions més econòmiques',
-      lowestCostWhy: (ltv: string, dsti: string) =>
-        `El finançament bancari directe és viable amb aquest perfil, així que el broker no augmenta l’endeutament: manté el finançament sol·licitat (${ltv} de LTV, ràtio d’endeutament DSTI del ${dsti}) i busca la combinació de condicions més econòmica del mercat.`,
+      lowestCostWhy: (loan: string, ltv: string, dsti: string) =>
+        `El finançament bancari directe és viable amb aquest perfil, així que el broker no augmenta l’endeutament: manté el finançament necessari (préstec de ${loan}, ${ltv} de LTV real, ràtio d’endeutament DSTI del ${dsti}) i busca la combinació de condicions més econòmica del mercat.`,
       lowestCostSaving: (quota: string, cost: string) =>
         `Resultat: ${quota} menys de quota mensual i ${cost} menys de cost total del crèdit respecte al banc directe.`,
       lowestCostNoSaving:
@@ -214,6 +214,9 @@ export const ca = {
       tinLabel: 'Diferència de TIN',
       taeLabel: 'Diferència de TAE',
       ltvLabel: 'Diferència de LTV màxim',
+      loanLabel: 'Diferència d’import finançat',
+      differentLoansNote:
+        'La quota i el cost total no es comparen directament perquè el broker i el banc financen imports diferents: la diferència reflectiria sobretot el finançament addicional, no quin canal és més econòmic.',
       quotaLabel: 'Diferència de quota mensual',
       totalCostLabel: 'Diferència de cost total del crèdit',
       betterSuffix: ' (millor amb el broker)',

@@ -15,7 +15,7 @@
  */
 
 import type { MortgagePathResult } from './simulate';
-import { DSTI_GREEN_THRESHOLD } from './scoring';
+import { DSTI_COMPARISON_EPSILON, DSTI_GREEN_THRESHOLD } from './scoring';
 
 export type BrokerStrategyMode = 'MAX_FINANCING' | 'LOWEST_COST';
 
@@ -36,9 +36,9 @@ export interface BrokerModeDecision {
 
 /** Stage 2 — the full strategy, once the broker path has been built, for display. */
 export interface BrokerStrategyResult extends BrokerModeDecision {
-  /** broker.loanPrincipal - baseline.loanPrincipal. Positive means the broker finances more than the direct bank. */
+  /** Whole-euro broker loan minus whole-euro baseline loan (exactly the amounts the cards show). Positive means the broker finances more than the direct bank. */
   additionalLoanVsBank: number;
-  /** broker.initialContributionRequired - baseline.initialContributionRequired. Negative means a smaller up-front payment with the broker. */
+  /** Broker minus baseline initial contribution, from the whole-euro breakdown the cards show. Negative means a smaller up-front payment with the broker. */
   initialContributionDeltaVsBank: number;
   /** Immediate DSTI of the broker offer; null when the broker TIN is unavailable and no quota exists. */
   brokerDstiRatio: number | null;
@@ -76,10 +76,10 @@ export function describeBrokerStrategy(
 
   return {
     ...decision,
-    additionalLoanVsBank: broker.loanPrincipal - baseline.loanPrincipal,
-    initialContributionDeltaVsBank: broker.initialContributionRequired - baseline.initialContributionRequired,
+    additionalLoanVsBank: Math.round(broker.loanPrincipal) - Math.round(baseline.loanPrincipal),
+    initialContributionDeltaVsBank: broker.contributionBreakdown.total - baseline.contributionBreakdown.total,
     brokerDstiRatio,
-    brokerDstiWithinThreshold: brokerDstiRatio === null ? null : brokerDstiRatio <= DSTI_GREEN_THRESHOLD,
+    brokerDstiWithinThreshold: brokerDstiRatio === null ? null : brokerDstiRatio <= DSTI_GREEN_THRESHOLD + DSTI_COMPARISON_EPSILON,
     brokerFullyFinanceable: broker.isFullyFinanceable,
   };
 }

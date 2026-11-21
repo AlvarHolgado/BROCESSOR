@@ -13,6 +13,7 @@ function buildPath(overrides: Partial<MortgagePathResult> = {}): MortgagePathRes
     isFullyFinanceable: true,
     actualLtvPercentage: 80,
     initialContributionRequired: 40000,
+    contributionBreakdown: { ownCapital: 40000, taxes: 0, notary: 0, registry: 0, formalization: 0, total: 40000 },
     monthlyQuota: 700,
     effectiveAnnualRate: 3.1,
     riskAssessment: null,
@@ -85,6 +86,29 @@ describe('computePricingDifferential', () => {
     expect(result.tinDeltaPercentagePoints).toBe(0);
     expect(result.maxLtvDeltaPercentagePoints).toBe(0);
     expect(result.hasMeaningfulAdvantage).toBe(false);
+  });
+
+  it('withholds the quota and total-cost deltas when the broker finances a different amount than the bank, reporting the loan delta instead', () => {
+    const bankBonified = buildPath({ channel: 'BANK_BONIFIED', loanPrincipal: 107353.4, monthlyQuota: 419.6 });
+    const broker = buildPath({ channel: 'BROKER', loanPrincipal: 270000, monthlyQuota: 1038.8 });
+
+    const result = computePricingDifferential(broker, bankBonified, bankBonified);
+
+    expect(result.sameLoanAmount).toBe(false);
+    expect(result.loanAmountDelta).toBe(270000 - 107353);
+    expect(result.monthlyQuotaDelta).toBeNull();
+    expect(result.totalCostOfCreditDelta).toBeNull();
+  });
+
+  it('computes the quota and cost deltas from the same whole-euro figures the cards display', () => {
+    const bankBonified = buildPath({ channel: 'BANK_BONIFIED', monthlyQuota: 939.4, costOfCredit: { ...buildPath().costOfCredit!, totalCostOfCredit: 356460.4 } });
+    const broker = buildPath({ channel: 'BROKER', monthlyQuota: 924.6, costOfCredit: { ...buildPath().costOfCredit!, totalCostOfCredit: 350903.6 } });
+
+    const result = computePricingDifferential(broker, bankBonified, bankBonified);
+
+    // Cards show 939 € / 925 € and 356.460 € / 350.904 €: the deltas must be exactly their differences.
+    expect(result.monthlyQuotaDelta).toBe(925 - 939);
+    expect(result.totalCostOfCreditDelta).toBe(350904 - 356460);
   });
 
   it('returns a null baseline when neither bank channel has market data', () => {

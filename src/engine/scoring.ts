@@ -12,6 +12,13 @@ export type RiskColorIndicator = 'GREEN' | 'YELLOW' | 'RED';
 /** Upper bound (inclusive) of the DSTI ratio considered low-risk (GREEN). */
 export const DSTI_GREEN_THRESHOLD = 0.35;
 
+/**
+ * Floating-point slack for threshold comparisons: a loan sized to land exactly
+ * on a limit (e.g. the max-viable bank offer) must still count as within it,
+ * instead of tipping over by a 1e-12 rounding artefact.
+ */
+export const DSTI_COMPARISON_EPSILON = 1e-9;
+
 /** Upper bound (inclusive) of the DSTI ratio considered medium-risk (YELLOW). Above this is RED. */
 export const DSTI_YELLOW_THRESHOLD = 0.4;
 
@@ -40,10 +47,10 @@ export function calculateDstiRatio(
 
 /** Maps a DSTI ratio to its risk profile and traffic-light color indicator. */
 export function scoreDstiRisk(dstiRatio: number): { riskProfile: RiskProfile; colorIndicator: RiskColorIndicator } {
-  if (dstiRatio <= DSTI_GREEN_THRESHOLD) {
+  if (dstiRatio <= DSTI_GREEN_THRESHOLD + DSTI_COMPARISON_EPSILON) {
     return { riskProfile: 'LOW', colorIndicator: 'GREEN' };
   }
-  if (dstiRatio <= DSTI_YELLOW_THRESHOLD) {
+  if (dstiRatio <= DSTI_YELLOW_THRESHOLD + DSTI_COMPARISON_EPSILON) {
     return { riskProfile: 'MEDIUM', colorIndicator: 'YELLOW' };
   }
   return { riskProfile: 'HIGH', colorIndicator: 'RED' };

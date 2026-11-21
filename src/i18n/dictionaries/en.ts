@@ -99,10 +99,10 @@ export const en: Dictionary = {
       reasonLtv: 'the requested financing percentage exceeds the bank’s limit',
       reasonDsti: (threshold) => `the debt ratio (DSTI) would exceed ${threshold}`,
       reasonSavings: 'the available savings plus the bank’s maximum financing do not cover the purchase price',
-      structureWithExtra: (ltv, extra) =>
-        `Structure: the broker negotiates the operation up to ${ltv} LTV (the channel maximum), financing ${extra} more than the bank, and the initial contribution drops by that same amount.`,
-      structureNoExtra: (ltv) =>
-        `Structure: the broker negotiates the operation with a ${ltv} LTV limit (the channel maximum); given the available savings, the financed amount matches the bank’s.`,
+      structureWithExtra: (ceilingLtv, loan, actualLtv, extra, contributionSaving) =>
+        `Structure: the broker negotiates the operation with a ${ceilingLtv} LTV limit (the channel maximum) and finances it with a ${loan} loan (${actualLtv} actual LTV), i.e. ${extra} more than the bank; the initial contribution drops by ${contributionSaving}.`,
+      structureNoExtra: (ceilingLtv, loan, actualLtv) =>
+        `Structure: the broker negotiates the operation with a ${ceilingLtv} LTV limit (the channel maximum); given the available savings, the loan is ${loan} (${actualLtv} actual LTV), the same amount as with the bank.`,
       conditionDstiWithin: (dsti, threshold) =>
         `At this amount, the debt ratio (DSTI) is ${dsti}, within the ${threshold} limit.`,
       conditionDstiAbove: (dsti, threshold) =>
@@ -113,8 +113,8 @@ export const en: Dictionary = {
         `${ltv} LTV is the market convention for the broker channel, not a guarantee: final approval depends on the lender.`,
       feesNote: 'Broker fees are not included in this calculation.',
       lowestCostTitle: 'Broker strategy: lowest-cost conditions',
-      lowestCostWhy: (ltv, dsti) =>
-        `Direct bank financing is viable for this profile, so the broker does not increase your debt: it keeps the requested financing (${ltv} LTV, DSTI debt ratio of ${dsti}) and looks for the lowest-cost combination of market conditions.`,
+      lowestCostWhy: (loan, ltv, dsti) =>
+        `Direct bank financing is viable for this profile, so the broker does not increase your debt: it keeps the financing you need (${loan} loan, ${ltv} actual LTV, DSTI debt ratio of ${dsti}) and looks for the lowest-cost combination of market conditions.`,
       lowestCostSaving: (quota, cost) =>
         `Result: ${quota} less monthly quota and ${cost} less total cost of credit compared with the direct bank.`,
       lowestCostNoSaving:
@@ -185,6 +185,9 @@ export const en: Dictionary = {
       tinLabel: 'TIN difference',
       taeLabel: 'APR difference',
       ltvLabel: 'Maximum LTV difference',
+      loanLabel: 'Financed amount difference',
+      differentLoansNote:
+        'The monthly payment and total cost are not compared directly because the broker and the bank finance different amounts: the difference would mostly reflect the additional financing, not which channel is cheaper.',
       quotaLabel: 'Monthly payment difference',
       totalCostLabel: 'Total cost of credit difference',
       betterSuffix: ' (better with the broker)',

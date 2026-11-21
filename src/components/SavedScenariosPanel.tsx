@@ -215,7 +215,7 @@ export function SavedScenariosPanel({
                   <td style={savedTdStyle}>{t.savedScenarios.ltvMetric}</td>
                   {comparedSimulations.map((simulation) => (
                     <td key={simulation.id} style={savedTdStyle}>
-                      {formatters.dstiPercent.format(simulation.output.bankBonified.actualLtvPercentage / 100)}
+                      {`${formatters.percent2.format(simulation.output.bankBonified.actualLtvPercentage)}%`}
                     </td>
                   ))}
                 </tr>

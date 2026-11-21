@@ -57,14 +57,12 @@ function BankPathCard({
   siblingPath,
   input,
   taxBreakdown,
-  formalizationCosts,
 }: {
   path: MortgagePathResult;
   /** The other bank channel, so a VARIABLE bonified card can contrast its differential against the non-bonified one. */
   siblingPath?: MortgagePathResult;
   input: SimulatorInput;
   taxBreakdown: SimulatorOutput['taxBreakdown'];
-  formalizationCosts: SimulatorOutput['formalizationCosts'];
 }) {
   const { t } = useLanguage();
   const pathLabels = usePathLabels();
@@ -84,7 +82,6 @@ function BankPathCard({
             input={input}
             path={path}
             taxBreakdown={taxBreakdown}
-            formalizationCosts={formalizationCosts}
           />
         </>
       ) : (
@@ -109,13 +106,11 @@ export function Screen4BankOffers({ input, output }: Screen4BankOffersProps) {
           siblingPath={output.bankNonBonified}
           input={input}
           taxBreakdown={output.taxBreakdown}
-          formalizationCosts={output.formalizationCosts}
         />
         <BankPathCard
           path={output.bankNonBonified}
           input={input}
           taxBreakdown={output.taxBreakdown}
-          formalizationCosts={output.formalizationCosts}
         />
       </div>
     </div>

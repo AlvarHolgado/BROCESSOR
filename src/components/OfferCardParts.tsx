@@ -429,6 +429,14 @@ export function PricingDifferentialCard({ differential }: { differential: Pricin
         tone={deltaTone(differential.maxLtvDeltaPercentagePoints, true)}
         t={t}
       />
+      {!differential.sameLoanAmount && (
+        <DifferentialRow
+          label={d.loanLabel}
+          formattedValue={formatCurrencyDelta(differential.loanAmountDelta)}
+          tone="unknown"
+          t={t}
+        />
+      )}
       {differential.monthlyQuotaDelta !== null && (
         <DifferentialRow
           label={d.quotaLabel}
@@ -446,6 +454,7 @@ export function PricingDifferentialCard({ differential }: { differential: Pricin
         />
       )}
 
+      {!differential.sameLoanAmount && <p style={differentialNoteStyle}>{d.differentLoansNote}</p>}
       {!differential.hasMeaningfulAdvantage && <p style={differentialNoteStyle}>{d.noAdvantageNote}</p>}
     </div>
   );

@@ -10,7 +10,6 @@
 
 import type { CSSProperties } from 'react';
 import type { RegionalTaxResult } from '../engine/mortgageEngine';
-import type { FormalizationCostsResult } from '../engine/formalizationCosts';
 import type { MortgagePathResult } from '../engine/simulate';
 import type { SimulatorInput } from '../types/simulator';
 import { COLORS } from '../styles/theme';
@@ -20,7 +19,6 @@ export interface InitialContributionCardProps {
   input: SimulatorInput;
   path: MortgagePathResult;
   taxBreakdown: RegionalTaxResult;
-  formalizationCosts: FormalizationCostsResult;
 }
 
 const cardStyle: CSSProperties = {
@@ -63,9 +61,10 @@ const warningStyle: CSSProperties = {
   fontStyle: 'italic',
 };
 
-export function InitialContributionCard({ input, path, taxBreakdown, formalizationCosts }: InitialContributionCardProps) {
+export function InitialContributionCard({ input, path, taxBreakdown }: InitialContributionCardProps) {
   const { t, formatters } = useLanguage();
-  const ownCapital = input.purchaseValue - path.loanPrincipal;
+  // Every euro figure below comes from the engine's whole-euro breakdown, whose total is the sum of these very lines.
+  const breakdown = path.contributionBreakdown;
 
   // AJD only applies to NEW_BUILD purchases (ITP applies to SECOND_HAND
   // instead — the two are mutually exclusive per propertyType), so this can
@@ -85,7 +84,7 @@ export function InitialContributionCard({ input, path, taxBreakdown, formalizati
 
       <div style={rowStyle}>
         <span>{t.initialContribution.ownCapitalLabel}</span>
-        <strong>{formatters.currency0.format(ownCapital)}</strong>
+        <strong>{formatters.currency0.format(breakdown.ownCapital)}</strong>
       </div>
       <p style={noteStyle}>
         {t.initialContribution.ownCapitalNote(
@@ -96,7 +95,7 @@ export function InitialContributionCard({ input, path, taxBreakdown, formalizati
 
       <div style={rowStyle}>
         <span>{t.initialContribution.taxesLabel}</span>
-        <strong>{ajdDataMissing ? t.offerCard.notAvailable : formatters.currency0.format(taxBreakdown.totalTaxAmount)}</strong>
+        <strong>{ajdDataMissing ? t.offerCard.notAvailable : formatters.currency0.format(breakdown.taxes)}</strong>
       </div>
       {taxBreakdown.itp.applicable && (
         <p style={noteStyle}>
@@ -122,18 +121,18 @@ export function InitialContributionCard({ input, path, taxBreakdown, formalizati
 
       <div style={rowStyle}>
         <span>{t.initialContribution.formalizationLabel}</span>
-        <strong>{formatters.currency0.format(formalizationCosts.totalAmount)}</strong>
+        <strong>{formatters.currency0.format(breakdown.formalization)}</strong>
       </div>
       <p style={noteStyle}>
         {t.initialContribution.formalizationNote(
-          formatters.currency0.format(formalizationCosts.notaryFeePurchase.totalAmount),
-          formatters.currency0.format(formalizationCosts.registryFeePurchase)
+          formatters.currency0.format(breakdown.notary),
+          formatters.currency0.format(breakdown.registry)
         )}
       </p>
 
       <div style={totalRowStyle}>
         <span>{t.initialContribution.totalLabel}</span>
-        <strong>{formatters.currency0.format(path.initialContributionRequired)}</strong>
+        <strong>{formatters.currency0.format(breakdown.total)}</strong>
       </div>
       {ajdDataMissing && (
         <p role="alert" style={{ ...noteStyle, ...warningStyle, margin: '0.3rem 0 0 0' }}>

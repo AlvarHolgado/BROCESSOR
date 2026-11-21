@@ -24,7 +24,12 @@ export function buildBrokerStrategyText(output: SimulatorOutput, t: Dictionary, 
   const s = t.screen5.strategy;
   const dstiLabel = strategy.brokerDstiRatio !== null ? `${f.percent1.format(strategy.brokerDstiRatio * 100)}%` : '—';
   const dstiThresholdLabel = `${f.percent1.format(DSTI_GREEN_THRESHOLD * 100)}%`;
-  const ceilingLtvLabel = `${f.percent1.format(broker.ltv.effectiveLtvPercentage)}%`;
+  // The LTV the offer card shows (loan / property value) and the loan amount behind it — every sentence below that
+  // quotes "the" financing percentage uses these, so text and card can never disagree. The channel ceiling is only
+  // ever named as a ceiling.
+  const actualLtvLabel = `${f.percent2.format(broker.actualLtvPercentage)}%`;
+  const loanLabel = f.currency0.format(broker.loanPrincipal);
+  const ceilingLtvLabel = `${f.percent2.format(broker.ltv.maxLtvPercentage)}%`;
 
   if (strategy.mode === 'LOWEST_COST') {
     const quotaSaving = differential.monthlyQuotaDelta;
@@ -34,7 +39,7 @@ export function buildBrokerStrategyText(output: SimulatorOutput, t: Dictionary, 
     return {
       title: s.lowestCostTitle,
       paragraphs: [
-        s.lowestCostWhy(ceilingLtvLabel, dstiLabel),
+        s.lowestCostWhy(loanLabel, actualLtvLabel, dstiLabel),
         hasSaving
           ? s.lowestCostSaving(f.currency0.format(-quotaSaving), f.currency0.format(-costSaving))
           : s.lowestCostNoSaving,
@@ -73,8 +78,14 @@ export function buildBrokerStrategyText(output: SimulatorOutput, t: Dictionary, 
     paragraphs: [
       s.maxFinancingWhy(reasons.join('; ')),
       strategy.additionalLoanVsBank > 0
-        ? s.structureWithExtra(ceilingLtvLabel, f.currency0.format(strategy.additionalLoanVsBank))
-        : s.structureNoExtra(ceilingLtvLabel),
+        ? s.structureWithExtra(
+            ceilingLtvLabel,
+            loanLabel,
+            actualLtvLabel,
+            f.currency0.format(strategy.additionalLoanVsBank),
+            f.currency0.format(-strategy.initialContributionDeltaVsBank)
+          )
+        : s.structureNoExtra(ceilingLtvLabel, loanLabel, actualLtvLabel),
     ],
     conditions,
   };

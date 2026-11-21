@@ -327,11 +327,12 @@ function writePathCard(
       label: t.pdf.ltvLabel,
       value:
         `${f.percent2.format(path.actualLtvPercentage)}%` +
-        (path.ltv.wasCapped ? t.pdf.ltvCappedSuffix(f.percent1.format(path.ltv.requestedLtvPercentage)) : ''),
+        // The suffix names the limit the request was capped TO (the bank's maximum), not the original request.
+        (path.ltv.wasCapped ? t.pdf.ltvCappedSuffix(f.percent1.format(path.ltv.effectiveLtvPercentage)) : ''),
     },
     { label: t.pdf.loanAmountLabel, value: f.currency0.format(path.loanPrincipal) },
     { label: t.pdf.monthlyQuotaLabel, value: f.currency0.format(path.monthlyQuota ?? 0), highlight: true },
-    { label: t.pdf.initialContributionLabel, value: f.currency0.format(path.initialContributionRequired) },
+    { label: t.pdf.initialContributionLabel, value: f.currency0.format(path.contributionBreakdown.total) },
     { label: t.pdf.totalCostLabel, value: path.costOfCredit ? f.currency0.format(path.costOfCredit.totalCostOfCredit) : '—' },
   ];
 
@@ -492,15 +493,18 @@ export function generateSimulationPdf({ input, output, ccaaName, language = DEFA
   // confirmed zero — show "not available" for the total too, rather than
   // silently implying the AJD is 0.
   const taxTotalUnknown = ajdApplicable && !output.taxBreakdown.ajd.dataAvailable;
+  // Taxes and formalization do not depend on the loan, so every path's whole-euro breakdown carries the same
+  // figures; reading them from it keeps these rows identical to the offer cards' own lines and totals.
+  const sharedBreakdown = output.bankBonified.contributionBreakdown;
   taxItems.push(
     {
       label: t.pdf.totalTaxLabel,
-      value: taxTotalUnknown ? t.pdf.notAvailable : f.currency0.format(output.taxBreakdown.totalTaxAmount),
+      value: taxTotalUnknown ? t.pdf.notAvailable : f.currency0.format(sharedBreakdown.taxes),
     },
-    { label: t.pdf.notaryPurchaseLabel, value: f.currency0.format(output.formalizationCosts.notaryFeePurchase.totalAmount) },
-    { label: t.pdf.registryPurchaseLabel, value: f.currency0.format(output.formalizationCosts.registryFeePurchase) },
+    { label: t.pdf.notaryPurchaseLabel, value: f.currency0.format(sharedBreakdown.notary) },
+    { label: t.pdf.registryPurchaseLabel, value: f.currency0.format(sharedBreakdown.registry) },
     { label: t.pdf.mortgageFormalizationLabel, value: t.pdf.mortgageFormalizationValue },
-    { label: t.pdf.totalFormalizationLabel, value: f.currency0.format(output.formalizationCosts.totalAmount), highlight: true }
+    { label: t.pdf.totalFormalizationLabel, value: f.currency0.format(sharedBreakdown.formalization), highlight: true }
   );
   writer.card(t.pdf.taxCardTitle, taxItems, PDF_ACCENT_NEUTRAL, 2);
 

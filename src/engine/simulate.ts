@@ -39,6 +39,7 @@ import {
 import { resolveBankLtv, resolveBrokerLtv, type LtvResolutionResult } from './ltvResolver';
 import { computePricingDifferential, type PricingDifferentialResult } from './pricingDifferential';
 import { describeBrokerStrategy, resolveBrokerModeDecision, type BrokerStrategyResult } from './brokerStrategy';
+import { buildInitialContributionBreakdown, type InitialContributionBreakdown } from './contributionBreakdown';
 
 export type MortgagePathChannel = 'BANK_BONIFIED' | 'BANK_NON_BONIFIED' | 'BROKER';
 
@@ -63,8 +64,10 @@ export interface MortgagePathResult {
    * would allow. UI/PDF display this field as "LTV", not the ceiling.
    */
   actualLtvPercentage: number;
-  /** Aportació inicial necessària: purchaseValue + taxes/expenses - loanPrincipal. Always computable, even when the TIN is unavailable. */
+  /** Aportació inicial necessària: purchaseValue + taxes/expenses - loanPrincipal, exact (unrounded). Always computable, even when the TIN is unavailable. */
   initialContributionRequired: number;
+  /** The same contribution in whole euros, split into the lines the UI/PDF show — the displayed total is the sum of the displayed parts. See contributionBreakdown.ts. */
+  contributionBreakdown: InitialContributionBreakdown;
   /** Null when rate.dataAvailable is false — no quota can be computed without a TIN. */
   monthlyQuota: number | null;
   /**
@@ -172,6 +175,7 @@ interface LoanDependentFigures {
   isFullyFinanceable: boolean;
   actualLtvPercentage: number;
   initialContributionRequired: number;
+  contributionBreakdown: InitialContributionBreakdown;
   monthlyQuota: number;
   effectiveAnnualRate: number | null;
   riskAssessment: TemporalDstiAssessment;
@@ -222,6 +226,7 @@ function computeLoanDependentFigures(
     isFullyFinanceable,
     actualLtvPercentage,
     initialContributionRequired,
+    contributionBreakdown: buildInitialContributionBreakdown(input.purchaseValue, loanPrincipal, taxBreakdown, formalizationCosts),
     monthlyQuota,
     effectiveAnnualRate,
     riskAssessment,
@@ -257,6 +262,7 @@ function buildMortgagePath(
       isFullyFinanceable: requiredLoanAmount <= maxFinancingAmount,
       actualLtvPercentage: calculateLtvPercentage(requestedLoanPrincipal, referenceValue),
       initialContributionRequired: calculateInitialContribution(input.purchaseValue, taxesAndExpenses, requestedLoanPrincipal),
+      contributionBreakdown: buildInitialContributionBreakdown(input.purchaseValue, requestedLoanPrincipal, taxBreakdown, formalizationCosts),
       monthlyQuota: null,
       effectiveAnnualRate: null,
       riskAssessment: null,

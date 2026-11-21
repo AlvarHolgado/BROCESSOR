@@ -23,9 +23,23 @@ export interface PricingDifferentialResult {
   taeDeltaPercentagePoints: number | null;
   /** broker's max LTV ceiling minus the baseline's, in percentage points. Positive means the broker channel reaches a higher LTV tier. */
   maxLtvDeltaPercentagePoints: number;
-  /** broker.monthlyQuota - baseline.monthlyQuota. Negative means the broker's quota is cheaper. Null when either is unavailable. */
+  /** Whole-euro broker loan minus whole-euro baseline loan. Positive means the broker finances more. */
+  loanAmountDelta: number;
+  /**
+   * True when both channels finance the same (whole-euro) amount. Quota and
+   * total-cost deltas are only a meaningful price comparison in that case:
+   * with different loan amounts they mostly measure the extra borrowing, not
+   * which channel is cheaper, so they are withheld (null) instead.
+   */
+  sameLoanAmount: boolean;
+  /**
+   * broker quota - baseline quota, each rounded to whole euros exactly as the
+   * offer cards display them, so this delta can never contradict the cards.
+   * Negative means the broker's quota is cheaper. Null when either quota is
+   * unavailable or the loan amounts differ (see sameLoanAmount).
+   */
   monthlyQuotaDelta: number | null;
-  /** broker.costOfCredit.totalCostOfCredit - baseline's. Negative means the broker path costs less overall. Null when either is unavailable. */
+  /** Same whole-euro convention as monthlyQuotaDelta, for the total cost of credit. Negative means the broker path costs less overall. */
   totalCostOfCreditDelta: number | null;
   /**
    * True when the broker channel demonstrably improves on the baseline in at
@@ -42,6 +56,8 @@ const NO_BASELINE_RESULT: PricingDifferentialResult = {
   tinDeltaPercentagePoints: null,
   taeDeltaPercentagePoints: null,
   maxLtvDeltaPercentagePoints: 0,
+  loanAmountDelta: 0,
+  sameLoanAmount: true,
   monthlyQuotaDelta: null,
   totalCostOfCreditDelta: null,
   hasMeaningfulAdvantage: false,
@@ -67,11 +83,15 @@ export function computePricingDifferential(
   const taeDeltaPercentagePoints =
     broker.rate.tae !== null && baseline.rate.tae !== null ? round2(broker.rate.tae - baseline.rate.tae) : null;
   const maxLtvDeltaPercentagePoints = round2(broker.ltv.maxLtvPercentage - baseline.ltv.maxLtvPercentage);
+  const loanAmountDelta = Math.round(broker.loanPrincipal) - Math.round(baseline.loanPrincipal);
+  const sameLoanAmount = loanAmountDelta === 0;
   const monthlyQuotaDelta =
-    broker.monthlyQuota !== null && baseline.monthlyQuota !== null ? broker.monthlyQuota - baseline.monthlyQuota : null;
+    sameLoanAmount && broker.monthlyQuota !== null && baseline.monthlyQuota !== null
+      ? Math.round(broker.monthlyQuota) - Math.round(baseline.monthlyQuota)
+      : null;
   const totalCostOfCreditDelta =
-    broker.costOfCredit && baseline.costOfCredit
-      ? broker.costOfCredit.totalCostOfCredit - baseline.costOfCredit.totalCostOfCredit
+    sameLoanAmount && broker.costOfCredit && baseline.costOfCredit
+      ? Math.round(broker.costOfCredit.totalCostOfCredit) - Math.round(baseline.costOfCredit.totalCostOfCredit)
       : null;
 
   const hasMeaningfulAdvantage =
@@ -84,6 +104,8 @@ export function computePricingDifferential(
     tinDeltaPercentagePoints,
     taeDeltaPercentagePoints,
     maxLtvDeltaPercentagePoints,
+    loanAmountDelta,
+    sameLoanAmount,
     monthlyQuotaDelta,
     totalCostOfCreditDelta,
     hasMeaningfulAdvantage,
