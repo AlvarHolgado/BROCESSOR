@@ -1,7 +1,9 @@
 /**
- * ITP (Impost sobre Transmissions Patrimonials) data contracts for CCAA tax benchmarks.
- * Populated from official regional/foral tax authority sources as of 2026-08-24.
- * See /docs/ITP_CCAA_2025_2026.html for the full research dossier, and the `sources`
+ * ITP/AJD (Impost sobre Transmissions Patrimonials / Actes Jurídics Documentats) data
+ * contracts for CCAA tax benchmarks. ITP populated from official regional/foral tax
+ * authority sources as of 2026-08-24; the remaining AJD general rates were added
+ * 2026-09-21 by the same method. See /docs/ITP_CCAA_2025_2026.html for the ITP research
+ * dossier and /MISSING_DATA_REPORT.md section 6 for the AJD pass, plus the `sources`
  * field on each CcaaTaxRate entry for per-jurisdiction citations.
  */
 

@@ -139,8 +139,9 @@ describe('computeSimulatorOutput', () => {
     expect(output.bankNonBonified.rate.tin).toBeCloseTo((2.65 + 2.75) / 2, 6);
   });
 
-  it('gives the broker path a strictly better TIN than bank-bonified, at the broker max LTV', () => {
-    const output = computeSimulatorOutput(buildInput(), referenceData);
+  it('gives the broker path a strictly better TIN than bank-bonified, at the broker max LTV when the bank is tight', () => {
+    const output = computeSimulatorOutput(buildInput({ availableSavings: 10000 }), referenceData);
+    expect(output.brokerStrategy.mode).toBe('MAX_FINANCING');
     expect(output.broker.rate.tin).toBeCloseTo(2.3, 6);
     expect(output.broker.rate.tin as number).toBeLessThan(output.bankBonified.rate.tin as number);
     expect(output.broker.ltv.effectiveLtvPercentage).toBe(90);
@@ -149,13 +150,15 @@ describe('computeSimulatorOutput', () => {
 
   it('computes actualLtvPercentage from the real loan taken, not the channel ceiling, per the regulatory LTV formula', () => {
     // purchaseValue 200,000, availableSavings 40,000 -> requiredLoanAmount 160,000, which is
-    // below the broker's 90% ceiling (180,000) — so the loan is savings-limited, not LTV-limited,
-    // and the true LTV of that loan (160,000 / 200,000 = 80%) is strictly below the 90% ceiling.
+    // below the broker's 90% ceiling (180,000). The bank can finance this as requested, so the broker
+    // runs LOWEST_COST: its LTV ceiling for this offer is the requested 80%, and the loan taken is
+    // exactly 160,000 (80%) — the same loan as the bank, only at a cheaper rate.
     const output = computeSimulatorOutput(buildInput(), referenceData);
-    expect(output.broker.ltv.effectiveLtvPercentage).toBe(90);
+    expect(output.brokerStrategy.mode).toBe('LOWEST_COST');
+    expect(output.broker.ltv.effectiveLtvPercentage).toBe(80);
     expect(output.broker.loanPrincipal).toBeCloseTo(160000, 6);
     expect(output.broker.actualLtvPercentage).toBeCloseTo(80, 6);
-    expect(output.broker.actualLtvPercentage).toBeLessThan(output.broker.ltv.effectiveLtvPercentage);
+    expect(output.broker.actualLtvPercentage).toBeLessThanOrEqual(output.broker.ltv.effectiveLtvPercentage);
   });
 
   it('rounds actualLtvPercentage to exactly 2 decimal places', () => {
@@ -279,5 +282,83 @@ describe('computeSimulatorOutput', () => {
   it('leaves bankViability null when the bank TIN itself is unavailable', () => {
     const output = computeSimulatorOutput(buildInput({ mortgageType: 'VARIABLE' }), referenceData);
     expect(output.bankNonBonified.bankViability).toBeNull();
+  });
+
+  it('automatically reduces a bank path to the max viable loan amount when the requested amount exceeds the DSTI threshold, instead of rejecting it outright', () => {
+    // Low income makes the DSTI-safe budget far smaller than the 160,000 the LTV/savings math would otherwise grant.
+    const output = computeSimulatorOutput(
+      buildInput({ monthlyNetIncomes: [1500], pendingDebts: 100, pendingDebtsRemainingMonths: 0 }),
+      referenceData
+    );
+    const viability = output.bankBonified.bankViability;
+    expect(viability?.isViable).toBe(false);
+    expect(viability?.dstiExceeded).toBe(true);
+    expect(viability?.justificationReason).toBe('DSTI_EXCEEDED');
+    expect(output.bankBonified.wasAutoAdjustedForViability).toBe(true);
+    expect(output.bankBonified.loanPrincipal).toBeLessThan(160000);
+    expect(output.bankBonified.loanPrincipal).toBeCloseTo(viability?.maxViableLoanAmount ?? -1, 2);
+    // The adjusted offer must be genuinely viable, not just flagged as such: DSTI recomputed at the new amount stays within the GREEN threshold.
+    expect(output.bankBonified.riskAssessment?.immediate.dstiRatio).toBeLessThanOrEqual(0.35 + 1e-9);
+  });
+
+  it('never adjusts the broker path, even at a profile where the equivalent bank path would be non-viable', () => {
+    const output = computeSimulatorOutput(
+      buildInput({ monthlyNetIncomes: [1500], pendingDebts: 100, pendingDebtsRemainingMonths: 0 }),
+      referenceData
+    );
+    expect(output.broker.wasAutoAdjustedForViability).toBe(false);
+    expect(output.broker.loanPrincipal).toBeCloseTo(160000, 2);
+  });
+
+  it('uses the MAX_FINANCING broker strategy when the bank offer had to be adjusted, financing more than the bank with a smaller up-front payment', () => {
+    const output = computeSimulatorOutput(
+      buildInput({ availableSavings: 10000, requestedLtvPercentage: 95 }),
+      referenceData
+    );
+    expect(output.brokerStrategy.mode).toBe('MAX_FINANCING');
+    expect(output.brokerStrategy.bankLtvExceeded).toBe(true);
+    expect(output.broker.ltv.effectiveLtvPercentage).toBe(90);
+    expect(output.brokerStrategy.additionalLoanVsBank).toBeGreaterThan(0);
+    expect(output.brokerStrategy.initialContributionDeltaVsBank).toBeLessThan(0);
+    expect(output.broker.loanPrincipal).toBeGreaterThan(output.bankBonified.loanPrincipal);
+  });
+
+  it('uses the MAX_FINANCING broker strategy when the bank LTV plus savings do not cover the purchase price', () => {
+    // Savings 20,000 -> 180,000 needed: above the bank's 80% (160,000) but exactly the broker's 90% ceiling.
+    const output = computeSimulatorOutput(buildInput({ availableSavings: 20000 }), referenceData);
+    expect(output.brokerStrategy.mode).toBe('MAX_FINANCING');
+    expect(output.brokerStrategy.bankSavingsShortfall).toBe(true);
+    expect(output.bankBonified.isFullyFinanceable).toBe(false);
+    expect(output.broker.isFullyFinanceable).toBe(true);
+  });
+
+  it('uses the LOWEST_COST broker strategy when the bank can finance as requested: same loan, cheaper rate, no extra debt', () => {
+    const output = computeSimulatorOutput(
+      buildInput({ monthlyNetIncomes: [6000], pendingDebts: 0, pendingDebtsRemainingMonths: 0 }),
+      referenceData
+    );
+    expect(output.brokerStrategy.mode).toBe('LOWEST_COST');
+    expect(output.brokerStrategy.additionalLoanVsBank).toBeCloseTo(0, 6);
+    expect(output.broker.loanPrincipal).toBeCloseTo(output.bankBonified.loanPrincipal, 6);
+    expect(output.broker.monthlyQuota as number).toBeLessThan(output.bankBonified.monthlyQuota as number);
+    expect(output.pricingDifferential.totalCostOfCreditDelta as number).toBeLessThan(0);
+  });
+
+  it('flags a broker offer whose own DSTI still exceeds the low-risk threshold instead of hiding it', () => {
+    const output = computeSimulatorOutput(
+      buildInput({ monthlyNetIncomes: [1500], pendingDebts: 100, pendingDebtsRemainingMonths: 0 }),
+      referenceData
+    );
+    expect(output.brokerStrategy.mode).toBe('MAX_FINANCING');
+    expect(output.brokerStrategy.brokerDstiWithinThreshold).toBe(false);
+  });
+
+  it('leaves loanPrincipal at the requested amount, unadjusted, when the bank path is already viable', () => {
+    const output = computeSimulatorOutput(
+      buildInput({ monthlyNetIncomes: [6000], pendingDebts: 0, pendingDebtsRemainingMonths: 0 }),
+      referenceData
+    );
+    expect(output.bankBonified.wasAutoAdjustedForViability).toBe(false);
+    expect(output.bankBonified.loanPrincipal).toBeCloseTo(160000, 2);
   });
 });

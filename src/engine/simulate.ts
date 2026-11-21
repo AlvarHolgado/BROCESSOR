@@ -38,6 +38,7 @@ import {
 } from './marketTinResolver';
 import { resolveBankLtv, resolveBrokerLtv, type LtvResolutionResult } from './ltvResolver';
 import { computePricingDifferential, type PricingDifferentialResult } from './pricingDifferential';
+import { describeBrokerStrategy, resolveBrokerModeDecision, type BrokerStrategyResult } from './brokerStrategy';
 
 export type MortgagePathChannel = 'BANK_BONIFIED' | 'BANK_NON_BONIFIED' | 'BROKER';
 
@@ -77,8 +78,17 @@ export interface MortgagePathResult {
   riskAssessment: TemporalDstiAssessment | null;
   amortizationSchedule: AmortizationRow[];
   costOfCredit: CostOfCreditSummary | null;
-  /** Only set for BANK_BONIFIED/BANK_NON_BONIFIED (never BROKER, which has its own LTV ceiling instead) and only when a TIN was available. */
+  /**
+   * Only set for BANK_BONIFIED/BANK_NON_BONIFIED (never BROKER, which has
+   * its own LTV ceiling instead) and only when a TIN was available. Always
+   * describes the ORIGINALLY requested amount/LTV — even after
+   * wasAutoAdjustedForViability reduces loanPrincipal below it — so the UI
+   * can render a stable "here's why this was adjusted" justification
+   * instead of a self-referential one computed on the already-adjusted figures.
+   */
   bankViability: BankViabilityAssessment | null;
+  /** True when this bank path's loanPrincipal was reduced below the requested amount because the request exceeded bankViability's LTV/DSTI limits — see bankViability.justificationReason for why. Always false for BROKER. */
+  wasAutoAdjustedForViability: boolean;
 }
 
 export interface SimulatorOutput {
@@ -89,6 +99,8 @@ export interface SimulatorOutput {
   broker: MortgagePathResult;
   /** Explicit, transparent broker-vs-direct-bank comparison — see pricingDifferential.ts. */
   pricingDifferential: PricingDifferentialResult;
+  /** Which strategy the broker path follows for this client (max financing vs. lowest cost) and how it is structured relative to the direct bank — see brokerStrategy.ts. */
+  brokerStrategy: BrokerStrategyResult;
 }
 
 export interface SimulatorReferenceData {
@@ -141,10 +153,81 @@ export function computeSimulatorOutput(input: SimulatorInput, referenceData: Sim
     resolveBankNonBonifiedRate(input.mortgageType, marketRates),
     resolveBankLtv(input.requestedLtvPercentage, bankMaxLtv)
   );
-  const broker = buildPath('BROKER', resolveBrokerRate(input.mortgageType, marketRates), resolveBrokerLtv(brokerMaxLtv));
+  // The broker is built last: its strategy (max financing vs. lowest cost) depends on whether the direct-bank paths above were viable for this client.
+  const brokerModeDecision = resolveBrokerModeDecision(bankBonified, bankNonBonified);
+  const broker = buildPath(
+    'BROKER',
+    resolveBrokerRate(input.mortgageType, marketRates),
+    resolveBrokerLtv(brokerMaxLtv, brokerModeDecision.mode, input.requestedLtvPercentage)
+  );
   const pricingDifferential = computePricingDifferential(broker, bankBonified, bankNonBonified);
+  const brokerStrategy = describeBrokerStrategy(brokerModeDecision, broker, bankBonified, bankNonBonified);
 
-  return { taxBreakdown, formalizationCosts, bankBonified, bankNonBonified, broker, pricingDifferential };
+  return { taxBreakdown, formalizationCosts, bankBonified, bankNonBonified, broker, pricingDifferential, brokerStrategy };
+}
+
+/** Every figure that depends on the loan amount actually being financed — recomputed twice for a bank path that gets auto-adjusted (once at the requested amount, once at the viable one), and once for broker/no-adjustment paths. */
+interface LoanDependentFigures {
+  loanPrincipal: number;
+  isFullyFinanceable: boolean;
+  actualLtvPercentage: number;
+  initialContributionRequired: number;
+  monthlyQuota: number;
+  effectiveAnnualRate: number | null;
+  riskAssessment: TemporalDstiAssessment;
+  amortizationSchedule: AmortizationRow[];
+  costOfCredit: CostOfCreditSummary;
+}
+
+function computeLoanDependentFigures(
+  loanPrincipal: number,
+  requiredLoanAmount: number,
+  maxFinancingAmount: number,
+  tin: number,
+  input: SimulatorInput,
+  referenceValue: number,
+  netAnnualIncome: number,
+  taxesAndExpenses: number,
+  taxBreakdown: RegionalTaxResult,
+  formalizationCosts: FormalizationCostsResult
+): LoanDependentFigures {
+  const numberOfPayments = input.durationYears * 12;
+  const isFullyFinanceable = requiredLoanAmount <= maxFinancingAmount && requiredLoanAmount <= loanPrincipal + 0.01;
+  const actualLtvPercentage = calculateLtvPercentage(loanPrincipal, referenceValue);
+  const initialContributionRequired = calculateInitialContribution(input.purchaseValue, taxesAndExpenses, loanPrincipal);
+  const monthlyQuota = calculateFrenchMonthlyQuota(loanPrincipal, tin, input.durationYears);
+  const effectiveAnnualRate = calculateEffectiveAnnualRate(
+    loanPrincipal,
+    monthlyQuota,
+    numberOfPayments,
+    formalizationCosts.totalAmount
+  );
+  const riskAssessment = assessTemporalMortgageRisk(
+    input.pendingDebts,
+    input.pendingDebtsRemainingMonths,
+    monthlyQuota,
+    netAnnualIncome,
+    numberOfPayments
+  );
+  const amortizationSchedule = generateAmortizationSchedule(loanPrincipal, tin, input.durationYears);
+  const costOfCredit = calculateCostOfCredit(
+    loanPrincipal,
+    amortizationSchedule,
+    taxBreakdown.totalTaxAmount,
+    formalizationCosts.totalAmount
+  );
+
+  return {
+    loanPrincipal,
+    isFullyFinanceable,
+    actualLtvPercentage,
+    initialContributionRequired,
+    monthlyQuota,
+    effectiveAnnualRate,
+    riskAssessment,
+    amortizationSchedule,
+    costOfCredit,
+  };
 }
 
 function buildMortgagePath(
@@ -161,10 +244,7 @@ function buildMortgagePath(
 ): MortgagePathResult {
   const maxFinancingAmount = referenceValue * (ltv.effectiveLtvPercentage / 100);
   const requiredLoanAmount = Math.max(input.purchaseValue - input.availableSavings, 0);
-  const loanPrincipal = Math.min(requiredLoanAmount, maxFinancingAmount);
-  const isFullyFinanceable = requiredLoanAmount <= maxFinancingAmount;
-  const actualLtvPercentage = calculateLtvPercentage(loanPrincipal, referenceValue);
-  const initialContributionRequired = calculateInitialContribution(input.purchaseValue, taxesAndExpenses, loanPrincipal);
+  const requestedLoanPrincipal = Math.min(requiredLoanAmount, maxFinancingAmount);
 
   if (!rate.dataAvailable || rate.tin === null) {
     return {
@@ -173,48 +253,40 @@ function buildMortgagePath(
       ltv,
       maxFinancingAmount,
       requiredLoanAmount,
-      loanPrincipal,
-      isFullyFinanceable,
-      actualLtvPercentage,
-      initialContributionRequired,
+      loanPrincipal: requestedLoanPrincipal,
+      isFullyFinanceable: requiredLoanAmount <= maxFinancingAmount,
+      actualLtvPercentage: calculateLtvPercentage(requestedLoanPrincipal, referenceValue),
+      initialContributionRequired: calculateInitialContribution(input.purchaseValue, taxesAndExpenses, requestedLoanPrincipal),
       monthlyQuota: null,
       effectiveAnnualRate: null,
       riskAssessment: null,
       amortizationSchedule: [],
       costOfCredit: null,
       bankViability: null,
+      wasAutoAdjustedForViability: false,
     };
   }
 
-  const numberOfPayments = input.durationYears * 12;
-  const monthlyQuota = calculateFrenchMonthlyQuota(loanPrincipal, rate.tin, input.durationYears);
-  const effectiveAnnualRate = calculateEffectiveAnnualRate(
-    loanPrincipal,
-    monthlyQuota,
-    numberOfPayments,
-    formalizationCosts.totalAmount
-  );
-  const riskAssessment = assessTemporalMortgageRisk(
-    input.pendingDebts,
-    input.pendingDebtsRemainingMonths,
-    monthlyQuota,
+  const requestedFigures = computeLoanDependentFigures(
+    requestedLoanPrincipal,
+    requiredLoanAmount,
+    maxFinancingAmount,
+    rate.tin,
+    input,
+    referenceValue,
     netAnnualIncome,
-    numberOfPayments
-  );
-  const amortizationSchedule = generateAmortizationSchedule(loanPrincipal, rate.tin, input.durationYears);
-  const costOfCredit = calculateCostOfCredit(
-    loanPrincipal,
-    amortizationSchedule,
-    taxBreakdown.totalTaxAmount,
-    formalizationCosts.totalAmount
+    taxesAndExpenses,
+    taxBreakdown,
+    formalizationCosts
   );
 
+  // Broker never gets this treatment — its LTV comes from resolveBrokerLtv (max ceiling when the bank was tight, the client's own request otherwise), so there is no bank-style "requested vs. viable" reduction to apply.
   const bankViability =
     channel === 'BROKER'
       ? null
       : assessBankViability(
           ltv.wasCapped,
-          riskAssessment.immediate.dstiRatio,
+          requestedFigures.riskAssessment.immediate.dstiRatio,
           input.pendingDebts,
           netAnnualIncome,
           rate.tin,
@@ -223,21 +295,32 @@ function buildMortgagePath(
           bankMaxLtvPercentage
         );
 
+  // Never reject outright: when the requested amount isn't viable for a direct bank channel, the offer becomes the
+  // largest amount the bank could actually grant this profile — never more than what was requested/needed, only less.
+  const wasAutoAdjustedForViability = bankViability !== null && !bankViability.isViable;
+  const finalFigures = wasAutoAdjustedForViability
+    ? computeLoanDependentFigures(
+        Math.min(requestedLoanPrincipal, bankViability!.maxViableLoanAmount),
+        requiredLoanAmount,
+        maxFinancingAmount,
+        rate.tin,
+        input,
+        referenceValue,
+        netAnnualIncome,
+        taxesAndExpenses,
+        taxBreakdown,
+        formalizationCosts
+      )
+    : requestedFigures;
+
   return {
     channel,
     rate,
     ltv,
     maxFinancingAmount,
     requiredLoanAmount,
-    loanPrincipal,
-    isFullyFinanceable,
-    actualLtvPercentage,
-    initialContributionRequired,
-    monthlyQuota,
-    effectiveAnnualRate,
-    riskAssessment,
-    amortizationSchedule,
-    costOfCredit,
+    ...finalFigures,
     bankViability,
+    wasAutoAdjustedForViability,
   };
 }

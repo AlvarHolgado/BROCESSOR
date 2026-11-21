@@ -73,7 +73,7 @@ export const ca = {
     ccaaLabel: 'Comunitat Autònoma',
     ltvHeading: 'Percentatge de finançament desitjat (%)',
     ltvHelper:
-      'El TIN es determina automàticament a partir de dades de mercat: no cal introduir-lo. Aquest percentatge només aplica al càlcul amb banc — el bróker sempre utilitza el màxim finançament que pot aconseguir.',
+      'El TIN es determina automàticament a partir de dades de mercat: no cal introduir-lo. Aquest percentatge només aplica al càlcul amb banc — el broker adapta el finançament al perfil: el màxim possible si el banc no pot finançar l’operació, o el sol·licitat amb les condicions més econòmiques si és viable.',
     ltvLabel: 'Percentatge de finançament desitjat (%)',
     ltvHint: (pct: number) => `${pct}%`,
     durationHeading: 'Termini (anys)',
@@ -92,18 +92,44 @@ export const ca = {
         'Aquestes són les condicions que un banc us podria oferir directament per al vostre finançament, amb i sense les bonificacions habituals (nòmina, assegurances, etc.).'
       ),
     noMarketData: 'No hi ha dades de TIN de mercat disponibles per a aquesta modalitat — no es pot calcular la quota.',
-    continueCta: 'Explorar opció Bróker →',
+    continueCta: 'Explorar opció Broker →',
   },
 
   screen5: {
     intro: (n: number) =>
       choosePhrase(
         n,
-        'Un bróker negocia el teu finançament amb múltiples entitats simultàniament, buscant les millors condicions disponibles al mercat.',
-        'Un bróker negocia el vostre finançament amb múltiples entitats simultàniament, buscant les millors condicions disponibles al mercat.'
+        'Un broker negocia el teu finançament amb múltiples entitats simultàniament, buscant les millors condicions disponibles al mercat.',
+        'Un broker negocia el vostre finançament amb múltiples entitats simultàniament, buscant les millors condicions disponibles al mercat.'
       ),
-    emphasis:
-      'Capaç de negociar finançaments de fins al 90% LTV o millors condicions de tipus per a perfils de risc més complexos que els bancs no accepten directament.',
+    strategy: {
+      maxFinancingTitle: 'Estratègia del broker: màxim finançament',
+      maxFinancingWhy: (reasons: string) =>
+        `El banc directe no pot finançar aquesta operació tal com es planteja (${reasons}). Per això el broker prioritza aconseguir el major percentatge de finançament possible.`,
+      reasonLtv: 'el percentatge de finançament sol·licitat supera el límit del banc',
+      reasonDsti: (threshold: string) => `la ràtio d’endeutament (DSTI) superaria el ${threshold}`,
+      reasonSavings: 'els estalvis disponibles més el finançament màxim del banc no cobreixen el preu de compra',
+      structureWithExtra: (ltv: string, extra: string) =>
+        `Estructura: el broker negocia l’operació fins al ${ltv} de LTV (el màxim del canal), de manera que finança ${extra} més que el banc i l’aportació inicial es redueix en aquest mateix import.`,
+      structureNoExtra: (ltv: string) =>
+        `Estructura: el broker negocia l’operació amb un límit de ${ltv} de LTV (el màxim del canal); amb els estalvis disponibles, l’import finançat coincideix amb el del banc.`,
+      conditionDstiWithin: (dsti: string, threshold: string) =>
+        `Amb aquest import, la ràtio d’endeutament (DSTI) és del ${dsti}, dins del límit del ${threshold}.`,
+      conditionDstiAbove: (dsti: string, threshold: string) =>
+        `Amb aquest import, la ràtio d’endeutament (DSTI) seria del ${dsti}, per sobre del límit del ${threshold}: l’aprovació dependria de l’anàlisi de risc de l’entitat financera.`,
+      conditionNotFullyFinanceable:
+        'Fins i tot amb el LTV màxim del broker, els estalvis disponibles no cobreixen la totalitat del preu de compra.',
+      conditionApproval: (ltv: string) =>
+        `El ${ltv} de LTV és la convenció de mercat del canal broker, no una garantia: l’aprovació final depèn de l’entitat financera.`,
+      feesNote: 'Els honoraris del broker no estan inclosos en aquest càlcul.',
+      lowestCostTitle: 'Estratègia del broker: condicions més econòmiques',
+      lowestCostWhy: (ltv: string, dsti: string) =>
+        `El finançament bancari directe és viable amb aquest perfil, així que el broker no augmenta l’endeutament: manté el finançament sol·licitat (${ltv} de LTV, ràtio d’endeutament DSTI del ${dsti}) i busca la combinació de condicions més econòmica del mercat.`,
+      lowestCostSaving: (quota: string, cost: string) =>
+        `Resultat: ${quota} menys de quota mensual i ${cost} menys de cost total del crèdit respecte al banc directe.`,
+      lowestCostNoSaving:
+        'Amb les dades de mercat actuals, el broker no millora la quota ni el cost total del banc directe per a aquesta modalitat.',
+    },
     noMarketData: 'No hi ha dades de TIN de mercat disponibles per a aquesta modalitat — no es pot calcular la quota.',
     continueCta: 'Veure taula d’amortització →',
   },
@@ -113,7 +139,7 @@ export const ca = {
       choosePhrase(
         n,
         'Consulta el quadre d’amortització mensual complet de la teva hipoteca per a l’opció que triïs.',
-        'Consulta el quadre d’amortització mensual complet de la vostra hipoteca per a l’opció que triïs.'
+        'Consulteu el quadre d’amortització mensual complet de la vostra hipoteca per a l’opció que trieu.'
       ),
     selectorAriaLabel: 'Selecciona l’opció per veure’n el detall d’amortització',
     noAmortizationData: 'No hi ha dades de TIN de mercat disponibles per a aquesta modalitat — no es pot calcular el quadre d’amortització.',
@@ -125,7 +151,7 @@ export const ca = {
       choosePhrase(
         n,
         'Descarrega l’informe en PDF amb el detall de la teva simulació: les tres opcions, els impostos i les despeses de formalització.',
-        'Descarrega l’informe en PDF amb el detall de la vostra simulació: les tres opcions, els impostos i les despeses de formalització.'
+        'Descarregueu l’informe en PDF amb el detall de la vostra simulació: les tres opcions, els impostos i les despeses de formalització.'
       ),
     downloadTitle: 'Informe complet',
     optionalLabel: 'Opcional',
@@ -144,9 +170,9 @@ export const ca = {
 
   offerCard: {
     pathLabels: {
-      BANK_BONIFIED: 'Banc — bonificada',
+      BANK_BONIFIED: 'Banc — bonificat',
       BANK_NON_BONIFIED: 'Banc — sense bonificar',
-      BROKER: 'Bróker',
+      BROKER: 'Broker',
     },
     notAvailable: 'No disponible',
     tinTaeLabel: 'TIN / TAE',
@@ -173,18 +199,16 @@ export const ca = {
         'Es tracta d’una estimació basada en l’Euríbor actual — la teva quota es podrà revisar periòdicament segons la seva evolució.',
         'Es tracta d’una estimació basada en l’Euríbor actual — la vostra quota es podrà revisar periòdicament segons la seva evolució.'
       ),
-    viabilityBothExceeded: (channel: string) =>
-      `Finançament bancari directe no viable (${channel}): el nivell d’endeutament (DSTI) i el percentatge de finançament (LTV) superen els límits estàndard del banc.`,
-    viabilityLtvExceeded: (channel: string) =>
-      `Finançament bancari directe no viable (${channel}): el percentatge de finançament sol·licitat (LTV) supera el límit estàndard del banc.`,
-    viabilityDstiExceeded: (channel: string) =>
-      `Finançament bancari directe no viable (${channel}): el nivell d’endeutament (DSTI) supera el límit estàndard del banc.`,
-    maxViableLoanLabel: 'Import màxim viable amb banc',
-    maxViableLtvLabel: 'LTV màxim viable amb banc',
+    justificationBothExceeded: (channel: string, adjustedLtv: string, dstiThreshold: string) =>
+      `Oferta ${channel} ajustada automàticament: el LTV s’ha limitat al ${adjustedLtv} (màxim d’aquest banc) i l’import s’ha reduït per mantenir la ràtio d’endeutament (DSTI) per sota del ${dstiThreshold}, ja que la sol·licitud original superava tots dos límits.`,
+    justificationLtvExceeded: (channel: string, adjustedLtv: string) =>
+      `Oferta ${channel} ajustada automàticament al ${adjustedLtv} de LTV, el màxim que permet aquest banc — el percentatge sol·licitat el superava.`,
+    justificationDstiExceeded: (channel: string, adjustedLtv: string, dstiThreshold: string) =>
+      `Capacitat d’endeutament ajustada al ${adjustedLtv} de LTV per mantenir la ràtio d’endeutament (DSTI) de l’oferta ${channel} per sota del ${dstiThreshold}.`,
     brokerAlternativeNote:
-      'Vegeu l’alternativa de bróker al pas següent: pot negociar finançaments de fins al 90% LTV o estructurar l’operació per a perfils de risc més complexos.',
+      'Vegeu l’alternativa de broker al pas següent: pot negociar finançaments de fins al 90% LTV o estructurar l’operació per a perfils de risc més complexos.',
     differential: {
-      title: 'Diferencial bróker vs. banc directe',
+      title: 'Diferencial broker vs. banc directe',
       baselineLabel: (channel: string) => `Comparat amb: ${channel}`,
       noBaselineNote: 'No hi ha dades de mercat de cap canal bancari directe per a aquesta modalitat, així que no es pot calcular un diferencial.',
       tinLabel: 'Diferència de TIN',
@@ -192,11 +216,11 @@ export const ca = {
       ltvLabel: 'Diferència de LTV màxim',
       quotaLabel: 'Diferència de quota mensual',
       totalCostLabel: 'Diferència de cost total del crèdit',
-      betterSuffix: ' (millor amb el bróker)',
+      betterSuffix: ' (millor amb el broker)',
       worseSuffix: ' (millor amb el banc)',
       equalSuffix: ' (igual)',
       noAdvantageNote:
-        'Amb les dades de mercat actuals, el bróker no millora el tipus ni el LTV del banc per a aquesta modalitat concreta — el seu valor pot venir d’altres factors (accés a perfils de risc que el banc rebutja directament, negociació de comissions).',
+        'Amb les dades de mercat actuals, el broker no millora el tipus ni el LTV del banc per a aquesta modalitat concreta — el seu valor pot venir d’altres factors (accés a perfils de risc que el banc rebutja directament, negociació de comissions).',
     },
   },
 
@@ -229,6 +253,8 @@ export const ca = {
       `Notaria (compravenda): ${notary} · Registre (compravenda): ${registry} · Notaria, registre i gestoria (hipoteca): 0 € — a càrrec del banc per llei (Llei 5/2019, LCCI)`,
     totalLabel: 'Total fons inicials necessaris',
     notFullyFinanceableWarning: 'Els estalvis disponibles no cobreixen el preu de compra amb aquesta opció.',
+    totalExcludesUnavailableTax:
+      'Aquest total NO inclou l’AJD, ja que no hi ha dades oficials disponibles per a aquesta comunitat autònoma — el cost real d’aquesta operació podria ser superior al mostrat.',
   },
 
   amortizationChart: {
@@ -507,7 +533,7 @@ export const ca = {
     glossary: {
       resumeBridge: () => 'Espero que t’ajudi! Tornem a on érem:',
       LTV: () =>
-        'El LTV (Loan to Value) és el percentatge del valor de l’habitatge que et finança el banc. Per exemple, un LTV del 80% vol dir que et presten el 80% i que tu has de posar el 20% restant (més impostos i despeses) de la teva butxaca. Els bancs solen limitar-se al 80% per a l’habitatge habitual; un bróker pot arribar a negociar fins al 90%, o excepcionalment més.',
+        'El LTV (Loan to Value) és el percentatge del valor de l’habitatge que et finança el banc. Per exemple, un LTV del 80% vol dir que et presten el 80% i que tu has de posar el 20% restant (més impostos i despeses) de la teva butxaca. Els bancs solen limitar-se al 80% per a l’habitatge habitual; un broker pot arribar a negociar fins al 90%, o excepcionalment més.',
       DSTI: () =>
         'El DSTI (Debt Service to Income) és el percentatge dels teus ingressos nets que es destina a pagar deutes cada mes (la quota de la hipoteca inclosa). En aquest simulador, fins a un 35% es considera un nivell de risc baix, i per sobre del 40% ja es considera risc alt — els bancs solen ser reticents a aprovar operacions per sobre d’aquests llindars.',
       RATE_TYPE_RISK: () =>
@@ -539,7 +565,7 @@ export const ca = {
     mortgageTypeLabel: 'Tipus d’hipoteca',
     durationLabel: 'Termini',
     durationYearsSuffix: (years: number) => `${years} anys`,
-    section3Title: '3. Comparativa Banc vs. Bróker',
+    section3Title: '3. Comparativa Banc vs. Broker',
     tinTaeLabel: 'TIN / TAE',
     notAvailable: 'No disponible',
     ltvLabel: 'LTV',
@@ -552,8 +578,6 @@ export const ca = {
     dstiShortTermLabelDual: 'Ràtio DSTI (curt termini)',
     dstiLongTermLabel: 'Ràtio DSTI (llarg termini)',
     notFullyFinanceableWarning: 'Atenció: els estalvis disponibles no cobreixen el preu de compra amb aquest LTV.',
-    bankNotViableWarning: (maxAmount: string, maxLtv: string) =>
-      `Finançament bancari directe no viable — import màxim viable: ${maxAmount} (LTV màxim viable: ${maxLtv}%). Considera l’opció de bróker.`,
     marketDataUnavailable: 'Dada de mercat no disponible',
     quotaNotComputable: 'No es pot calcular la quota per a aquesta modalitat amb les dades de mercat disponibles.',
     section4Title: '4. Impostos i despeses de formalització',

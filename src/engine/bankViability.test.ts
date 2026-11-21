@@ -10,6 +10,7 @@ describe('assessBankViability', () => {
     expect(result.isViable).toBe(true);
     expect(result.ltvExceeded).toBe(false);
     expect(result.dstiExceeded).toBe(false);
+    expect(result.justificationReason).toBe('NONE');
   });
 
   it('flags non-viability when the requested LTV had to be capped', () => {
@@ -17,6 +18,7 @@ describe('assessBankViability', () => {
     expect(result.isViable).toBe(false);
     expect(result.ltvExceeded).toBe(true);
     expect(result.dstiExceeded).toBe(false);
+    expect(result.justificationReason).toBe('LTV_EXCEEDED');
   });
 
   it('flags non-viability when the immediate DSTI exceeds the GREEN threshold', () => {
@@ -24,6 +26,15 @@ describe('assessBankViability', () => {
     expect(result.isViable).toBe(false);
     expect(result.dstiExceeded).toBe(true);
     expect(result.ltvExceeded).toBe(false);
+    expect(result.justificationReason).toBe('DSTI_EXCEEDED');
+  });
+
+  it('reports BOTH_EXCEEDED when the LTV was capped and the DSTI also exceeds the GREEN threshold', () => {
+    const result = assessBankViability(true, 0.42, 400, 24000, 3, 30, 200000, 80);
+    expect(result.isViable).toBe(false);
+    expect(result.ltvExceeded).toBe(true);
+    expect(result.dstiExceeded).toBe(true);
+    expect(result.justificationReason).toBe('BOTH_EXCEEDED');
   });
 
   it('computes a maxViableLoanAmount capped by both the bank LTV and the DSTI-safe budget', () => {

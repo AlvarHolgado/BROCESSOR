@@ -23,10 +23,24 @@ describe('resolveBankLtv', () => {
 });
 
 describe('resolveBrokerLtv', () => {
-  it('always uses the broker max as both requested and effective LTV', () => {
-    const result = resolveBrokerLtv(90);
+  it('MAX_FINANCING uses the broker max as both requested and effective LTV, ignoring the client request', () => {
+    const result = resolveBrokerLtv(90, 'MAX_FINANCING', 70);
     expect(result.requestedLtvPercentage).toBe(90);
     expect(result.effectiveLtvPercentage).toBe(90);
     expect(result.wasCapped).toBe(false);
+  });
+
+  it('LOWEST_COST finances only the LTV the client requested', () => {
+    const result = resolveBrokerLtv(90, 'LOWEST_COST', 75);
+    expect(result.requestedLtvPercentage).toBe(75);
+    expect(result.effectiveLtvPercentage).toBe(75);
+    expect(result.wasCapped).toBe(false);
+    expect(result.maxLtvPercentage).toBe(90);
+  });
+
+  it('LOWEST_COST never exceeds the broker max, flagging the cap', () => {
+    const result = resolveBrokerLtv(90, 'LOWEST_COST', 95);
+    expect(result.effectiveLtvPercentage).toBe(90);
+    expect(result.wasCapped).toBe(true);
   });
 });

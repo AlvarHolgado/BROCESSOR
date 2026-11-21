@@ -2,9 +2,12 @@
  * LTV (Loan-To-Value) resolution per financing channel.
  * Bank: the user's desired LTV is evaluated against the bank max and
  * capped (with a flag for the UI to explain) if it exceeds it.
- * Broker: LTV is always auto-set to the broker's maximum achievable LTV —
- * that's the channel's core value proposition, not a user input.
+ * Broker: LTV follows the broker strategy — the broker's maximum achievable
+ * LTV when the operation is tight for a direct bank, otherwise the LTV the
+ * client actually requested (see resolveBrokerLtv).
  */
+
+import type { BrokerStrategyMode } from './brokerStrategy';
 
 export interface LtvResolutionResult {
   requestedLtvPercentage: number;
@@ -27,12 +30,31 @@ export function resolveBankLtv(requestedLtvPercentage: number, maxLtvPercentage:
   };
 }
 
-/** Broker LTV is always the channel's maximum achievable — never a user input. */
-export function resolveBrokerLtv(maxLtvPercentage: number): LtvResolutionResult {
+/**
+ * Broker LTV depends on the strategy chosen for the client (see
+ * brokerStrategy.ts): MAX_FINANCING always uses the channel's maximum
+ * achievable LTV; LOWEST_COST only finances what the client asked for
+ * (never above the channel max), since borrowing more would raise the cost.
+ */
+export function resolveBrokerLtv(
+  maxLtvPercentage: number,
+  mode: BrokerStrategyMode,
+  requestedLtvPercentage: number
+): LtvResolutionResult {
+  if (mode === 'MAX_FINANCING') {
+    return {
+      requestedLtvPercentage: maxLtvPercentage,
+      effectiveLtvPercentage: maxLtvPercentage,
+      wasCapped: false,
+      maxLtvPercentage,
+    };
+  }
+
+  const wasCapped = requestedLtvPercentage > maxLtvPercentage;
   return {
-    requestedLtvPercentage: maxLtvPercentage,
-    effectiveLtvPercentage: maxLtvPercentage,
-    wasCapped: false,
+    requestedLtvPercentage,
+    effectiveLtvPercentage: wasCapped ? maxLtvPercentage : requestedLtvPercentage,
+    wasCapped,
     maxLtvPercentage,
   };
 }

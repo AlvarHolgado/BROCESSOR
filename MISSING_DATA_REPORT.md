@@ -54,11 +54,11 @@ Font principal: `PART TEÒRICA/ESTUDI MERCAT HIPOTEQUES/ESTUDI MERCAT HIPOTEQUES
 
 Els trams "resta d'anys" (diferencial sobre Euribor) de les hipoteques variables i mixtes s'han conservat com a camp `note` dins de cada entrada, ja que l'esquema `RateConditions` nomes admet un TIN/TAE/quota únics i aquesta informació periodica no s'ha volgut descartar.
 
-### 1.4 Ofertes de bróker — `brokerOffers`
+### 1.4 Ofertes de broker — `brokerOffers`
 
 Fonts: `ESTUDI MERCAT HIPOTEQUES_.xlsx` (full "BROKER" i "COMP+CONC") i `PART PRÀCTICA/SIMULADOR PT.1` → `ESTUDIO HOMTER.pdf` (oferta real emesa per Alcaring 3000 S.L. / Homter, Nº Registre D056 Banc d'Espanya, per a una compra de 250.000 € a Catalunya).
 
-| Bróker | TIN negociat | Honoraris | LTV maxim |
+| Broker | TIN negociat | Honoraris | LTV maxim |
 |---|---|---|---|
 | Homter | 2,20% | 5.990 € (fixos) | 90% |
 | Finnco | 2,46% | 4.800 € (fixos) | 90% |
@@ -84,12 +84,12 @@ Per a Homter, `additionalCosts.taxes` (25.000 €) i `additionalCosts.expenses` 
 
 - **CaixaBank — Variable i Mixta**: els simuladors citats (caixabank.es) nomes es van consultar per a la modalitat fixa; `/docs` no conté cap TIN/TAE/quota per a CaixaBank a tipus variable o mixt.
 - `riskProfile` (LOW/MEDIUM/HIGH): cap dels 3 bancs analitzats te un perfil de risc assignat explícitament als documents.
-- `linkedProducts` (llista de productes vinculats per obtenir la bonificacio): els fulls de calcul indiquen quines quotes son "bonificades" pero no enumeren els productes concrets exigits per Sabadell, CaixaBank o ING (nomes es coneix el llistat per a l'oferta d'Homter — vegeu `ESTUDIO HOMTER.pdf`, pagina 2 — que correspon a l'entitat bancaria subjacent negociada pel bróker, no a una oferta directa de banc).
+- `linkedProducts` (llista de productes vinculats per obtenir la bonificacio): els fulls de calcul indiquen quines quotes son "bonificades" pero no enumeren els productes concrets exigits per Sabadell, CaixaBank o ING (nomes es coneix el llistat per a l'oferta d'Homter — vegeu `ESTUDIO HOMTER.pdf`, pagina 2 — que correspon a l'entitat bancaria subjacent negociada pel broker, no a una oferta directa de banc).
 - `durationYears` de CaixaBank Variable/Mixta: sense dades, per manca d'oferta consultada.
 
-### 2.4 Ofertes de bróker
+### 2.4 Ofertes de broker
 
-- `negotiatedRates.tae` per als 3 brokers: cap oferta oficial (Homter, Finnco, Finkers) publica una TAE explícita. El full `AMORTITZAR O INVERTIR.xlsx` conté una "TAE estimat" del 2,63% per a Homter, pero esta etiquetada explícitament com a estimacio interna de l'autor del treball, no com una xifra oficial del bróker — **per aixo NO s'ha volcat al JSON**, en compliment estricte de la prohibicio d'estimacions de la `RULE 1`.
+- `negotiatedRates.tae` per als 3 brokers: cap oferta oficial (Homter, Finnco, Finkers) publica una TAE explícita. El full `AMORTITZAR O INVERTIR.xlsx` conté una "TAE estimat" del 2,63% per a Homter, pero esta etiquetada explícitament com a estimacio interna de l'autor del treball, no com una xifra oficial del broker — **per aixo NO s'ha volcat al JSON**, en compliment estricte de la prohibicio d'estimacions de la `RULE 1`.
 - `additionalCosts` (taxes/expenses) de Finnco i Finkers: nomes es coneix el total de "despeses inicials" agregat (32.500 € i 23.260 € respectivament, taula "COMP+CONC"), que barreja impostos, despeses i possiblement part de l'entrada; com que no es pot desglossar sense assumir un criteri de repartiment, s'ha deixat en `null` en lloc d'estimar la particio.
 
 ---
@@ -106,7 +106,7 @@ Per a Homter, `additionalCosts.taxes` (25.000 €) i `additionalCosts.expenses` 
 
 - Camps `itpPercentage`/`itpBrackets` de `ccaaTaxRates` poblats: **19 de 19** (des del 2026-08-24, vegeu secció 5). `ajdPercentage` segueix pendent per a 17 de 19.
 - Ofertes bancaries completes (amb totes les modalitats): **2 de 3 bancs** (Sabadell i ING complets; CaixaBank nomes Fixa).
-- Ofertes de bróker: **3 de 3**, totes amb TIN, honoraris i LTV; TAE pendent als 3.
+- Ofertes de broker: **3 de 3**, totes amb TIN, honoraris i LTV; TAE pendent als 3.
 
 Abans de llançar el simulador en produccio, cal completar manualment els camps llistats a la seccio 2, seguint els passos descrits a [`DATA_ENTRY_GUIDE.md`](DATA_ENTRY_GUIDE.md).
 
@@ -125,3 +125,33 @@ Aquesta ampliació **no** prové de `/docs` (a diferencia de la resta d'aquest i
 **Aquesta excepcio no es indefinida.** Qualsevol ampliacio futura de `/src/data` per aquesta via (recerca de Claude en lloc d'introduccio manual) torna a requerir confirmacio explicita de l'usuari abans d'escriure's al fitxer — no s'ha de donar per aprovada automaticament nomes perque ja va passar aquest cop.
 
 Pendent de revisio abans de producció (`status: "unverified"` o `"not-found"` a `reducedRates`): VPO a Andalusia/Cantabria/Castella i Lleó/Catalunya; discapacitat a Canàries/Madrid; violència de gènere a Cantabria/Castella-La Manxa/Castella i Lleó/Extremadura/Múrcia/La Rioja/País Basc; monoparentalitat a Galícia/Extremadura; i el tipus general reduit de vivenda habitual (7%) d'Extremadura, la vigencia del qual despres de la Llei 2/2026 no s'ha pogut confirmar.
+
+---
+
+## 6. Ampliacio 2026-09-21: AJD general per a les 17 CCAA que quedaven a `null`
+
+L'usuari va confirmar explícitament (torn de conversa del 2026-09-21) que es fes la mateixa mena de recerca web dedicada que a la secció 5, aquest cop nomes per al tipus general d'AJD (Actes Jurídics Documentats) de les 17 jurisdiccions que encara tenien `ajdPercentage: null` (totes excepte Madrid i País Basc, que ja provenien de `/docs`).
+
+| CCAA | AJD general | Base legal |
+|---|---|---|
+| Andalusia | 1,2% | Ley 5/2021, vigent des del 28/04/2021 |
+| Aragó | 1,5% | Art. 122.1 Text Refós tributs cedits d'Aragó |
+| Astúries | 1,2% | DL 2/2014 (BOPA) |
+| Illes Balears | 1,5% | Decret Legislatiu 1/2014, art. 15 (des de 2020) |
+| Canàries | 0,75% | Decret Legislatiu 1/2009, arts. 36-38 (tipus general) |
+| Cantàbria | 1,5% | Ley de Cantabria 3/2024, de 23/12 (BOC 30/12/2024) |
+| Castella-La Manxa | 1,5% | Ley 8/2013, modificada per Ley 1/2026 (DOCM 30/03/2026) |
+| Castella i Lleó | 1,5% | Normativa tributs cedits Junta de Castilla y León |
+| Catalunya | 1,5% | Normativa ATC (mateixa font que l'ITP) |
+| Comunitat Valenciana | 1,4% | Ley 5/2025, de 30/05 (DOGV) — vigent des de l'1/06/2026 (abans 1,5%) |
+| Extremadura | 1,5% | Ley 5/2022, de 25/11 (BOE-A-2022-21019) |
+| Galícia | 1,5% | Ley 5/2024, de 27/12 (DOG 31/12/2024) |
+| Múrcia | 1,5% | Ley 3/2025, de 23/07 — vigent des del 25/07/2025 (abans 2%) |
+| Navarra | 0,5% | Decret Foral Legislatiu 129/1999 (règim foral) |
+| La Rioja | 1% | Normativa tributs cedits La Rioja |
+| Ceuta | 0,5% (nominal) | Tipus supletori estatal, art. 31.2 TRLITPAJD (RDLeg 1/1993) — amb bonificació del 50% de la quota gradual de documents notarials quan el registre radica a Ceuta/Melilla (mateix Art. 57 bis que ja aplicava a l'ITP d'aquestes dues ciutats), tipus efectiu 0,25% |
+| Melilla | 0,5% (nominal) | Idem Ceuta |
+
+**Nota de convenció:** per a Ceuta i Melilla s'ha desat el tipus nominal previ a la bonificació (0,5%), no l'efectiu (0,25%), seguint exactament la mateixa convenció ja establerta per a l'ITP d'aquestes dues ciutats en aquest mateix fitxer (`itpPercentage: 6`, no l'efectiu 3%) — el `generalNote` de cada entrada explica la bonificació i el tipus efectiu resultant.
+
+Totes les fonts estan embegudes a `sources[]` de cada entrada CCAA a `mortgageData.json`. Aquesta ampliació torna a ser una **excepció puntual** confirmada per l'usuari, no un permís permanent — qualsevol ampliació futura de `/src/data` per aquesta via necessita tornar a demanar confirmació explícita.

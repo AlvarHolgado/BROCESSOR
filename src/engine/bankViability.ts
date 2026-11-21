@@ -10,6 +10,16 @@
 import { calculateLtvPercentage, calculateMaxLoanFromMonthlyBudget } from './mortgageEngine';
 import { DSTI_GREEN_THRESHOLD, calculateMaxRecommendedQuota } from './scoring';
 
+/**
+ * Structured (non-localized) reason code for why a requested offer was not
+ * viable as-is. Kept as an enum rather than a message string so this module
+ * stays a pure, i18n-free engine function per .clauderules Rule 3 — the UI
+ * layer maps this to a localized justification sentence via the Dictionary
+ * (see OfferCardParts.tsx), the same way every other UI-facing figure in
+ * this codebase is translated rather than baked in at the source.
+ */
+export type ViabilityJustificationReason = 'NONE' | 'LTV_EXCEEDED' | 'DSTI_EXCEEDED' | 'BOTH_EXCEEDED';
+
 export interface BankViabilityAssessment {
   isViable: boolean;
   /** True when the requested LTV exceeded the bank's max and had to be capped. */
@@ -20,6 +30,8 @@ export interface BankViabilityAssessment {
   maxViableLoanAmount: number;
   /** LTV percentage implied by maxViableLoanAmount over the reference property value. */
   maxViableLtvPercentage: number;
+  /** Derived directly from ltvExceeded/dstiExceeded — which limit(s) forced the reduction, for the UI's justification message. */
+  justificationReason: ViabilityJustificationReason;
 }
 
 export function assessBankViability(
@@ -41,11 +53,15 @@ export function assessBankViability(
   const maxViableLoanAmount = Math.max(0, Math.min(maxLoanFromDsti, maxLoanFromLtv));
   const maxViableLtvPercentage = calculateLtvPercentage(maxViableLoanAmount, referenceValue);
 
+  const justificationReason: ViabilityJustificationReason =
+    ltvExceeded && dstiExceeded ? 'BOTH_EXCEEDED' : ltvExceeded ? 'LTV_EXCEEDED' : dstiExceeded ? 'DSTI_EXCEEDED' : 'NONE';
+
   return {
     isViable: !ltvExceeded && !dstiExceeded,
     ltvExceeded,
     dstiExceeded,
     maxViableLoanAmount,
     maxViableLtvPercentage,
+    justificationReason,
   };
 }

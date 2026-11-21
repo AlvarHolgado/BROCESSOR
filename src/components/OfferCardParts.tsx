@@ -8,8 +8,10 @@
  */
 
 import type { CSSProperties, ReactNode } from 'react';
-import type { MortgagePathResult } from '../engine/simulate';
+import type { MortgagePathResult, SimulatorOutput } from '../engine/simulate';
+import { buildBrokerStrategyText } from '../utils/brokerStrategyText';
 import type { PricingDifferentialResult } from '../engine/pricingDifferential';
+import { DSTI_GREEN_THRESHOLD } from '../engine/scoring';
 import { COLORS } from '../styles/theme';
 import { useLanguage } from '../i18n/LanguageContext';
 import type { Dictionary } from '../i18n/dictionaries/ca';
@@ -186,68 +188,60 @@ export function VariableRateDetail({
   );
 }
 
-const viabilityBannerStyle: CSSProperties = {
-  border: `1px solid ${COLORS.risk.RED.border}`,
+const justificationBannerStyle: CSSProperties = {
+  border: `1px solid ${COLORS.risk.YELLOW.border}`,
   borderRadius: '0.65rem',
   padding: '1rem 1.25rem',
-  backgroundColor: COLORS.risk.RED.background,
-  color: COLORS.risk.RED.text,
+  backgroundColor: COLORS.risk.YELLOW.background,
+  color: COLORS.risk.YELLOW.text,
   display: 'flex',
   flexDirection: 'column',
   gap: '0.5rem',
 };
 
-const viabilityOfferGridStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-  gap: '0.5rem',
-};
-
-const viabilityOfferTileStyle: CSSProperties = {
-  border: `1px solid ${COLORS.risk.RED.border}`,
-  borderRadius: '0.5rem',
-  padding: '0.5rem 0.75rem',
-};
-
-function buildViabilityMessage(path: MortgagePathResult, t: Dictionary): string {
+/**
+ * Factual justification for why this bank path's offer was auto-adjusted
+ * below the requested amount — see MortgagePathResult.wasAutoAdjustedForViability.
+ * Built from real, already-computed figures (the path's own post-adjustment
+ * LTV, and the sourced DSTI_GREEN_THRESHOLD constant), never a static/generic
+ * template, so the reason always matches the specific numbers shown above it
+ * in PathMetricsGrid.
+ */
+function buildJustificationMessage(path: MortgagePathResult, t: Dictionary, formatters: Formatters): string {
   const viability = path.bankViability;
   if (!viability) {
     return '';
   }
   const channelLabel = t.offerCard.pathLabels[path.channel];
+  const adjustedLtvLabel = `${formatters.percent2.format(path.actualLtvPercentage)}%`;
+  const dstiThresholdLabel = `${formatters.percent1.format(DSTI_GREEN_THRESHOLD * 100)}%`;
 
-  if (viability.ltvExceeded && viability.dstiExceeded) {
-    return t.offerCard.viabilityBothExceeded(channelLabel);
+  if (viability.justificationReason === 'BOTH_EXCEEDED') {
+    return t.offerCard.justificationBothExceeded(channelLabel, adjustedLtvLabel, dstiThresholdLabel);
   }
-  if (viability.ltvExceeded) {
-    return t.offerCard.viabilityLtvExceeded(channelLabel);
+  if (viability.justificationReason === 'LTV_EXCEEDED') {
+    return t.offerCard.justificationLtvExceeded(channelLabel, adjustedLtvLabel);
   }
-  return t.offerCard.viabilityDstiExceeded(channelLabel);
+  return t.offerCard.justificationDstiExceeded(channelLabel, adjustedLtvLabel, dstiThresholdLabel);
 }
 
-/** Non-viability warning banner for a direct bank path, with the max viable offer the bank could still grant. Renders nothing when the path is viable (or has no bankViability at all, e.g. the broker channel). */
+/**
+ * Justification banner for a direct bank path whose offer was automatically
+ * reduced to the largest amount the bank could actually grant this profile
+ * (see MortgagePathResult.wasAutoAdjustedForViability) — the card's own
+ * headline figures above already reflect that adjusted amount, so this only
+ * explains *why*. Renders nothing when no adjustment was needed (or for the
+ * broker channel, which has no bankViability at all).
+ */
 export function BankViabilityBanner({ path }: { path: MortgagePathResult }) {
   const { t, formatters } = useLanguage();
-  const viability = path.bankViability;
-  if (!viability || viability.isViable) {
+  if (!path.wasAutoAdjustedForViability) {
     return null;
   }
 
   return (
-    <div role="alert" style={viabilityBannerStyle}>
-      <strong>{buildViabilityMessage(path, t)}</strong>
-
-      <div style={viabilityOfferGridStyle}>
-        <div style={viabilityOfferTileStyle}>
-          <div style={tileLabelStyle}>{t.offerCard.maxViableLoanLabel}</div>
-          <strong>{formatters.currency0.format(viability.maxViableLoanAmount)}</strong>
-        </div>
-        <div style={viabilityOfferTileStyle}>
-          <div style={tileLabelStyle}>{t.offerCard.maxViableLtvLabel}</div>
-          <strong>{formatters.percent2.format(viability.maxViableLtvPercentage)}%</strong>
-        </div>
-      </div>
-
+    <div role="status" style={justificationBannerStyle}>
+      <strong>{buildJustificationMessage(path, t, formatters)}</strong>
       <p style={{ margin: 0 }}>{t.offerCard.brokerAlternativeNote}</p>
     </div>
   );
@@ -292,6 +286,54 @@ const differentialNoteStyle: CSSProperties = {
   fontSize: '0.82rem',
   color: COLORS.textSecondary,
 };
+
+const strategyCardStyle: CSSProperties = {
+  border: `1px solid ${COLORS.border}33`,
+  borderLeft: `4px solid ${COLORS.brand.mustard}`,
+  borderRadius: '0.75rem',
+  padding: '1rem 1.2rem',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.6rem',
+};
+
+const strategyListStyle: CSSProperties = {
+  margin: 0,
+  paddingLeft: '1.2rem',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.3rem',
+  fontSize: '0.88rem',
+  color: COLORS.textSecondary,
+};
+
+/**
+ * Explains which strategy the broker follows for this client — maximum
+ * financing when the operation is tight for a direct bank, lowest cost when
+ * it is viable — and how the offer is structured. All text is composed from
+ * the engine's brokerStrategy output by buildBrokerStrategyText, shared with
+ * the PDF so both say exactly the same thing.
+ */
+export function BrokerStrategyCard({ output }: { output: SimulatorOutput }) {
+  const { t, formatters } = useLanguage();
+  const text = buildBrokerStrategyText(output, t, formatters);
+
+  return (
+    <div style={strategyCardStyle}>
+      <h4 style={differentialTitleStyle}>{text.title}</h4>
+      {text.paragraphs.map((paragraph) => (
+        <p key={paragraph} style={{ margin: 0, fontSize: '0.92rem', color: COLORS.textPrimary }}>
+          {paragraph}
+        </p>
+      ))}
+      <ul style={strategyListStyle}>
+        {text.conditions.map((condition) => (
+          <li key={condition}>{condition}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 function deltaTone(delta: number | null, positiveIsBetterForBroker: boolean): 'better' | 'worse' | 'equal' | 'unknown' {
   if (delta === null) {

@@ -16,6 +16,8 @@
 import { jsPDF } from 'jspdf';
 import type { MortgagePathResult, SimulatorOutput } from '../engine/simulate';
 import type { SimulatorInput } from '../types/simulator';
+import { DSTI_GREEN_THRESHOLD } from '../engine/scoring';
+import { buildBrokerStrategyText } from './brokerStrategyText';
 import { getDictionary } from '../i18n/LanguageContext';
 import { getFormatters } from '../i18n/formatters';
 import type { Dictionary } from '../i18n/dictionaries/ca';
@@ -307,6 +309,7 @@ function writePathCard(
   f: Formatters,
   mortgageType: SimulatorInput['mortgageType'],
   numberOfHolders: number,
+  taxBreakdown: SimulatorOutput['taxBreakdown'],
   siblingPath?: MortgagePathResult
 ): void {
   const accent = PATH_ACCENTS[path.channel];
@@ -360,17 +363,32 @@ function writePathCard(
     }
   }
 
+  // Mirrors InitialContributionCard.tsx's own ajdDataMissing check: AJD only
+  // applies to NEW_BUILD purchases, and when the CCAA's rate hasn't been
+  // sourced, initialContributionRequired silently omits that unknown amount
+  // rather than treating it as a confirmed 0 — disclose that explicitly
+  // instead of letting the PDF imply the total shown is complete.
+  if (taxBreakdown.ajd.applicable && !taxBreakdown.ajd.dataAvailable) {
+    writer.note(t.initialContribution.totalExcludesUnavailableTax, PDF_WARNING);
+  }
+
   if (!path.isFullyFinanceable) {
     writer.note(t.pdf.notFullyFinanceableWarning, PDF_WARNING);
   }
-  if (path.bankViability && !path.bankViability.isViable) {
-    writer.note(
-      t.pdf.bankNotViableWarning(
-        f.currency0.format(path.bankViability.maxViableLoanAmount),
-        f.percent2.format(path.bankViability.maxViableLtvPercentage)
-      ),
-      PDF_WARNING
-    );
+  // Mirrors OfferCardParts.tsx's BankViabilityBanner exactly: when the offer above was
+  // auto-adjusted down from the requested amount, explain why using the same
+  // already-computed figures (this card's own actualLtvPercentage, the sourced
+  // DSTI_GREEN_THRESHOLD) and the same 3-language justification copy as the on-screen UI.
+  if (path.wasAutoAdjustedForViability && path.bankViability) {
+    const adjustedLtvLabel = `${f.percent2.format(path.actualLtvPercentage)}%`;
+    const dstiThresholdLabel = `${f.percent1.format(DSTI_GREEN_THRESHOLD * 100)}%`;
+    const justification =
+      path.bankViability.justificationReason === 'BOTH_EXCEEDED'
+        ? t.offerCard.justificationBothExceeded(channelLabel, adjustedLtvLabel, dstiThresholdLabel)
+        : path.bankViability.justificationReason === 'LTV_EXCEEDED'
+          ? t.offerCard.justificationLtvExceeded(channelLabel, adjustedLtvLabel)
+          : t.offerCard.justificationDstiExceeded(channelLabel, adjustedLtvLabel, dstiThresholdLabel);
+    writer.note(justification, PDF_WARNING);
   }
 }
 
@@ -440,9 +458,16 @@ export function generateSimulationPdf({ input, output, ccaaName, language = DEFA
   );
 
   writer.sectionHeading(t.pdf.section3Title);
-  writePathCard(writer, output.bankBonified, t, f, input.mortgageType, input.numberOfHolders, output.bankNonBonified);
-  writePathCard(writer, output.bankNonBonified, t, f, input.mortgageType, input.numberOfHolders);
-  writePathCard(writer, output.broker, t, f, input.mortgageType, input.numberOfHolders);
+  writePathCard(writer, output.bankBonified, t, f, input.mortgageType, input.numberOfHolders, output.taxBreakdown, output.bankNonBonified);
+  writePathCard(writer, output.bankNonBonified, t, f, input.mortgageType, input.numberOfHolders, output.taxBreakdown);
+  writePathCard(writer, output.broker, t, f, input.mortgageType, input.numberOfHolders, output.taxBreakdown);
+  if (output.broker.rate.dataAvailable && output.broker.rate.tin !== null) {
+    // Mirrors Screen5BrokerOffer.tsx's BrokerStrategyCard: same shared text builder, so UI and PDF always agree.
+    const strategyText = buildBrokerStrategyText(output, t, f);
+    writer.note(strategyText.title, PDF_ACCENT_NEUTRAL);
+    strategyText.paragraphs.forEach((paragraph) => writer.note(paragraph));
+    strategyText.conditions.forEach((condition) => writer.note(`• ${condition}`));
+  }
 
   writer.sectionHeading(t.pdf.section4Title);
   const itpApplicable = output.taxBreakdown.itp.applicable;
@@ -462,8 +487,16 @@ export function generateSimulationPdf({ input, output, ccaaName, language = DEFA
       value: output.taxBreakdown.ajd.dataAvailable ? f.currency0.format(output.taxBreakdown.ajd.amount) : t.pdf.ajdUnavailable,
     });
   }
+  // AJD applicable-but-unavailable (see the ajdFallbackLabel/ajdUnavailable
+  // row above) means totalTaxAmount is really "0 known + 1 unknown", not a
+  // confirmed zero — show "not available" for the total too, rather than
+  // silently implying the AJD is 0.
+  const taxTotalUnknown = ajdApplicable && !output.taxBreakdown.ajd.dataAvailable;
   taxItems.push(
-    { label: t.pdf.totalTaxLabel, value: f.currency0.format(output.taxBreakdown.totalTaxAmount) },
+    {
+      label: t.pdf.totalTaxLabel,
+      value: taxTotalUnknown ? t.pdf.notAvailable : f.currency0.format(output.taxBreakdown.totalTaxAmount),
+    },
     { label: t.pdf.notaryPurchaseLabel, value: f.currency0.format(output.formalizationCosts.notaryFeePurchase.totalAmount) },
     { label: t.pdf.registryPurchaseLabel, value: f.currency0.format(output.formalizationCosts.registryFeePurchase) },
     { label: t.pdf.mortgageFormalizationLabel, value: t.pdf.mortgageFormalizationValue },

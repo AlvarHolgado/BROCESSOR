@@ -91,6 +91,16 @@ const launcherStyle: CSSProperties = {
   fontSize: '1.5rem',
 };
 
+// Gold chat "container": the panel/header/input-row all sit on the orchid-
+// gold accent instead of navy, per an explicit design directive — mirrors
+// the original navy design's own base/deeper-shade split (panel = base
+// mustard, header + input row = the deeper mustardDeep shade) so the header
+// and footer chrome still read as distinct bands from the scrollable body.
+// Every text/icon color placed directly on this gold surface uses navy
+// (never white — white-on-mustard is only ~2.35:1 contrast and fails WCAG
+// AA, the same rule already applied to every other mustard-filled control
+// in this app); white is reserved for the assistant's own navy message
+// bubbles, where it's the high-contrast choice instead.
 const panelStyle: CSSProperties = {
   position: 'fixed',
   bottom: '1.5rem',
@@ -104,9 +114,9 @@ const panelStyle: CSSProperties = {
   flexDirection: 'column',
   borderRadius: '1rem',
   overflow: 'hidden',
-  backgroundColor: COLORS.hero.backgroundFrom,
+  backgroundColor: COLORS.brand.mustard,
   boxShadow: '0 20px 45px rgba(14, 27, 56, 0.55)',
-  border: `1px solid ${COLORS.hero.subtitleText}22`,
+  border: `1px solid rgba(21, 41, 81, 0.45)`,
 };
 
 const headerStyle: CSSProperties = {
@@ -114,13 +124,13 @@ const headerStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'space-between',
   padding: '0.9rem 1rem',
-  backgroundColor: COLORS.hero.backgroundTo,
-  borderBottom: `1px solid ${COLORS.hero.subtitleText}22`,
+  backgroundColor: COLORS.brand.mustardDeep,
+  borderBottom: `1px solid rgba(21, 41, 81, 0.3)`,
 };
 
 const headerTitleStyle: CSSProperties = {
   margin: 0,
-  color: '#FFFFFF',
+  color: COLORS.brand.navyTrim,
   fontSize: '0.95rem',
   fontWeight: 700,
 };
@@ -128,7 +138,7 @@ const headerTitleStyle: CSSProperties = {
 const headerButtonStyle: CSSProperties = {
   background: 'none',
   border: 'none',
-  color: COLORS.hero.subtitleText,
+  color: COLORS.brand.navyTrim,
   cursor: 'pointer',
   fontSize: '1.1rem',
   lineHeight: 1,
@@ -144,6 +154,11 @@ const messagesStyle: CSSProperties = {
   gap: '0.6rem',
 };
 
+// Assistant bubbles use the navy/white pairing (a solid navy chip reads
+// clearly against the gold panel, white text on it is ~14:1 contrast);
+// user bubbles use a near-white chip with navy text, so the two senders
+// stay visually distinct from each other while both still pop against the
+// gold background.
 function bubbleStyle(sender: ChatMessage['sender']): CSSProperties {
   const isAssistant = sender === 'assistant';
   return {
@@ -151,7 +166,7 @@ function bubbleStyle(sender: ChatMessage['sender']): CSSProperties {
     maxWidth: '85%',
     padding: '0.6rem 0.85rem',
     borderRadius: isAssistant ? '0.9rem 0.9rem 0.9rem 0.2rem' : '0.9rem 0.9rem 0.2rem 0.9rem',
-    backgroundColor: isAssistant ? 'rgba(255,255,255,0.08)' : COLORS.brand.mustard,
+    backgroundColor: isAssistant ? COLORS.brand.navy : 'rgba(255,255,255,0.92)',
     color: isAssistant ? COLORS.brand.white : COLORS.brand.navyTrim,
     fontSize: '0.88rem',
     lineHeight: 1.4,
@@ -161,33 +176,34 @@ function bubbleStyle(sender: ChatMessage['sender']): CSSProperties {
 
 const typingBubbleStyle: CSSProperties = {
   ...bubbleStyle('assistant'),
-  color: COLORS.hero.subtitleText,
+  color: COLORS.textSecondary,
   fontStyle: 'italic',
   fontSize: '0.8rem',
 };
 
 const hintStyle: CSSProperties = {
-  color: COLORS.hero.subtitleText,
+  color: COLORS.brand.navyTrim,
   fontSize: '0.72rem',
   padding: '0 1rem 0.5rem',
   margin: 0,
+  opacity: 0.75,
 };
 
 const inputRowStyle: CSSProperties = {
   display: 'flex',
   gap: '0.5rem',
   padding: '0.75rem',
-  borderTop: `1px solid ${COLORS.hero.subtitleText}22`,
-  backgroundColor: COLORS.hero.backgroundTo,
+  borderTop: `1px solid rgba(21, 41, 81, 0.3)`,
+  backgroundColor: COLORS.brand.mustardDeep,
 };
 
 const inputStyle: CSSProperties = {
   flex: 1,
   padding: '0.6rem 0.75rem',
   borderRadius: '0.65rem',
-  border: `1px solid ${COLORS.hero.subtitleText}44`,
-  backgroundColor: 'rgba(255,255,255,0.06)',
-  color: '#FFFFFF',
+  border: `1px solid rgba(21, 41, 81, 0.35)`,
+  backgroundColor: 'rgba(255,255,255,0.85)',
+  color: COLORS.brand.navyTrim,
   fontSize: '0.88rem',
 };
 

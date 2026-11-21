@@ -27,7 +27,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText("S'ha produït un error inesperat")).toBeDefined();
+    expect(screen.getByText('S’ha produït un error inesperat')).toBeDefined();
     expect(screen.getByText(/Forced test crash for ErrorBoundary verification/)).toBeDefined();
     expect(screen.getByRole('button', { name: 'Torna a carregar' })).toBeDefined();
 

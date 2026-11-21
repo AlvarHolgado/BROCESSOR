@@ -52,9 +52,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             maxWidth: '640px',
           }}
         >
-          <h2 style={{ margin: 0 }}>S'ha produït un error inesperat</h2>
+          <h2 style={{ margin: 0 }}>S’ha produït un error inesperat</h2>
           <p style={{ margin: 0 }}>
-            La simulació no s'ha pogut mostrar. Prova de tornar a carregar la pàgina; si el problema persisteix,
+            La simulació no s’ha pogut mostrar. Prova de tornar a carregar la pàgina; si el problema persisteix,
             revisa els valors introduïts al formulari.
           </p>
           <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.85 }}>

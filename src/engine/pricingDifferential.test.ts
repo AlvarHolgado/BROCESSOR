@@ -25,6 +25,7 @@ function buildPath(overrides: Partial<MortgagePathResult> = {}): MortgagePathRes
       totalCostOfCredit: 273000,
     },
     bankViability: null,
+    wasAutoAdjustedForViability: false,
     ...overrides,
   };
 }

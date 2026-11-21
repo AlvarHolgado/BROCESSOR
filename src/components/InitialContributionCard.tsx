@@ -67,6 +67,18 @@ export function InitialContributionCard({ input, path, taxBreakdown, formalizati
   const { t, formatters } = useLanguage();
   const ownCapital = input.purchaseValue - path.loanPrincipal;
 
+  // AJD only applies to NEW_BUILD purchases (ITP applies to SECOND_HAND
+  // instead — the two are mutually exclusive per propertyType), so this can
+  // only be true when the property is NEW_BUILD and the CCAA's ajdPercentage
+  // hasn't been sourced yet (e.g. Catalunya, and 16 of the other 18
+  // CCAA — see MISSING_DATA_REPORT.md). In that case `taxBreakdown.totalTaxAmount`
+  // is really "0 known + 1 unknown", not a confirmed zero: rendering it as a
+  // plain currency amount would silently claim a tax bill of exactly 0 €,
+  // which is factually wrong. Show "not available" instead, matching how
+  // the rest of the app already discloses missing data rather than
+  // defaulting it to zero.
+  const ajdDataMissing = taxBreakdown.ajd.applicable && !taxBreakdown.ajd.dataAvailable;
+
   return (
     <div style={cardStyle}>
       <h4 style={titleStyle}>{t.initialContribution.title}</h4>
@@ -84,7 +96,7 @@ export function InitialContributionCard({ input, path, taxBreakdown, formalizati
 
       <div style={rowStyle}>
         <span>{t.initialContribution.taxesLabel}</span>
-        <strong>{formatters.currency0.format(taxBreakdown.totalTaxAmount)}</strong>
+        <strong>{ajdDataMissing ? t.offerCard.notAvailable : formatters.currency0.format(taxBreakdown.totalTaxAmount)}</strong>
       </div>
       {taxBreakdown.itp.applicable && (
         <p style={noteStyle}>
@@ -123,6 +135,11 @@ export function InitialContributionCard({ input, path, taxBreakdown, formalizati
         <span>{t.initialContribution.totalLabel}</span>
         <strong>{formatters.currency0.format(path.initialContributionRequired)}</strong>
       </div>
+      {ajdDataMissing && (
+        <p role="alert" style={{ ...noteStyle, ...warningStyle, margin: '0.3rem 0 0 0' }}>
+          {t.initialContribution.totalExcludesUnavailableTax}
+        </p>
+      )}
 
       {!path.isFullyFinanceable && (
         <p role="alert" style={{ color: COLORS.error, fontSize: '0.85rem', margin: '0.3rem 0 0 0' }}>

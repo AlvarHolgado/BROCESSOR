@@ -70,7 +70,7 @@ export const es: Dictionary = {
     ccaaLabel: 'Comunidad Autónoma',
     ltvHeading: 'Porcentaje de financiación deseado (%)',
     ltvHelper:
-      'El TIN se determina automáticamente a partir de datos de mercado: no hace falta introducirlo. Este porcentaje solo aplica al cálculo con banco — el bróker siempre utiliza la máxima financiación que pueda conseguir.',
+      'El TIN se determina automáticamente a partir de datos de mercado: no hace falta introducirlo. Este porcentaje solo aplica al cálculo con banco — el bróker adapta la financiación al perfil: la máxima posible si el banco no puede financiar la operación, o la solicitada con las condiciones más económicas si es viable.',
     ltvLabel: 'Porcentaje de financiación deseado (%)',
     ltvHint: (pct) => `${pct}%`,
     durationHeading: 'Plazo (años)',
@@ -99,8 +99,34 @@ export const es: Dictionary = {
         'Un bróker negocia tu financiación con múltiples entidades simultáneamente, buscando las mejores condiciones disponibles en el mercado.',
         'Un bróker negocia vuestra financiación con múltiples entidades simultáneamente, buscando las mejores condiciones disponibles en el mercado.'
       ),
-    emphasis:
-      'Capaz de negociar financiaciones de hasta el 90% LTV o mejores condiciones de tipo para perfiles de riesgo más complejos que los bancos no aceptan directamente.',
+    strategy: {
+      maxFinancingTitle: 'Estrategia del bróker: máxima financiación',
+      maxFinancingWhy: (reasons) =>
+        `El banco directo no puede financiar esta operación tal como se plantea (${reasons}). Por eso el bróker prioriza conseguir el mayor porcentaje de financiación posible.`,
+      reasonLtv: 'el porcentaje de financiación solicitado supera el límite del banco',
+      reasonDsti: (threshold) => `la ratio de endeudamiento (DSTI) superaría el ${threshold}`,
+      reasonSavings: 'los ahorros disponibles más la financiación máxima del banco no cubren el precio de compra',
+      structureWithExtra: (ltv, extra) =>
+        `Estructura: el bróker negocia la operación hasta el ${ltv} de LTV (el máximo del canal), de modo que financia ${extra} más que el banco y la aportación inicial se reduce en ese mismo importe.`,
+      structureNoExtra: (ltv) =>
+        `Estructura: el bróker negocia la operación con un límite del ${ltv} de LTV (el máximo del canal); con los ahorros disponibles, el importe financiado coincide con el del banco.`,
+      conditionDstiWithin: (dsti, threshold) =>
+        `Con este importe, la ratio de endeudamiento (DSTI) es del ${dsti}, dentro del límite del ${threshold}.`,
+      conditionDstiAbove: (dsti, threshold) =>
+        `Con este importe, la ratio de endeudamiento (DSTI) sería del ${dsti}, por encima del límite del ${threshold}: la aprobación dependería del análisis de riesgo de la entidad financiera.`,
+      conditionNotFullyFinanceable:
+        'Incluso con el LTV máximo del bróker, los ahorros disponibles no cubren la totalidad del precio de compra.',
+      conditionApproval: (ltv) =>
+        `El ${ltv} de LTV es la convención de mercado del canal bróker, no una garantía: la aprobación final depende de la entidad financiera.`,
+      feesNote: 'Los honorarios del bróker no están incluidos en este cálculo.',
+      lowestCostTitle: 'Estrategia del bróker: condiciones más económicas',
+      lowestCostWhy: (ltv, dsti) =>
+        `La financiación bancaria directa es viable con este perfil, así que el bróker no aumenta el endeudamiento: mantiene la financiación solicitada (${ltv} de LTV, ratio de endeudamiento DSTI del ${dsti}) y busca la combinación de condiciones más económica del mercado.`,
+      lowestCostSaving: (quota, cost) =>
+        `Resultado: ${quota} menos de cuota mensual y ${cost} menos de coste total del crédito respecto al banco directo.`,
+      lowestCostNoSaving:
+        'Con los datos de mercado actuales, el bróker no mejora la cuota ni el coste total del banco directo para esta modalidad.',
+    },
     noMarketData: 'No hay datos de TIN de mercado disponibles para esta modalidad — no se puede calcular la cuota.',
     continueCta: 'Ver cuadro de amortización →',
   },
@@ -110,7 +136,7 @@ export const es: Dictionary = {
       choosePhrase(
         n,
         'Consulta el cuadro de amortización mensual completo de tu hipoteca para la opción que elijas.',
-        'Consulta el cuadro de amortización mensual completo de vuestra hipoteca para la opción que elijáis.'
+        'Consultad el cuadro de amortización mensual completo de vuestra hipoteca para la opción que elijáis.'
       ),
     selectorAriaLabel: 'Selecciona la opción para ver su detalle de amortización',
     noAmortizationData: 'No hay datos de TIN de mercado disponibles para esta modalidad — no se puede calcular el cuadro de amortización.',
@@ -122,7 +148,7 @@ export const es: Dictionary = {
       choosePhrase(
         n,
         'Descarga el informe en PDF con el detalle de tu simulación: las tres opciones, los impuestos y los gastos de formalización.',
-        'Descarga el informe en PDF con el detalle de vuestra simulación: las tres opciones, los impuestos y los gastos de formalización.'
+        'Descargad el informe en PDF con el detalle de vuestra simulación: las tres opciones, los impuestos y los gastos de formalización.'
       ),
     downloadTitle: 'Informe completo',
     optionalLabel: 'Opcional',
@@ -141,7 +167,7 @@ export const es: Dictionary = {
 
   offerCard: {
     pathLabels: {
-      BANK_BONIFIED: 'Banco — bonificada',
+      BANK_BONIFIED: 'Banco — bonificado',
       BANK_NON_BONIFIED: 'Banco — sin bonificar',
       BROKER: 'Bróker',
     },
@@ -169,14 +195,12 @@ export const es: Dictionary = {
         'Se trata de una estimación basada en el Euríbor actual — tu cuota podrá revisarse periódicamente según su evolución.',
         'Se trata de una estimación basada en el Euríbor actual — vuestra cuota podrá revisarse periódicamente según su evolución.'
       ),
-    viabilityBothExceeded: (channel) =>
-      `Financiación bancaria directa no viable (${channel}): el nivel de endeudamiento (DSTI) y el porcentaje de financiación (LTV) superan los límites estándar del banco.`,
-    viabilityLtvExceeded: (channel) =>
-      `Financiación bancaria directa no viable (${channel}): el porcentaje de financiación solicitado (LTV) supera el límite estándar del banco.`,
-    viabilityDstiExceeded: (channel) =>
-      `Financiación bancaria directa no viable (${channel}): el nivel de endeudamiento (DSTI) supera el límite estándar del banco.`,
-    maxViableLoanLabel: 'Importe máximo viable con banco',
-    maxViableLtvLabel: 'LTV máximo viable con banco',
+    justificationBothExceeded: (channel, adjustedLtv, dstiThreshold) =>
+      `Oferta ${channel} ajustada automáticamente: el LTV se ha limitado al ${adjustedLtv} (máximo de este banco) y el importe se ha reducido para mantener la ratio de endeudamiento (DSTI) por debajo del ${dstiThreshold}, ya que la solicitud original superaba ambos límites.`,
+    justificationLtvExceeded: (channel, adjustedLtv) =>
+      `Oferta ${channel} ajustada automáticamente al ${adjustedLtv} de LTV, el máximo que permite este banco — el porcentaje solicitado lo superaba.`,
+    justificationDstiExceeded: (channel, adjustedLtv, dstiThreshold) =>
+      `Capacidad de endeudamiento ajustada al ${adjustedLtv} de LTV para mantener la ratio de endeudamiento (DSTI) de la oferta ${channel} por debajo del ${dstiThreshold}.`,
     brokerAlternativeNote:
       'Consulta la alternativa de bróker en el siguiente paso: puede negociar financiaciones de hasta el 90% LTV o estructurar la operación para perfiles de riesgo más complejos.',
     differential: {
@@ -225,6 +249,8 @@ export const es: Dictionary = {
       `Notaría (compraventa): ${notary} · Registro (compraventa): ${registry} · Notaría, registro y gestoría (hipoteca): 0 € — a cargo del banco por ley (Ley 5/2019, LCCI)`,
     totalLabel: 'Total de fondos iniciales necesarios',
     notFullyFinanceableWarning: 'Los ahorros disponibles no cubren el precio de compra con esta opción.',
+    totalExcludesUnavailableTax:
+      'Este total NO incluye el AJD, ya que no hay datos oficiales disponibles para esta comunidad autónoma — el coste real de esta operación podría ser superior al mostrado.',
   },
 
   amortizationChart: {
@@ -414,7 +440,7 @@ export const es: Dictionary = {
       'Genial, ya tengo ese dato.',
       'Marcado, ¡gracias!',
       'Recibido, lo tengo apuntado.',
-      'Muy buena, ya lo tengo.',
+      'Muy bien pensado, ya lo tengo.',
       '¡Guardado! Seguimos.',
       'Perfecto, un paso más cerca.',
       'De acuerdo, apuntado y seguimos.',
@@ -426,7 +452,7 @@ export const es: Dictionary = {
       'Una cosa más:',
       'De acuerdo, ahora...',
       'Seguimos adelante.',
-      'Va, seguimos con esto:',
+      'Venga, seguimos con esto:',
       'Y ahora, para acabar este bloque...',
       'Vamos avanzando:',
       'Un paso más:',
@@ -537,8 +563,6 @@ export const es: Dictionary = {
     dstiShortTermLabelDual: 'Ratio DSTI (corto plazo)',
     dstiLongTermLabel: 'Ratio DSTI (largo plazo)',
     notFullyFinanceableWarning: 'Atención: los ahorros disponibles no cubren el precio de compra con este LTV.',
-    bankNotViableWarning: (maxAmount, maxLtv) =>
-      `Financiación bancaria directa no viable — importe máximo viable: ${maxAmount} (LTV máximo viable: ${maxLtv}%). Considera la opción de bróker.`,
     marketDataUnavailable: 'Dato de mercado no disponible',
     quotaNotComputable: 'No se puede calcular la cuota para esta modalidad con los datos de mercado disponibles.',
     section4Title: '4. Impuestos y gastos de formalización',

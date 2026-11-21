@@ -1,13 +1,13 @@
 {
   "metadata": {
     "description": "Generic, source-attributed benchmark data for the simulator defaults: CCAA transfer/stamp taxes (general rate, progressive brackets and reduced-rate categories with per-field citations) and national-average market rates. Contains no individual institution's commercial offer.",
-    "lastUpdated": "2026-08-24",
-    "disclaimer": "This file holds ONLY two categories of data: (1) CCAA tax rates, including progressive ITP brackets and reduced-rate categories (jóvenes, familia numerosa, discapacidad, VPO, violencia de género, etc.) each individually source-cited via `sources`/`notes`/`status`, and (2) national-average market benchmarks (Euribor, INE aggregate TIN/TAE). The original 16-CCAA flat-rate figures were extracted verbatim from /docs and are attributed by source in /MISSING_DATA_REPORT.md. The full 19-jurisdiction breakdown (general rate, progressive brackets, and reduced-rate categories) was added on 2026-08-24 from a dedicated web research pass across official regional/foral tax authorities and BOE texts, at the user's explicit one-off authorization to override RULE 1's 'schema-only' constraint for this file — see /docs/ITP_CCAA_2025_2026.html for the full dossier and per-entry sources, also embedded directly in each ccaaTaxRates[].sources array below. Fields marked status:'unverified' or 'not-found' should NOT be treated as closed/official without further direct verification. `bankOffers` and `brokerOffers` are empty by design: they are populated at runtime from user input (Screens 4-5 of the wizard) or, if a true aggregate benchmark (e.g. a Banco de España published average across multiple entities) becomes available, added here explicitly labeled as an aggregate, never as a single institution's quote. See /DATA_ENTRY_GUIDE.md, section 0, for the full Global Benchmark vs. Case Study distinction."
+    "lastUpdated": "2026-09-21",
+    "disclaimer": "This file holds ONLY two categories of data: (1) CCAA tax rates, including progressive ITP brackets, AJD general rates, and reduced-rate categories (jóvenes, familia numerosa, discapacidad, VPO, violencia de género, etc.) each individually source-cited via `sources`/`notes`/`status`, and (2) national-average market benchmarks (Euribor, INE aggregate TIN/TAE). The original 16-CCAA flat-rate figures were extracted verbatim from /docs and are attributed by source in /MISSING_DATA_REPORT.md. The full 19-jurisdiction ITP breakdown (general rate, progressive brackets, and reduced-rate categories) was added on 2026-08-24 from a dedicated web research pass across official regional/foral tax authorities and BOE texts, at the user's explicit one-off authorization to override RULE 1's 'schema-only' constraint for this file — see /docs/ITP_CCAA_2025_2026.html for the full dossier and per-entry sources, also embedded directly in each ccaaTaxRates[].sources array below. The remaining 17 `ajdPercentage` gaps (all CCAA except Madrid and País Basc) were filled on 2026-09-21 by the same method, again at the user's explicit authorization for that specific expansion — see /MISSING_DATA_REPORT.md section 6 and the updated `sources[]` per entry. Fields marked status:'unverified' or 'not-found' should NOT be treated as closed/official without further direct verification. `bankOffers` and `brokerOffers` are empty by design: they are populated at runtime from user input (Screens 4-5 of the wizard) or, if a true aggregate benchmark (e.g. a Banco de España published average across multiple entities) becomes available, added here explicitly labeled as an aggregate, never as a single institution's quote. See /DATA_ENTRY_GUIDE.md, section 0, for the full Global Benchmark vs. Case Study distinction."
   },
   "ccaaTaxRates": [
     {
       "code": "AND", "name": "Andalusia",
-      "itpPercentage": 7, "itpBrackets": null, "ajdPercentage": null,
+      "itpPercentage": 7, "itpBrackets": null, "ajdPercentage": 1.2,
       "generalNote": "Tipo reducido general para vivienda habitual, sin necesidad de pertenecer a ningún colectivo: 6% si el valor <=150.000 EUR.",
       "cautionNote": null,
       "reducedRates": [
@@ -25,7 +25,7 @@
     },
     {
       "code": "ARA", "name": "Arago",
-      "itpPercentage": 8, "ajdPercentage": null,
+      "itpPercentage": 8, "ajdPercentage": 1.5,
       "itpBrackets": [ { "upTo": 400000, "rate": 8 }, { "upTo": 450000, "rate": 8.5 }, { "upTo": 500000, "rate": 9 }, { "upTo": 750000, "rate": 9.5 }, { "upTo": null, "rate": 10 } ],
       "generalNote": null,
       "cautionNote": "Varios agregadores privados citan una bonificación del 100% para menores de 30 años. No aparece en el texto legal consolidado oficial (BOE, actualizado a 07/07/2025) — no se ha incluido por no poder verificarse.",
@@ -38,12 +38,13 @@
       ],
       "sources": [
         { "label": "BOE — Decreto Legislativo 1/2005 (texto consolidado)", "url": "https://www.boe.es/buscar/pdf/2005/BOA-d-2005-90006-consolidado.pdf" },
-        { "label": "Gobierno de Aragón — Transmisiones patrimoniales onerosas", "url": "https://www.aragon.es/-/transmisiones-patrimoniales-onerosas" }
+        { "label": "Gobierno de Aragón — Transmisiones patrimoniales onerosas", "url": "https://www.aragon.es/-/transmisiones-patrimoniales-onerosas" },
+        { "label": "Gobierno de Aragón — Actos Jurídicos Documentados (art. 122.1 texto refundido)", "url": "https://www.aragon.es/-/actos-juridicos-documentados-documentos-notariales-y-judiciales-" }
       ]
     },
     {
       "code": "AST", "name": "Asturies",
-      "itpPercentage": 8, "ajdPercentage": null,
+      "itpPercentage": 8, "ajdPercentage": 1.2,
       "itpBrackets": [ { "upTo": 300000, "rate": 8 }, { "upTo": 500000, "rate": 9 }, { "upTo": null, "rate": 10 } ],
       "generalNote": null,
       "cautionNote": null,
@@ -57,12 +58,13 @@
       ],
       "sources": [
         { "label": "BOE — Decreto Legislativo 2/2014 (texto consolidado)", "url": "https://www.boe.es/buscar/pdf/2015/BOE-A-2015-945-consolidado.pdf" },
-        { "label": "Servicios Tributarios del Principado de Asturias", "url": "https://sede.tributasenasturias.es/sites/epstpa/default/es_ES/tributos/transmisiones-patrimoniales/Beneficios-fiscales/Principado-de-Asturias" }
+        { "label": "Servicios Tributarios del Principado de Asturias", "url": "https://sede.tributasenasturias.es/sites/epstpa/default/es_ES/tributos/transmisiones-patrimoniales/Beneficios-fiscales/Principado-de-Asturias" },
+        { "label": "STPA — Modalidad Actos Jurídicos Documentados", "url": "https://sede.tributasenasturias.es/sites/sede/default/es_ES/Que-quieres-hacer/Transmisiones-Patrimoniales-y-AJD/Guia-del-impuesto/Modalidad-Actos-Juridicos-Documentados" }
       ]
     },
     {
       "code": "BAL", "name": "Illes Balears",
-      "itpPercentage": 8, "ajdPercentage": null,
+      "itpPercentage": 8, "ajdPercentage": 1.5,
       "itpBrackets": [ { "upTo": 400000, "rate": 8 }, { "upTo": 600000, "rate": 9 }, { "upTo": 1000000, "rate": 10 }, { "upTo": 2000000, "rate": 12 }, { "upTo": null, "rate": 13 } ],
       "generalNote": "Tipo reducido general vivienda habitual (cualquier comprador, sin colectivo): 4% si el valor <=270.151,20 EUR y no dispone de otra vivienda.",
       "cautionNote": "Se ha detectado una posible Ley 4/2026 (11 de junio) con modificaciones adicionales al Decreto Legislativo 1/2014, cuyo contenido no se ha podido verificar en detalle — confirmar con la ATIB antes de producción.",
@@ -75,12 +77,13 @@
       ],
       "sources": [
         { "label": "ATIB — Impuesto de Transmisiones Patrimoniales", "url": "https://www.atib.es/TA/contenido.aspx?Id=16198&lang=es" },
-        { "label": "ATIB — Vivienda habitual", "url": "https://www.atib.es/TA/contenido.aspx?Id=9854&lang=es" }
+        { "label": "ATIB — Vivienda habitual", "url": "https://www.atib.es/TA/contenido.aspx?Id=9854&lang=es" },
+        { "label": "BOE — Decreto Legislativo 1/2014 (Illes Balears, art. 15, AJD desde 2020)", "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2014-6925" }
       ]
     },
     {
       "code": "CAN", "name": "Canaries",
-      "itpPercentage": 6.5, "itpBrackets": null, "ajdPercentage": null,
+      "itpPercentage": 6.5, "itpBrackets": null, "ajdPercentage": 0.75,
       "generalNote": "Tipo reducido general vivienda habitual: 5% (límite de valor <=150.000 EUR citado solo por fuente secundaria, no confirmado textualmente en el articulado).",
       "cautionNote": null,
       "reducedRates": [
@@ -92,14 +95,15 @@
         { "category": "VIOLENCIA_GENERO", "label": "Mujeres víctimas de violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": 20, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "verified" }
       ],
       "sources": [
-        { "label": "Agencia Tributaria Canaria — Guía completa ITP y AJD (PDF)", "url": "https://www3.gobiernodecanarias.org/tributos/atc/estatico/asistencia_contribuyente/guias/pdf/guia_completa_itp_y_ajd.pdf" }
+        { "label": "Agencia Tributaria Canaria — Guía completa ITP y AJD (PDF)", "url": "https://www3.gobiernodecanarias.org/tributos/atc/estatico/asistencia_contribuyente/guias/pdf/guia_completa_itp_y_ajd.pdf" },
+        { "label": "Gobierno de Canarias — Transmisiones patrimoniales y Actos jurídicos documentados", "url": "https://www3.gobiernodecanarias.org/tributos/atc/en/w/ttpp-y-aajjdd" }
       ]
     },
     {
       "code": "CTB", "name": "Cantabria",
-      "itpPercentage": 7, "ajdPercentage": null,
+      "itpPercentage": 7, "ajdPercentage": 1.5,
       "itpBrackets": [ { "upTo": 300000, "rate": 7 }, { "upTo": null, "rate": 9 } ],
-      "generalNote": "Escala vigente desde el 1 de mayo de 2026 (Ley de Cantabria 5/2026). Existe además un tipo del 5% para rehabilitación inmediata de vivienda y una bonificación del 90% de la cuota en municipios de 'reto demográfico'.",
+      "generalNote": "Escala de ITP vigente desde el 1 de mayo de 2026 (Ley de Cantabria 5/2026). Existe además un tipo del 5% para rehabilitación inmediata de vivienda y una bonificación del 90% de la cuota en municipios de 'reto demográfico'. AJD general: 1,5% (Ley de Cantabria 3/2024, de 23/12, BOC 30/12/2024).",
       "cautionNote": null,
       "reducedRates": [
         { "category": "JOVENES", "label": "Jóvenes <40 años", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": 300000, "ageLimit": 40, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No se ha localizado límite de ingresos.", "status": "verified" },
@@ -111,12 +115,13 @@
       ],
       "sources": [
         { "label": "Agencia Cántabra de Administración Tributaria — Transmisiones Patrimoniales", "url": "https://www.agenciacantabratributaria.es/tributos/transmisiones-patrimoniales-y-actos-juridicos-documentados/transmisiones-patrimoniales" },
-        { "label": "BOE — Ley de Cantabria 5/2026", "url": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-10431" }
+        { "label": "BOE — Ley de Cantabria 5/2026", "url": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-10431" },
+        { "label": "Agencia Cántabra de Administración Tributaria — Reforma fiscal (AJD)", "url": "https://www.agenciacantabratributaria.es/reforma-fiscal" }
       ]
     },
     {
       "code": "CLM", "name": "Castella-La Manxa",
-      "itpPercentage": 9, "itpBrackets": null, "ajdPercentage": null,
+      "itpPercentage": 9, "itpBrackets": null, "ajdPercentage": 1.5,
       "generalNote": "Tipo reducido general vivienda habitual (sin colectivo especial): 6% — citado de forma consistente por fuentes fiscales privadas, pero no confirmado literalmente en el portal oficial JCCM.",
       "cautionNote": "Existe una posible bonificación adicional en zonas de riesgo de despoblación, con datos contradictorios entre fuentes (100% de la cuota vs. escala progresiva 3%-5%) — no incluida por falta de certeza.",
       "reducedRates": [
@@ -129,12 +134,13 @@
       ],
       "sources": [
         { "label": "Portal Tributario JCCM — Beneficios Fiscales en ITP y AJD", "url": "https://portaltributario.jccm.es/informacion-tributaria/beneficios-fiscales-en-el-impuesto-sobre-transmisiones-patrimoniales-y-actos" },
-        { "label": "BOE — Ley 1/2026, de 26 de marzo", "url": "https://www.boe.es/buscar/doc.php?id=DOCM-q-2026-90065" }
+        { "label": "BOE — Ley 1/2026, de 26 de marzo", "url": "https://www.boe.es/buscar/doc.php?id=DOCM-q-2026-90065" },
+        { "label": "Portal Tributario JCCM — Entrada en vigor Ley 1/2026", "url": "https://portaltributario.jccm.es/avisos/entrada-en-vigor-de-la-ley-12026-de-26-de-marzo-de-medidas-administrativas-y-tributarias-de" }
       ]
     },
     {
       "code": "CYL", "name": "Castella i Lleo",
-      "itpPercentage": 8, "ajdPercentage": null,
+      "itpPercentage": 8, "ajdPercentage": 1.5,
       "itpBrackets": [ { "upTo": 250000, "rate": 8 }, { "upTo": null, "rate": 10 } ],
       "generalNote": null,
       "cautionNote": null,
@@ -148,12 +154,13 @@
       ],
       "sources": [
         { "label": "Tributos JCyL — ITP, beneficios fiscales", "url": "https://tributos.jcyl.es/web/es/beneficios-fiscales/impuesto-sobre-transmisiones-patrimoniales.html" },
-        { "label": "Tributos JCyL — Beneficios fiscales para jóvenes", "url": "https://tributos.jcyl.es/web/es/informa-preguntas-frecuentes/beneficios-fiscales-para-jovenes.html" }
+        { "label": "Tributos JCyL — Beneficios fiscales para jóvenes", "url": "https://tributos.jcyl.es/web/es/informa-preguntas-frecuentes/beneficios-fiscales-para-jovenes.html" },
+        { "label": "Tributos JCyL — Modalidad Actos Jurídicos Documentados", "url": "https://tributos.jcyl.es/web/es/preguntas-frecuentes/modalidad-actos-juridicos-documentados.html" }
       ]
     },
     {
       "code": "CAT", "name": "Catalunya",
-      "itpPercentage": 10, "ajdPercentage": null,
+      "itpPercentage": 10, "ajdPercentage": 1.5,
       "itpBrackets": [ { "upTo": 600000, "rate": 10 }, { "upTo": 900000, "rate": 11 }, { "upTo": 1500000, "rate": 12 }, { "upTo": null, "rate": 13 } ],
       "generalNote": "Escala vigente desde el 27/06/2025 (Decret-llei 5/2025). Existe además un tipo agravado del 20% para 'grandes tenedores' de vivienda.",
       "cautionNote": null,
@@ -167,14 +174,15 @@
       ],
       "sources": [
         { "label": "Agència Tributària de Catalunya — Tarifes i tipus impositius", "url": "https://atc.gencat.cat/es/tributs/itpajd/tpo/tarifes-tipus/" },
-        { "label": "ATC — Noves mesures fiscals, 27/06/2025", "url": "https://atc.gencat.cat/ca/agencia/noticies/detall-noticia/20250627-mesures-fiscals-2025-itpajd-isd" }
+        { "label": "ATC — Noves mesures fiscals, 27/06/2025", "url": "https://atc.gencat.cat/ca/agencia/noticies/detall-noticia/20250627-mesures-fiscals-2025-itpajd-isd" },
+        { "label": "Agència Tributària de Catalunya — Actes Jurídics Documentats", "url": "https://atc.gencat.cat/es/tributs/itpajd/ajd/" }
       ]
     },
     {
       "code": "VAL", "name": "Comunitat Valenciana",
-      "itpPercentage": 9, "ajdPercentage": null,
+      "itpPercentage": 9, "ajdPercentage": 1.4,
       "itpBrackets": [ { "upTo": 1000000, "rate": 9 }, { "upTo": null, "rate": 11 } ],
-      "generalNote": "El tipo general bajó del 10% al 9% el 1 de junio de 2026 (Ley 5/2025). Para operaciones anteriores a esa fecha, el tipo aplicable era 10% (tramo único).",
+      "generalNote": "El tipo general de ITP bajó del 10% al 9% el 1 de junio de 2026 (Ley 5/2025). Para operaciones anteriores a esa fecha, el tipo aplicable era 10% (tramo único). AJD general: bajó del 1,5% al 1,4% con efectos desde el 1/6/2026 (misma Ley 5/2025, de 30/5, DOGV).",
       "cautionNote": null,
       "reducedRates": [
         { "category": "JOVENES", "label": "Jóvenes <35 años", "rate": null, "rateBrackets": [ { "upTo": 180000, "rate": 6 }, { "upTo": null, "rate": 8 } ], "bonusPercentage": null, "priceLimit": null, "ageLimit": 35, "disabilityMinPercentage": null, "incomeLimitIndividual": 30000, "incomeLimitJoint": 47000, "notes": "Importes de renta confirmados por múltiples fuentes coincidentes.", "status": "verified" },
@@ -191,7 +199,7 @@
     },
     {
       "code": "EXT", "name": "Extremadura",
-      "itpPercentage": 8, "ajdPercentage": null,
+      "itpPercentage": 8, "ajdPercentage": 1.5,
       "itpBrackets": [ { "upTo": 360000, "rate": 8 }, { "upTo": 600000, "rate": 10 }, { "upTo": null, "rate": 11 } ],
       "generalNote": "Escala vigente desde el 5/08/2026 (Ley 2/2026). No se ha podido confirmar si el tipo reducido general anterior del 7% (vivienda habitual <=200.000 EUR, sin colectivo especial) sigue vigente tras esta ley.",
       "cautionNote": "La Ley 2/2026 permite además fraccionar el pago del ITP hasta en 10 años para jóvenes, familias numerosas, monoparentales y personas con discapacidad.",
@@ -205,13 +213,14 @@
         { "category": "VIOLENCIA_GENERO", "label": "Violencia de género", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-found" }
       ],
       "sources": [
-        { "label": "BOE — Ley 2/2026, de 3 de agosto, Presupuestos de Extremadura", "url": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-17839" }
+        { "label": "BOE — Ley 2/2026, de 3 de agosto, Presupuestos de Extremadura", "url": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-17839" },
+        { "label": "BOE — Ley 5/2022, de 25 de noviembre (AJD general 1,5%)", "url": "https://www.boe.es/buscar/doc.php?id=BOE-A-2022-21019" }
       ]
     },
     {
       "code": "GAL", "name": "Galicia",
-      "itpPercentage": 8, "itpBrackets": null, "ajdPercentage": null,
-      "generalNote": "Tipo reducido general vivienda habitual: 7% si el patrimonio de los adquirentes + unidad familiar no supera 200.000 EUR (+30.000 EUR/miembro adicional). En zonas rurales declaradas, el tipo baja a 6% general / 5% habitual, con deducción del 100% para los colectivos reducidos.",
+      "itpPercentage": 8, "itpBrackets": null, "ajdPercentage": 1.5,
+      "generalNote": "Tipo reducido general de ITP vivienda habitual: 7% si el patrimonio de los adquirentes + unidad familiar no supera 200.000 EUR (+30.000 EUR/miembro adicional). En zonas rurales declaradas, el tipo baja a 6% general / 5% habitual, con deducción del 100% para los colectivos reducidos. AJD general: 1,5% (Ley 5/2024, de 27/12, DOG 31/12/2024).",
       "cautionNote": null,
       "reducedRates": [
         { "category": "JOVENES", "label": "Jóvenes <36 años", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": 36, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Límite de patrimonio (no de renta anual): 200.000 EUR + 30.000 EUR por miembro adicional.", "status": "verified" },
@@ -244,8 +253,8 @@
     },
     {
       "code": "MUR", "name": "Murcia",
-      "itpPercentage": 7.75, "itpBrackets": null, "ajdPercentage": null,
-      "generalNote": "Reducido desde el 8% el 25/07/2025 (Ley 3/2025 de Presupuestos).",
+      "itpPercentage": 7.75, "itpBrackets": null, "ajdPercentage": 1.5,
+      "generalNote": "ITP reducido desde el 8% el 25/07/2025 (Ley 3/2025 de Presupuestos). AJD general reducido del 2% al 1,5% en la misma fecha y la misma ley (aplicable a primeras copias de escritura de transmisión de inmuebles sujetas a IVA, p.ej. obra nueva).",
       "cautionNote": null,
       "reducedRates": [
         { "category": "JOVENES", "label": "Jóvenes <=40 años", "rate": 3, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": 40, "disabilityMinPercentage": null, "incomeLimitIndividual": 40000, "incomeLimitJoint": null, "notes": "Base imponible general menos mínimo personal/familiar <40.000 EUR; base del ahorro <=1.800 EUR.", "status": "verified" },
@@ -262,7 +271,7 @@
     },
     {
       "code": "NAV", "name": "Navarra",
-      "itpPercentage": 6, "itpBrackets": null, "ajdPercentage": null,
+      "itpPercentage": 6, "itpBrackets": null, "ajdPercentage": 0.5,
       "generalNote": "Régimen foral propio (Convenio Económico) — no segmenta tipos por tantos colectivos como el resto de España.",
       "cautionNote": null,
       "reducedRates": [
@@ -297,8 +306,8 @@
     },
     {
       "code": "RIO", "name": "La Rioja",
-      "itpPercentage": 7, "itpBrackets": null, "ajdPercentage": null,
-      "generalNote": null,
+      "itpPercentage": 7, "itpBrackets": null, "ajdPercentage": 1,
+      "generalNote": "AJD general: 1%.",
       "cautionNote": null,
       "reducedRates": [
         { "category": "JOVENES", "label": "Jóvenes <40 años", "rate": 4, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": 40, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "Sin límite de precio ni de ingresos. Tipo del 3% en municipios de despoblación del Anexo I de la Ley 10/2017 (desde la Ley 1/2025).", "status": "verified" },
@@ -314,8 +323,8 @@
     },
     {
       "code": "CEU", "name": "Ceuta",
-      "itpPercentage": 6, "itpBrackets": null, "ajdPercentage": null,
-      "generalNote": "Ceuta no tiene competencias normativas cedidas en ITP; se aplica la Ley estatal (RDLeg 1/1993). Bonificación automática del 50% sobre la cuota para cualquier inmueble en Ceuta (Art. 57 bis), sin requisito de colectivo -> tipo efectivo para cualquier comprador: 3%.",
+      "itpPercentage": 6, "itpBrackets": null, "ajdPercentage": 0.5,
+      "generalNote": "Ceuta no tiene competencias normativas cedidas en ITP ni AJD; se aplica la Ley estatal (RDLeg 1/1993). ITP: bonificación automática del 50% sobre la cuota para cualquier inmueble en Ceuta (Art. 57 bis), sin requisito de colectivo -> tipo efectivo para cualquier comprador: 3%. AJD: tipo supletorio estatal del 0,50% (art. 31.2 TRLITPAJD, aplicable por no haber CCAA con competencia normativa) con la misma bonificación del 50% de la cuota gradual de documentos notariales cuando el registro radica en Ceuta -> tipo efectivo: 0,25%.",
       "cautionNote": "Una fuente privada (forohipotecario.es) afirma que el tipo general es del 8% y que la bonificación del 50% solo aplica en Ceuta, no en Melilla. Esto contradice el texto legal oficial (Art. 11.1.a y 57 bis RDLeg 1/1993), que fija el 6% con bonificación del 50% aplicada por igual a ambas ciudades. Se prioriza la fuente legal oficial.",
       "reducedRates": [
         { "category": "JOVENES", "label": "Jóvenes", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": "No existen tipos reducidos estatales por edad para vivienda de segunda mano.", "status": "not-applicable" },
@@ -331,8 +340,8 @@
     },
     {
       "code": "MEL", "name": "Melilla",
-      "itpPercentage": 6, "itpBrackets": null, "ajdPercentage": null,
-      "generalNote": "Régimen idéntico al de Ceuta (mismo marco legal estatal, RDLeg 1/1993). Bonificación automática del 50% sobre la cuota (Art. 57 bis) -> tipo efectivo para cualquier comprador: 3%.",
+      "itpPercentage": 6, "itpBrackets": null, "ajdPercentage": 0.5,
+      "generalNote": "Régimen idéntico al de Ceuta (mismo marco legal estatal, RDLeg 1/1993). ITP: bonificación automática del 50% sobre la cuota (Art. 57 bis) -> tipo efectivo para cualquier comprador: 3%. AJD: tipo supletorio estatal del 0,50% con la misma bonificación del 50% -> tipo efectivo: 0,25%.",
       "cautionNote": "La misma fuente privada que discrepa para Ceuta afirma que Melilla NO recibe la bonificación del 50% — contradice el Art. 57 bis, que no distingue entre ambas ciudades. Se prioriza la fuente legal oficial.",
       "reducedRates": [
         { "category": "JOVENES", "label": "Jóvenes", "rate": null, "rateBrackets": null, "bonusPercentage": null, "priceLimit": null, "ageLimit": null, "disabilityMinPercentage": null, "incomeLimitIndividual": null, "incomeLimitJoint": null, "notes": null, "status": "not-applicable" },

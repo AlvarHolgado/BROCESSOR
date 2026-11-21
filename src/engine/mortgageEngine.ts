@@ -172,6 +172,15 @@ export interface RegionalTaxResult {
   totalTaxAmount: number;
 }
 
+/** Trim + lowercase + strip diacritics, so a stray whitespace/case/accent difference (or a full CCAA name passed where a code was expected) can still resolve via the fallback lookup below. Same normalization technique as chat/extraction.ts's extractCcaaCode. */
+function normalizeForCcaaMatch(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '');
+}
+
 /**
  * Computes the regional transfer/stamp tax burden for a property purchase.
  *
@@ -183,8 +192,15 @@ export interface RegionalTaxResult {
  * (jóvenes, família numerosa, etc.) require collective-specific eligibility logic
  * and are intentionally not applied here.
  *
- * Throws if `ccaaCode` has no matching entry in `ccaaTaxRates`, rather than
- * silently falling back to a guessed rate.
+ * Lookup is by exact `code` match first (the normal path: the UI's <select>
+ * always sends the short code, e.g. "CAT" — see Screen3PropertyFinancing.tsx
+ * and ccaaOptions.ts, which derive both the dropdown's `value` and this
+ * function's own reference data from the SAME array, so they cannot drift
+ * apart). A normalized (trimmed/lowercased/accent-stripped) fallback against
+ * both `code` and `name` runs only if that exact match fails, purely as a
+ * defensive safety net against a future caller accidentally passing a raw
+ * CCAA name ("Catalunya"/"Cataluña") instead of its code. Still throws if
+ * NEITHER lookup finds anything, rather than silently guessing a rate.
  */
 export function calculateRegionalTaxBurden(
   ccaaCode: string,
@@ -192,7 +208,15 @@ export function calculateRegionalTaxBurden(
   taxableBase: number,
   ccaaTaxRates: CcaaTaxRate[]
 ): RegionalTaxResult {
-  const ccaaRate = ccaaTaxRates.find((entry) => entry.code === ccaaCode);
+  let ccaaRate = ccaaTaxRates.find((entry) => entry.code === ccaaCode);
+
+  if (!ccaaRate) {
+    const normalizedInput = normalizeForCcaaMatch(ccaaCode);
+    ccaaRate = ccaaTaxRates.find(
+      (entry) => normalizeForCcaaMatch(entry.code) === normalizedInput || normalizeForCcaaMatch(entry.name) === normalizedInput
+    );
+  }
+
   if (!ccaaRate) {
     throw new Error(`No tax rate data found for CCAA code "${ccaaCode}".`);
   }

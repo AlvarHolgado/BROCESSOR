@@ -184,8 +184,12 @@ describe('useSimulator', () => {
     expect(result.current.output?.bankBonified.monthlyQuota).toBeGreaterThan(0);
     expect(result.current.output?.bankNonBonified.monthlyQuota).toBeGreaterThan(0);
     expect(result.current.output?.broker.monthlyQuota).toBeGreaterThan(0);
-    // Broker always resolves to its own max LTV, ignoring the bank-mode requested LTV.
-    expect(result.current.output?.broker.ltv.effectiveLtvPercentage).not.toBe(80);
+    // The broker LTV follows its strategy: its own max ceiling when the bank is tight, the client's requested LTV otherwise.
+    const broker = result.current.output?.broker;
+    const strategy = result.current.output?.brokerStrategy;
+    expect(broker?.ltv.effectiveLtvPercentage).toBe(
+      strategy?.mode === 'MAX_FINANCING' ? broker?.ltv.maxLtvPercentage : result.current.input?.requestedLtvPercentage
+    );
   });
 
   it('clears the output again once a valid form is edited back into an invalid state', () => {

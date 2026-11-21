@@ -71,7 +71,7 @@ export const en: Dictionary = {
     ccaaLabel: 'Autonomous Community',
     ltvHeading: 'Desired financing percentage (%)',
     ltvHelper:
-      "The TIN is determined automatically from market data: you don't need to enter it. This percentage only applies to the bank calculation — the broker always uses the maximum financing it can achieve.",
+      "The TIN is determined automatically from market data: you don't need to enter it. This percentage only applies to the bank calculation — the broker adapts the financing to the profile: the maximum possible if the bank cannot finance the operation, or the requested amount on the lowest-cost conditions if it is viable.",
     ltvLabel: 'Desired financing percentage (%)',
     ltvHint: (pct) => `${pct}%`,
     durationHeading: 'Term (years)',
@@ -84,7 +84,7 @@ export const en: Dictionary = {
 
   screen4: {
     intro: () =>
-      'These are the conditions a bank could offer you directly for your financing, with and without the usual bonifications (payroll, insurance, etc.).',
+      'These are the conditions a bank could offer you directly for your financing, with and without the usual bonuses (payroll, insurance, etc.).',
     noMarketData: 'No market TIN data is available for this option — the quota cannot be calculated.',
     continueCta: 'Explore Broker option →',
   },
@@ -92,8 +92,34 @@ export const en: Dictionary = {
   screen5: {
     intro: () =>
       'A broker negotiates your financing with multiple lenders simultaneously, seeking the best conditions available on the market.',
-    emphasis:
-      'Able to negotiate financing of up to 90% LTV or better rate conditions for more complex risk profiles that banks won’t accept directly.',
+    strategy: {
+      maxFinancingTitle: 'Broker strategy: maximum financing',
+      maxFinancingWhy: (reasons) =>
+        `A direct bank cannot finance this operation as proposed (${reasons}). The broker therefore prioritizes reaching the highest possible financing percentage.`,
+      reasonLtv: 'the requested financing percentage exceeds the bank’s limit',
+      reasonDsti: (threshold) => `the debt ratio (DSTI) would exceed ${threshold}`,
+      reasonSavings: 'the available savings plus the bank’s maximum financing do not cover the purchase price',
+      structureWithExtra: (ltv, extra) =>
+        `Structure: the broker negotiates the operation up to ${ltv} LTV (the channel maximum), financing ${extra} more than the bank, and the initial contribution drops by that same amount.`,
+      structureNoExtra: (ltv) =>
+        `Structure: the broker negotiates the operation with a ${ltv} LTV limit (the channel maximum); given the available savings, the financed amount matches the bank’s.`,
+      conditionDstiWithin: (dsti, threshold) =>
+        `At this amount, the debt ratio (DSTI) is ${dsti}, within the ${threshold} limit.`,
+      conditionDstiAbove: (dsti, threshold) =>
+        `At this amount, the debt ratio (DSTI) would be ${dsti}, above the ${threshold} limit: approval would depend on the lender’s risk analysis.`,
+      conditionNotFullyFinanceable:
+        'Even at the broker’s maximum LTV, the available savings do not cover the full purchase price.',
+      conditionApproval: (ltv) =>
+        `${ltv} LTV is the market convention for the broker channel, not a guarantee: final approval depends on the lender.`,
+      feesNote: 'Broker fees are not included in this calculation.',
+      lowestCostTitle: 'Broker strategy: lowest-cost conditions',
+      lowestCostWhy: (ltv, dsti) =>
+        `Direct bank financing is viable for this profile, so the broker does not increase your debt: it keeps the requested financing (${ltv} LTV, DSTI debt ratio of ${dsti}) and looks for the lowest-cost combination of market conditions.`,
+      lowestCostSaving: (quota, cost) =>
+        `Result: ${quota} less monthly quota and ${cost} less total cost of credit compared with the direct bank.`,
+      lowestCostNoSaving:
+        'With the current market data, the broker does not improve on the direct bank’s quota or total cost for this mortgage type.',
+    },
     noMarketData: 'No market TIN data is available for this option — the quota cannot be calculated.',
     continueCta: 'View amortization schedule →',
   },
@@ -120,8 +146,8 @@ export const en: Dictionary = {
 
   offerCard: {
     pathLabels: {
-      BANK_BONIFIED: 'Bank — bonified',
-      BANK_NON_BONIFIED: 'Bank — non-bonified',
+      BANK_BONIFIED: 'Bank — with bonuses',
+      BANK_NON_BONIFIED: 'Bank — without bonuses',
       BROKER: 'Broker',
     },
     notAvailable: 'Not available',
@@ -144,14 +170,12 @@ export const en: Dictionary = {
       'This offer does not specify a minimum (floor) or maximum (cap) rate clause in the consulted data source.',
     variableDisclaimer: () =>
       'This is an estimate based on the current Euribor — your payment may be periodically revised according to its evolution.',
-    viabilityBothExceeded: (channel) =>
-      `Direct bank financing not viable (${channel}): the debt level (DSTI) and the financing percentage (LTV) exceed the bank's standard limits.`,
-    viabilityLtvExceeded: (channel) =>
-      `Direct bank financing not viable (${channel}): the requested financing percentage (LTV) exceeds the bank's standard limit.`,
-    viabilityDstiExceeded: (channel) =>
-      `Direct bank financing not viable (${channel}): the debt level (DSTI) exceeds the bank's standard limit.`,
-    maxViableLoanLabel: 'Maximum viable amount with bank',
-    maxViableLtvLabel: 'Maximum viable LTV with bank',
+    justificationBothExceeded: (channel, adjustedLtv, dstiThreshold) =>
+      `${channel} offer automatically adjusted: LTV was capped at ${adjustedLtv} (this bank's maximum) and the amount was reduced to keep the debt ratio (DSTI) below ${dstiThreshold}, since the original request exceeded both limits.`,
+    justificationLtvExceeded: (channel, adjustedLtv) =>
+      `${channel} offer automatically adjusted to ${adjustedLtv} LTV, the maximum this bank allows — the requested percentage exceeded it.`,
+    justificationDstiExceeded: (channel, adjustedLtv, dstiThreshold) =>
+      `Borrowing capacity adjusted to ${adjustedLtv} LTV to keep the ${channel} offer's debt ratio (DSTI) below ${dstiThreshold}.`,
     brokerAlternativeNote:
       'See the broker alternative in the next step: it can negotiate financing of up to 90% LTV or structure the transaction for more complex risk profiles.',
     differential: {
@@ -200,6 +224,8 @@ export const en: Dictionary = {
       `Notary (purchase): ${notary} · Registry (purchase): ${registry} · Notary, registry and agency (mortgage): €0 — borne by the bank by law (Law 5/2019, LCCI)`,
     totalLabel: 'Total initial funds required',
     notFullyFinanceableWarning: 'The available savings do not cover the purchase price with this option.',
+    totalExcludesUnavailableTax:
+      'This total does NOT include AJD, since no official data is available for this autonomous community — the real cost of this transaction could be higher than shown.',
   },
 
   amortizationChart: {
@@ -237,16 +263,16 @@ export const en: Dictionary = {
     emptyState: "You haven't saved any scenarios yet.",
     selectForCompareAria: (name) => `Select ${name} to compare`,
     savedOn: (date) => `Saved on ${date}`,
-    quotaSuffix: (amount) => `${amount}/month (bonified bank)`,
+    quotaSuffix: (amount) => `${amount}/month (bank with bonuses)`,
     quotaUnavailable: 'payment not available',
     deleteCta: 'Delete',
     comparisonHeading: 'Scenario comparison',
     clearSelectionCta: 'Clear selection',
     metricHeader: 'Metric',
-    monthlyQuotaMetric: 'Monthly payment (bonified bank)',
-    ltvMetric: 'Effective LTV (bonified bank)',
-    dstiMetric: 'Short-term DSTI ratio (bonified bank)',
-    riskProfileMetric: 'Short-term risk profile (bonified bank)',
+    monthlyQuotaMetric: 'Monthly payment (bank with bonuses)',
+    ltvMetric: 'Effective LTV (bank with bonuses)',
+    dstiMetric: 'Short-term DSTI ratio (bank with bonuses)',
+    riskProfileMetric: 'Short-term risk profile (bank with bonuses)',
     notAvailable: 'Not available',
   },
 
@@ -468,8 +494,6 @@ export const en: Dictionary = {
     dstiShortTermLabelDual: 'DSTI ratio (short term)',
     dstiLongTermLabel: 'DSTI ratio (long term)',
     notFullyFinanceableWarning: 'Warning: the available savings do not cover the purchase price with this LTV.',
-    bankNotViableWarning: (maxAmount, maxLtv) =>
-      `Direct bank financing not viable — maximum viable amount: ${maxAmount} (maximum viable LTV: ${maxLtv}%). Consider the broker option.`,
     marketDataUnavailable: 'Market data not available',
     quotaNotComputable: 'The payment cannot be calculated for this option with the available market data.',
     section4Title: '4. Taxes and formalization costs',
