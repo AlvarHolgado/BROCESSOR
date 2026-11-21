@@ -108,7 +108,7 @@ export const ca = {
         `El banc directe no pot finançar aquesta operació tal com es planteja (${reasons}). Per això el broker prioritza aconseguir el major percentatge de finançament possible, acceptant un endeutament superior al 35% habitual dels bancs sempre que continuï sent sostenible.`,
       reasonLtv: 'el percentatge de finançament sol·licitat supera el límit del banc',
       reasonDsti: (threshold: string) => `la ràtio d’endeutament (DSTI) superaria el ${threshold}`,
-      reasonSavings: 'els estalvis disponibles més el finançament màxim del banc no cobreixen el preu de compra',
+      reasonSavings: 'els estalvis disponibles més el finançament màxim del banc no cobreixen el preu de compra i els costos',
       structureWithExtra: (ceilingLtv: string, loan: string, actualLtv: string, extra: string, contributionSaving: string) =>
         `Estructura: el broker negocia l’operació amb un límit de ${ceilingLtv} de LTV (el màxim del canal) i la finança amb un préstec de ${loan} (${actualLtv} de LTV real), és a dir, ${extra} més que el banc; l’aportació inicial es redueix en ${contributionSaving}.`,
       structureNoExtra: (ceilingLtv: string, loan: string, actualLtv: string) =>
@@ -122,7 +122,7 @@ export const ca = {
       conditionDstiAboveLimit: (dsti: string, limit: string) =>
         `Amb aquest import, la ràtio d’endeutament (DSTI) seria del ${dsti}, per sobre del ${limit} que el broker considera sostenible: amb el nivell de deutes actual l’operació no es pot viabilitzar de manera sostenible.`,
       conditionNotFullyFinanceable:
-        'Fins i tot amb el màxim finançament sostenible del broker, els estalvis disponibles no cobreixen la totalitat del preu de compra.',
+        'Fins i tot amb el màxim finançament sostenible del broker, els estalvis disponibles no cobreixen la totalitat de l’entrada i els costos.',
       conditionApproval: (ltv: string) =>
         `El ${ltv} de LTV és la convenció de mercat del canal broker, no una garantia: l’aprovació final depèn de l’entitat financera.`,
       feesNote: 'Els honoraris del broker no estan inclosos en aquest càlcul.',
@@ -259,9 +259,20 @@ export const ca = {
     formalizationNote: (notary: string, registry: string) =>
       `Notaria (compravenda): ${notary} · Registre (compravenda): ${registry} · Notaria, registre i gestoria (hipoteca): 0 € — a càrrec del banc per llei (Llei 5/2019, LCCI)`,
     totalLabel: 'Total fons inicials necessaris',
-    notFullyFinanceableWarning: 'Els estalvis disponibles no cobreixen el preu de compra amb aquesta opció.',
+    notFullyFinanceableWarning: 'Els estalvis disponibles no cobreixen els impostos, les despeses i l’entrada que requereix aquesta opció.',
     totalExcludesUnavailableTax:
       'Aquest total NO inclou l’AJD, ja que no hi ha dades oficials disponibles per a aquesta comunitat autònoma — el cost real d’aquesta operació podria ser superior al mostrat.',
+  },
+
+  savingsAllocation: {
+    title: 'Distribució dels estalvis',
+    availableLabel: 'Estalvis disponibles',
+    costsLabel: 'Impostos i despeses de formalització',
+    downPaymentLabel: 'Entrada coberta amb estalvis',
+    loanLabel: 'Préstec (LTV real)',
+    surplusLabel: 'Estalvis sobrants',
+    shortfallLabel: 'Falten per cobrir',
+    note: 'Els estalvis cobreixen primer els impostos i les despeses de formalització; amb la resta es paga l’entrada i el préstec cobreix la resta del preu. La taxació no s’hi inclou (no hi ha dades oficials d’aquest cost).',
   },
 
   amortizationChart: {
@@ -401,6 +412,32 @@ export const ca = {
     launcherAria: 'Obre l’assistent virtual',
     closeAria: 'Tanca l’assistent',
     minimizeAria: 'Minimitza l’assistent',
+    expandAria: 'Amplia el xat a pantalla completa',
+    collapseAria: 'Tanca la pantalla completa (Esc)',
+    fullscreenHint: 'Prem Esc per tornar a la vista normal.',
+    userLabel: 'Tu',
+    summaryShow: 'Veure resum',
+    summaryHide: 'Amaga el resum',
+    summary: {
+      title: 'Resum de la simulació',
+      empty: 'Encara no hi ha dades. Les aniràs veient aquí a mesura que responguis.',
+      holdersHeading: 'Titulars',
+      perMonth: '/mes',
+      economyHeading: 'Situació econòmica',
+      debtsLabel: 'Deutes mensuals',
+      savingsLabel: 'Estalvis',
+      propertyHeading: 'Habitatge',
+      priceLabel: 'Preu',
+      appraisalLabel: 'Taxació',
+      typeLabel: 'Tipus',
+      usageLabel: 'Ús',
+      ccaaLabel: 'Comunitat',
+      financingHeading: 'Finançament',
+      requestedLtvLabel: 'Finançament sol·licitat',
+      termLabel: 'Termini',
+      mortgageTypeLabel: 'Tipus d’hipoteca',
+      resultsHeading: 'Resultat',
+    },
     inputPlaceholder: 'Escriu la teva resposta...',
     inputAriaLabel: 'Missatge per a l’assistent',
     sendCta: 'Envia',
@@ -584,7 +621,7 @@ export const ca = {
     dstiShortTermLabel: 'Ràtio DSTI',
     dstiShortTermLabelDual: 'Ràtio DSTI (curt termini)',
     dstiLongTermLabel: 'Ràtio DSTI (llarg termini)',
-    notFullyFinanceableWarning: 'Atenció: els estalvis disponibles no cobreixen el preu de compra amb aquest LTV.',
+    notFullyFinanceableWarning: 'Atenció: els estalvis disponibles no cobreixen els impostos, les despeses i l’entrada que requereix aquest LTV.',
     marketDataUnavailable: 'Dada de mercat no disponible',
     quotaNotComputable: 'No es pot calcular la quota per a aquesta modalitat amb les dades de mercat disponibles.',
     section4Title: '4. Impostos i despeses de formalització',

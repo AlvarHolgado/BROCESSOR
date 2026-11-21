@@ -14,6 +14,7 @@ import type { MortgagePathResult } from '../engine/simulate';
 import type { SimulatorInput } from '../types/simulator';
 import { COLORS } from '../styles/theme';
 import { useLanguage } from '../i18n/LanguageContext';
+import { buildSavingsAllocationLines } from '../utils/savingsAllocationText';
 
 export interface InitialContributionCardProps {
   input: SimulatorInput;
@@ -54,6 +55,26 @@ const totalRowStyle: CSSProperties = {
   borderTop: `1px solid ${COLORS.border}`,
   marginTop: '0.3rem',
   paddingTop: '0.6rem',
+};
+
+const allocationBlockStyle: CSSProperties = {
+  borderTop: `1px dashed ${COLORS.border}`,
+  marginTop: '0.6rem',
+  paddingTop: '0.6rem',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.1rem',
+};
+
+const allocationTitleStyle: CSSProperties = {
+  margin: '0 0 0.2rem 0',
+  fontSize: '0.9rem',
+};
+
+const allocationRowStyle: CSSProperties = {
+  ...rowStyle,
+  padding: '0.2rem 0',
+  fontSize: '0.88rem',
 };
 
 const warningStyle: CSSProperties = {
@@ -139,6 +160,17 @@ export function InitialContributionCard({ input, path, taxBreakdown }: InitialCo
           {t.initialContribution.totalExcludesUnavailableTax}
         </p>
       )}
+
+      <div style={allocationBlockStyle} aria-label={t.savingsAllocation.title}>
+        <h5 style={allocationTitleStyle}>{t.savingsAllocation.title}</h5>
+        {buildSavingsAllocationLines(path, t, formatters).map((line) => (
+          <div key={line.label} style={allocationRowStyle}>
+            <span>{line.label}</span>
+            <strong style={line.tone === 'warning' ? { color: COLORS.risk.YELLOW.text } : undefined}>{line.value}</strong>
+          </div>
+        ))}
+        <p style={{ ...noteStyle, margin: '0.3rem 0 0 0' }}>{t.savingsAllocation.note}</p>
+      </div>
 
       {!path.isFullyFinanceable && (
         <p role="alert" style={{ color: COLORS.error, fontSize: '0.85rem', margin: '0.3rem 0 0 0' }}>

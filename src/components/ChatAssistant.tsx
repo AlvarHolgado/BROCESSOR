@@ -22,6 +22,7 @@ import { COLORS } from '../styles/theme';
 import { useLanguage } from '../i18n/LanguageContext';
 import { getCcaaName } from '../i18n/ccaaNames';
 import { generateSimulationPdf } from '../utils/exportPdf';
+import { ChatSummary } from './ChatSummary';
 import { extractYesNo } from '../chat/extraction';
 import { detectGlossaryTopic } from '../chat/glossary';
 import {
@@ -56,10 +57,22 @@ export interface ChatAssistantProps {
   ccaaName: string;
 }
 
+/**
+ * How a message is presented, so the conversation reads with a clear
+ * hierarchy: 'question' is what Àlvar is asking right now (the thing to
+ * answer), 'ack' is a brief confirmation of the previous answer, 'info' is an
+ * explanation or notice, 'plain' is everything else (greetings, farewells,
+ * the user's own messages). `lead` is an optional lead-in sentence rendered
+ * above a question's body (e.g. "Passem a la següent pregunta.").
+ */
+type MessageKind = 'plain' | 'ack' | 'question' | 'info';
+
 interface ChatMessage {
   id: number;
   sender: 'assistant' | 'user';
   text: string;
+  kind: MessageKind;
+  lead?: string;
 }
 
 /**
@@ -90,6 +103,23 @@ const launcherStyle: CSSProperties = {
   height: '3.5rem',
   fontSize: '1.5rem',
 };
+
+// Full-screen variant of the panel below: same colours, border-less and edge to edge.
+const expandedPanelStyle: CSSProperties = {
+  position: 'fixed',
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+  zIndex: 60,
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+  backgroundColor: COLORS.hero.backgroundFrom,
+};
+
+// Keeps the reading column centred and at a comfortable width in full screen (a full-width line of chat text is hard to read).
+const EXPANDED_CONTENT_PADDING = 'max(1rem, calc((100% - 820px) / 2))';
 
 const panelStyle: CSSProperties = {
   position: 'fixed',
@@ -144,20 +174,52 @@ const messagesStyle: CSSProperties = {
   gap: '0.6rem',
 };
 
-function bubbleStyle(sender: ChatMessage['sender']): CSSProperties {
+function bubbleStyle(sender: ChatMessage['sender'], kind: MessageKind = 'plain', expanded = false): CSSProperties {
   const isAssistant = sender === 'assistant';
+  const isAck = kind === 'ack';
+  const isQuestion = kind === 'question';
   return {
-    alignSelf: isAssistant ? 'flex-start' : 'flex-end',
-    maxWidth: '85%',
-    padding: '0.6rem 0.85rem',
+    maxWidth: '100%',
+    padding: isAck ? '0.4rem 0.75rem' : expanded ? '0.8rem 1.05rem' : '0.6rem 0.85rem',
     borderRadius: isAssistant ? '0.9rem 0.9rem 0.9rem 0.2rem' : '0.9rem 0.9rem 0.2rem 0.9rem',
     backgroundColor: isAssistant ? 'rgba(255,255,255,0.08)' : COLORS.brand.mustard,
     color: isAssistant ? COLORS.brand.white : COLORS.brand.navyTrim,
-    fontSize: '0.88rem',
-    lineHeight: 1.4,
+    fontSize: isAck ? (expanded ? '0.88rem' : '0.8rem') : expanded ? '1rem' : '0.88rem',
+    lineHeight: expanded ? 1.55 : 1.4,
     whiteSpace: 'pre-wrap',
+    opacity: isAck ? 0.85 : 1,
+    // A question carries a gold accent bar so the thing to answer stands out from acknowledgments and explanations.
+    borderLeft: isQuestion && isAssistant ? `3px solid ${COLORS.brand.mustard}` : undefined,
   };
 }
+
+// One message "row": optional speaker caption + the bubble, aligned to its side.
+function messageRowStyle(sender: ChatMessage['sender'], expanded: boolean): CSSProperties {
+  return {
+    alignSelf: sender === 'assistant' ? 'flex-start' : 'flex-end',
+    alignItems: sender === 'assistant' ? 'flex-start' : 'flex-end',
+    maxWidth: expanded ? '78%' : '85%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.2rem',
+  };
+}
+
+const speakerLabelStyle: CSSProperties = {
+  color: COLORS.hero.subtitleText,
+  fontSize: '0.7rem',
+  fontWeight: 600,
+  letterSpacing: '0.04em',
+  textTransform: 'uppercase',
+  padding: '0 0.35rem',
+};
+
+const leadStyle: CSSProperties = {
+  display: 'block',
+  color: COLORS.hero.subtitleText,
+  fontSize: '0.78em',
+  marginBottom: '0.25rem',
+};
 
 const typingBubbleStyle: CSSProperties = {
   ...bubbleStyle('assistant'),
@@ -198,6 +260,55 @@ const sendButtonStyle: CSSProperties = {
   fontSize: '0.85rem',
 };
 
+// Body wrapper: a single column in the small chat; message column + summary sidebar side by side in full screen
+// (global.css collapses the two columns into one on narrow screens via .chat-body-expanded).
+function chatBodyStyle(expanded: boolean): CSSProperties {
+  return expanded
+    ? { flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px' }
+    : { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' };
+}
+
+const chatMainColumnStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: 0,
+  minWidth: 0,
+};
+
+const hintRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  padding: '0.1rem 1rem 0.4rem',
+};
+
+const summaryToggleStyle: CSSProperties = {
+  background: 'none',
+  border: 'none',
+  color: COLORS.brand.mustard,
+  cursor: 'pointer',
+  fontSize: '0.72rem',
+  fontWeight: 700,
+  padding: 0,
+  textDecoration: 'underline',
+};
+
+const compactSummaryStyle: CSSProperties = {
+  maxHeight: '11rem',
+  overflowY: 'auto',
+  padding: '0.75rem 1rem',
+  margin: '0 0.75rem 0.5rem',
+  borderRadius: '0.65rem',
+  backgroundColor: 'rgba(255,255,255,0.05)',
+};
+
+const summaryAsideStyle: CSSProperties = {
+  overflowY: 'auto',
+  padding: '1.25rem 1.25rem 1.5rem',
+  backgroundColor: COLORS.hero.backgroundTo,
+  borderLeft: `1px solid ${COLORS.hero.subtitleText}22`,
+};
+
 export function ChatAssistant({
   values,
   setField,
@@ -219,6 +330,9 @@ export function ChatAssistant({
   const [isTyping, setIsTyping] = useState(false);
   const [inputText, setInputText] = useState('');
   const [phase, setPhase] = useState<ChatPhase>('FIELDS');
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const nextMessageId = useRef(0);
   const lastQuestionKeyRef = useRef<string | null>(null);
@@ -252,7 +366,7 @@ export function ChatAssistant({
     []
   );
 
-  const pushMessage = useCallback((sender: ChatMessage['sender'], text: string) => {
+  const pushMessage = useCallback((sender: ChatMessage['sender'], text: string, kind: MessageKind = 'plain', lead?: string) => {
     // Capture the id into a local BEFORE calling setMessages: the updater
     // below runs later (React queues state updaters rather than invoking
     // them immediately), so two pushMessage calls made back-to-back (e.g.
@@ -261,7 +375,7 @@ export function ChatAssistant({
     // it only gets read once both increments have already happened.
     nextMessageId.current += 1;
     const id = nextMessageId.current;
-    setMessages((previous) => [...previous, { id, sender, text }]);
+    setMessages((previous) => [...previous, { id, sender, text, kind, lead }]);
   }, []);
 
   // Drains responseQueueRef one entry at a time: only schedules the NEXT
@@ -300,7 +414,7 @@ export function ChatAssistant({
       try {
         next();
       } catch {
-        pushMessage('assistant', t.chat.fallbackErrorMessage());
+        pushMessage('assistant', t.chat.fallbackErrorMessage(), 'info');
       }
       processResponseQueue();
     }, delay);
@@ -340,7 +454,7 @@ export function ChatAssistant({
       responseQueueRef.current = [];
       isProcessingResponseRef.current = false;
       setIsTyping(false);
-      pushMessage('assistant', t.chat.fallbackErrorMessage());
+      pushMessage('assistant', t.chat.fallbackErrorMessage(), 'info');
     }, 8000);
     return () => window.clearTimeout(watchdog);
   }, [isTyping, pushMessage, t]);
@@ -392,10 +506,10 @@ export function ChatAssistant({
     lastQuestionKeyRef.current = questionKey(firstQuestion);
     pushMessage('assistant', pickRandom(t.chat.greetings)(numberOfHolders));
     if (firstQuestion.kind !== 'done') {
-      simulateTypingThen(() => pushMessage('assistant', buildQuestionText(firstQuestion, values, t)));
+      simulateTypingThen(() => pushMessage('assistant', buildQuestionText(firstQuestion, values, t), 'question'));
       focusQuestion(firstQuestion);
     } else if (output && input) {
-      simulateTypingThen(() => pushMessage('assistant', t.chat.askViewBreakdown(numberOfHolders)));
+      simulateTypingThen(() => pushMessage('assistant', t.chat.askViewBreakdown(numberOfHolders), 'question'));
       setPhase('CONFIRM_BREAKDOWN');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -433,8 +547,8 @@ export function ChatAssistant({
         setPhase('FIELDS');
       }
       simulateTypingThen(() => {
-        pushMessage('assistant', pickRandom(t.chat.manualEditNotices)(numberOfHolders));
-        pushMessage('assistant', buildQuestionText(nextQuestion, values, t));
+        pushMessage('assistant', pickRandom(t.chat.manualEditNotices)(numberOfHolders), 'ack');
+        pushMessage('assistant', buildQuestionText(nextQuestion, values, t), 'question');
       });
       return;
     }
@@ -467,15 +581,15 @@ export function ChatAssistant({
       // wasn't just mid-conversation with Àlvar (who already acknowledged
       // their last answer) to avoid talking over that acknowledgment.
       if (!cameFromChat) {
-        simulateTypingThen(() => pushMessage('assistant', t.chat.needsReviewMessage()));
+        simulateTypingThen(() => pushMessage('assistant', t.chat.needsReviewMessage(), 'info'));
       }
       return;
     }
     simulateTypingThen(() => {
       if (!cameFromChat) {
-        pushMessage('assistant', pickRandom(t.chat.manualEditNotices)(numberOfHolders));
+        pushMessage('assistant', pickRandom(t.chat.manualEditNotices)(numberOfHolders), 'ack');
       }
-      pushMessage('assistant', t.chat.askViewBreakdown(numberOfHolders));
+      pushMessage('assistant', t.chat.askViewBreakdown(numberOfHolders), 'question');
     });
     setPhase('CONFIRM_BREAKDOWN');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -484,6 +598,26 @@ export function ChatAssistant({
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages, isTyping]);
+
+  // Full-screen mode: Esc returns to the normal view, the page behind stops scrolling, and the input gets focus.
+  useEffect(() => {
+    if (!isExpanded) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsExpanded(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    inputRef.current?.focus();
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isExpanded]);
 
   const applyAnswer = useCallback(
     (answer: Extract<ReturnType<typeof resolveAnswer>, { success: true }>) => {
@@ -559,7 +693,7 @@ export function ChatAssistant({
     if (phase === 'CONFIRM_BREAKDOWN') {
       const wantsBreakdown = extractYesNo(trimmed, language);
       if (wantsBreakdown === null) {
-        simulateTypingThen(() => pushMessage('assistant', pickRandom(t.chat.clarifications)(numberOfHolders)));
+        simulateTypingThen(() => pushMessage('assistant', pickRandom(t.chat.clarifications)(numberOfHolders), 'info'));
         return;
       }
       if (wantsBreakdown) {
@@ -567,9 +701,9 @@ export function ChatAssistant({
       }
       simulateTypingThen(() => {
         if (wantsBreakdown) {
-          pushMessage('assistant', t.chat.breakdownShown());
+          pushMessage('assistant', t.chat.breakdownShown(), 'info');
         }
-        pushMessage('assistant', t.chat.askDownloadPdf(numberOfHolders));
+        pushMessage('assistant', t.chat.askDownloadPdf(numberOfHolders), 'question');
       });
       setPhase('CONFIRM_PDF');
       return;
@@ -578,7 +712,7 @@ export function ChatAssistant({
     if (phase === 'CONFIRM_PDF') {
       const wantsPdf = extractYesNo(trimmed, language);
       if (wantsPdf === null) {
-        simulateTypingThen(() => pushMessage('assistant', pickRandom(t.chat.clarifications)(numberOfHolders)));
+        simulateTypingThen(() => pushMessage('assistant', pickRandom(t.chat.clarifications)(numberOfHolders), 'info'));
         return;
       }
       if (wantsPdf && output && input) {
@@ -588,12 +722,12 @@ export function ChatAssistant({
           } catch {
             // Best-effort: still close out warmly even if generation fails for some reason.
           }
-          pushMessage('assistant', t.chat.pdfDownloadStarted());
+          pushMessage('assistant', t.chat.pdfDownloadStarted(), 'info');
           simulateTypingThen(() => pushMessage('assistant', t.chat.closingThanks(numberOfHolders)));
         });
       } else {
         simulateTypingThen(() => {
-          pushMessage('assistant', t.chat.pdfDeclined());
+          pushMessage('assistant', t.chat.pdfDeclined(), 'info');
           simulateTypingThen(() => pushMessage('assistant', t.chat.closingThanks(numberOfHolders)));
         });
       }
@@ -609,7 +743,7 @@ export function ChatAssistant({
     const currentQuestion = getNextQuestion(values);
     if (currentQuestion.kind === 'done') {
       // Reachable only if output/input are still null (schema not yet valid) despite every chat-tracked field looking filled.
-      simulateTypingThen(() => pushMessage('assistant', t.chat.needsReviewMessage()));
+      simulateTypingThen(() => pushMessage('assistant', t.chat.needsReviewMessage(), 'info'));
       return;
     }
 
@@ -627,15 +761,15 @@ export function ChatAssistant({
     const glossaryTopic = detectGlossaryTopic(trimmed, language);
     if (glossaryTopic) {
       simulateTypingThen(() => {
-        pushMessage('assistant', t.chat.glossary[glossaryTopic]());
-        pushMessage('assistant', `${t.chat.glossary.resumeBridge()} ${buildQuestionText(currentQuestion, values, t)}`);
+        pushMessage('assistant', t.chat.glossary[glossaryTopic](), 'info');
+        pushMessage('assistant', buildQuestionText(currentQuestion, values, t), 'question', t.chat.glossary.resumeBridge());
       });
       return;
     }
 
     const answer = resolveAnswer(currentQuestion, trimmed, language, ccaaCandidates);
     if (!answer.success) {
-      simulateTypingThen(() => pushMessage('assistant', pickRandom(t.chat.clarifications)(numberOfHolders)));
+      simulateTypingThen(() => pushMessage('assistant', pickRandom(t.chat.clarifications)(numberOfHolders), 'info'));
       return;
     }
 
@@ -648,9 +782,9 @@ export function ChatAssistant({
     focusQuestion(nextQuestion);
 
     simulateTypingThen(() => {
-      pushMessage('assistant', pickRandom(t.chat.acknowledgments));
+      pushMessage('assistant', pickRandom(t.chat.acknowledgments), 'ack');
       if (nextQuestion.kind !== 'done') {
-        pushMessage('assistant', `${pickRandom(t.chat.transitions)} ${buildQuestionText(nextQuestion, hypotheticalValues, t)}`);
+        pushMessage('assistant', buildQuestionText(nextQuestion, hypotheticalValues, t), 'question', pickRandom(t.chat.transitions));
       }
       // else: this was the last field — the values-watching effect (which
       // sees the FRESH output/input props once React re-renders, unlike
@@ -686,53 +820,103 @@ export function ChatAssistant({
     );
   }
 
+  const summaryVisible = isExpanded || summaryOpen;
+  const messagesPadding = isExpanded ? { padding: `1.25rem ${EXPANDED_CONTENT_PADDING}` } : undefined;
+
   return (
-    <div style={panelStyle} role="dialog" aria-label={t.chat.headerTitle}>
+    <div style={isExpanded ? expandedPanelStyle : panelStyle} role="dialog" aria-modal={isExpanded} aria-label={t.chat.headerTitle}>
       <div style={headerStyle}>
         <p style={headerTitleStyle}>{t.chat.headerTitle}</p>
-        <div>
-          <button type="button" style={headerButtonStyle} onClick={() => setIsOpen(false)} aria-label={t.chat.minimizeAria} title={t.chat.minimizeAria}>
-            −
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          {isExpanded ? (
+            <>
+              <span style={{ ...hintStyle, padding: '0 0.5rem 0 0' }}>{t.chat.fullscreenHint}</span>
+              <button type="button" style={headerButtonStyle} onClick={() => setIsExpanded(false)} aria-label={t.chat.collapseAria} title={t.chat.collapseAria}>
+                ✕
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="button" style={headerButtonStyle} onClick={() => setIsExpanded(true)} aria-label={t.chat.expandAria} title={t.chat.expandAria}>
+                ⤢
+              </button>
+              <button type="button" style={headerButtonStyle} onClick={() => setIsOpen(false)} aria-label={t.chat.minimizeAria} title={t.chat.minimizeAria}>
+                −
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      <p style={hintStyle}>{t.chat.restartHint(numberOfHolders)}</p>
-
-      <div style={messagesStyle}>
-        {messages.map((message) => (
-          <div key={message.id} style={bubbleStyle(message.sender)}>
-            {message.text}
+      <div className={isExpanded ? 'chat-body chat-body-expanded' : 'chat-body'} style={chatBodyStyle(isExpanded)}>
+        <div style={chatMainColumnStyle}>
+          <div style={isExpanded ? { ...hintRowStyle, padding: `0.5rem ${EXPANDED_CONTENT_PADDING}` } : hintRowStyle}>
+            <p style={{ ...hintStyle, padding: 0, flex: 1 }}>{t.chat.restartHint(numberOfHolders)}</p>
+            {!isExpanded && (
+              <button type="button" style={summaryToggleStyle} onClick={() => setSummaryOpen((open) => !open)} aria-expanded={summaryOpen}>
+                {summaryOpen ? t.chat.summaryHide : t.chat.summaryShow}
+              </button>
+            )}
           </div>
-        ))}
-        {isTyping && <div style={typingBubbleStyle}>{t.chat.typingLabel}</div>}
-        <div ref={messagesEndRef} />
-      </div>
 
-      <div style={inputRowStyle}>
-        <input
-          type="text"
-          style={{ ...inputStyle, opacity: isTyping ? 0.6 : 1 }}
-          value={inputText}
-          onChange={(event) => setInputText(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              handleSend();
-            }
-          }}
-          placeholder={t.chat.inputPlaceholder}
-          aria-label={t.chat.inputAriaLabel}
-          disabled={isTyping}
-        />
-        <button
-          type="button"
-          className="btn-pill"
-          style={{ ...sendButtonStyle, opacity: isTyping ? 0.6 : 1 }}
-          onClick={handleSend}
-          disabled={isTyping}
-        >
-          {t.chat.sendCta}
-        </button>
+          {summaryVisible && !isExpanded && (
+            <div style={compactSummaryStyle}>
+              <ChatSummary values={values} output={output} ccaaName={ccaaName} />
+            </div>
+          )}
+
+          <div style={{ ...messagesStyle, ...messagesPadding, gap: isExpanded ? '0.85rem' : messagesStyle.gap }}>
+            {messages.map((message, index) => {
+              const showSpeaker = index === 0 || messages[index - 1].sender !== message.sender;
+              return (
+                <div key={message.id} style={messageRowStyle(message.sender, isExpanded)}>
+                  {showSpeaker && (
+                    <span style={speakerLabelStyle}>{message.sender === 'assistant' ? t.chat.assistantName : t.chat.userLabel}</span>
+                  )}
+                  <div style={bubbleStyle(message.sender, message.kind, isExpanded)}>
+                    {message.lead && <span style={leadStyle}>{message.lead}</span>}
+                    <span style={message.kind === 'question' && message.sender === 'assistant' ? { fontWeight: 600 } : undefined}>{message.text}</span>
+                  </div>
+                </div>
+              );
+            })}
+            {isTyping && <div style={{ ...typingBubbleStyle, alignSelf: 'flex-start' }}>{t.chat.typingLabel}</div>}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div style={isExpanded ? { ...inputRowStyle, padding: `0.9rem ${EXPANDED_CONTENT_PADDING}` } : inputRowStyle}>
+            <input
+              ref={inputRef}
+              type="text"
+              style={{ ...inputStyle, opacity: isTyping ? 0.6 : 1, fontSize: isExpanded ? '1rem' : inputStyle.fontSize }}
+              value={inputText}
+              onChange={(event) => setInputText(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  handleSend();
+                }
+              }}
+              placeholder={t.chat.inputPlaceholder}
+              aria-label={t.chat.inputAriaLabel}
+              disabled={isTyping}
+            />
+            <button
+              type="button"
+              className="btn-pill"
+              style={{ ...sendButtonStyle, opacity: isTyping ? 0.6 : 1 }}
+              onClick={handleSend}
+              disabled={isTyping}
+            >
+              {t.chat.sendCta}
+            </button>
+          </div>
+        </div>
+
+        {isExpanded && (
+          <aside className="chat-summary-aside" style={summaryAsideStyle} aria-label={t.chat.summary.title}>
+            <ChatSummary values={values} output={output} ccaaName={ccaaName} />
+          </aside>
+        )}
       </div>
     </div>
   );

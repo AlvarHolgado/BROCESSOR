@@ -98,7 +98,7 @@ export const en: Dictionary = {
         `A direct bank cannot finance this operation as proposed (${reasons}). The broker therefore prioritizes reaching the highest possible financing percentage, accepting a debt level above the banks’ usual 35% as long as it remains sustainable.`,
       reasonLtv: 'the requested financing percentage exceeds the bank’s limit',
       reasonDsti: (threshold) => `the debt ratio (DSTI) would exceed ${threshold}`,
-      reasonSavings: 'the available savings plus the bank’s maximum financing do not cover the purchase price',
+      reasonSavings: 'the available savings plus the bank’s maximum financing do not cover the purchase price and costs',
       structureWithExtra: (ceilingLtv, loan, actualLtv, extra, contributionSaving) =>
         `Structure: the broker negotiates the operation with a ${ceilingLtv} LTV limit (the channel maximum) and finances it with a ${loan} loan (${actualLtv} actual LTV), i.e. ${extra} more than the bank; the initial contribution drops by ${contributionSaving}.`,
       structureNoExtra: (ceilingLtv, loan, actualLtv) =>
@@ -112,7 +112,7 @@ export const en: Dictionary = {
       conditionDstiAboveLimit: (dsti, limit) =>
         `At this amount, the debt ratio (DSTI) would be ${dsti}, above the ${limit} the broker considers sustainable: with the current level of debts the operation cannot be made viable in a sustainable way.`,
       conditionNotFullyFinanceable:
-        'Even at the broker’s maximum sustainable financing, the available savings do not cover the full purchase price.',
+        'Even at the broker’s maximum sustainable financing, the available savings do not cover the full down payment and costs.',
       conditionApproval: (ltv) =>
         `${ltv} LTV is the market convention for the broker channel, not a guarantee: final approval depends on the lender.`,
       feesNote: 'Broker fees are not included in this calculation.',
@@ -230,9 +230,20 @@ export const en: Dictionary = {
     formalizationNote: (notary, registry) =>
       `Notary (purchase): ${notary} · Registry (purchase): ${registry} · Notary, registry and agency (mortgage): €0 — borne by the bank by law (Law 5/2019, LCCI)`,
     totalLabel: 'Total initial funds required',
-    notFullyFinanceableWarning: 'The available savings do not cover the purchase price with this option.',
+    notFullyFinanceableWarning: 'The available savings do not cover the taxes, costs and down payment this option requires.',
     totalExcludesUnavailableTax:
       'This total does NOT include AJD, since no official data is available for this autonomous community — the real cost of this transaction could be higher than shown.',
+  },
+
+  savingsAllocation: {
+    title: 'How the savings are used',
+    availableLabel: 'Available savings',
+    costsLabel: 'Taxes and formalization costs',
+    downPaymentLabel: 'Down payment covered by savings',
+    loanLabel: 'Loan (actual LTV)',
+    surplusLabel: 'Savings left over',
+    shortfallLabel: 'Still to be covered',
+    note: 'Savings first cover the taxes and formalization costs; what is left pays the down payment, and the loan covers the rest of the price. The appraisal is not included (there is no official data for this cost).',
   },
 
   amortizationChart: {
@@ -372,6 +383,32 @@ export const en: Dictionary = {
     launcherAria: 'Open the virtual assistant',
     closeAria: 'Close the assistant',
     minimizeAria: 'Minimize the assistant',
+    expandAria: 'Expand the chat to full screen',
+    collapseAria: 'Close full screen (Esc)',
+    fullscreenHint: 'Press Esc to return to the normal view.',
+    userLabel: 'You',
+    summaryShow: 'Show summary',
+    summaryHide: 'Hide summary',
+    summary: {
+      title: 'Simulation summary',
+      empty: 'No data yet. You will see it here as you answer.',
+      holdersHeading: 'Holders',
+      perMonth: '/month',
+      economyHeading: 'Financial situation',
+      debtsLabel: 'Monthly debts',
+      savingsLabel: 'Savings',
+      propertyHeading: 'Property',
+      priceLabel: 'Price',
+      appraisalLabel: 'Appraisal',
+      typeLabel: 'Type',
+      usageLabel: 'Use',
+      ccaaLabel: 'Community',
+      financingHeading: 'Financing',
+      requestedLtvLabel: 'Requested financing',
+      termLabel: 'Term',
+      mortgageTypeLabel: 'Mortgage type',
+      resultsHeading: 'Result',
+    },
     inputPlaceholder: 'Type your answer...',
     inputAriaLabel: 'Message to the assistant',
     sendCta: 'Send',
@@ -500,7 +537,7 @@ export const en: Dictionary = {
     dstiShortTermLabel: 'DSTI ratio',
     dstiShortTermLabelDual: 'DSTI ratio (short term)',
     dstiLongTermLabel: 'DSTI ratio (long term)',
-    notFullyFinanceableWarning: 'Warning: the available savings do not cover the purchase price with this LTV.',
+    notFullyFinanceableWarning: 'Warning: the available savings do not cover the taxes, costs and down payment this LTV requires.',
     marketDataUnavailable: 'Market data not available',
     quotaNotComputable: 'The payment cannot be calculated for this option with the available market data.',
     section4Title: '4. Taxes and formalization costs',

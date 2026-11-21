@@ -111,6 +111,19 @@ describe('simulator consistency audit (real production data)', () => {
         expect(b.ownCapital, label).toBe(Math.round(input.purchaseValue) - Math.round(path.loanPrincipal));
         expect(Math.abs(b.total - path.initialContributionRequired), label).toBeLessThanOrEqual(2);
 
+        // Savings allocation: costs first, then the down payment; the three uses add up to the savings, and the
+        // loan the purchase needs is price - (savings - costs), never price - all the savings.
+        const costs = output.taxBreakdown.totalTaxAmount + output.formalizationCosts.totalAmount;
+        expect(path.requiredLoanAmount, label).toBeCloseTo(Math.max(input.purchaseValue - Math.max(input.availableSavings - costs, 0), 0), 6);
+        expect(b.savingsToCosts + b.savingsToDownPayment + b.savingsSurplus, label).toBe(b.availableSavings);
+        expect(b.savingsToCosts, label).toBe(Math.min(b.availableSavings, b.taxes + b.formalization));
+        expect(b.savingsShortfall, label).toBe(Math.max(b.total - b.savingsToCosts - b.savingsToDownPayment, 0));
+        expect(b.savingsSurplus * b.savingsShortfall, label).toBe(0);
+        if (path.isFullyFinanceable && Math.abs(path.loanPrincipal - path.requiredLoanAmount) < 0.01) {
+          // The loan is exactly what the purchase needs: the savings really do cover costs + down payment (±rounding).
+          expect(b.savingsShortfall, label).toBeLessThanOrEqual(2);
+        }
+
         if (path.monthlyQuota === null || path.costOfCredit === null || path.riskAssessment === null) {
           continue;
         }

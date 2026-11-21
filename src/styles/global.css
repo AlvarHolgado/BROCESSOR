@@ -158,3 +158,18 @@ h1 {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Full-screen chat (ChatAssistant.tsx, expanded): the message column and the
+   summary sidebar sit side by side; on narrow screens the sidebar stacks
+   below the conversation instead of squeezing it. */
+@media (max-width: 900px) {
+  .chat-body-expanded {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .chat-summary-aside {
+    max-height: 32vh;
+    border-left: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+}

@@ -18,6 +18,7 @@ import type { MortgagePathResult, SimulatorOutput } from '../engine/simulate';
 import type { SimulatorInput } from '../types/simulator';
 import { DSTI_GREEN_THRESHOLD } from '../engine/scoring';
 import { buildBrokerStrategyText } from './brokerStrategyText';
+import { buildSavingsAllocationLines } from './savingsAllocationText';
 import { getDictionary } from '../i18n/LanguageContext';
 import { getFormatters } from '../i18n/formatters';
 import type { Dictionary } from '../i18n/dictionaries/ca';
@@ -373,6 +374,12 @@ function writePathCard(
     writer.note(t.initialContribution.totalExcludesUnavailableTax, PDF_WARNING);
   }
 
+  // Mirrors InitialContributionCard.tsx's savings-allocation block: same shared line builder, so UI and PDF always agree.
+  writer.note(
+    `${t.savingsAllocation.title}: ${buildSavingsAllocationLines(path, t, f)
+      .map((line) => `${line.label} ${line.value}`)
+      .join(' · ')}`
+  );
   if (!path.isFullyFinanceable) {
     writer.note(t.pdf.notFullyFinanceableWarning, PDF_WARNING);
   }

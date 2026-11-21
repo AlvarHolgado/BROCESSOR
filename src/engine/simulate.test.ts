@@ -15,7 +15,7 @@ function buildInput(overrides: Partial<SimulatorInput> = {}): SimulatorInput {
     monthlyNetIncomes: [2500],
     pendingDebts: 100,
     pendingDebtsRemainingMonths: 24,
-    availableSavings: 40000,
+    availableSavings: 60000,
     propertyType: 'SECOND_HAND',
     propertyUsage: 'HABITUAL',
     ccaa: 'MAD',
@@ -149,22 +149,43 @@ describe('computeSimulatorOutput', () => {
   });
 
   it('computes actualLtvPercentage from the real loan taken, not the channel ceiling, per the regulatory LTV formula', () => {
-    // purchaseValue 200,000, availableSavings 40,000 -> requiredLoanAmount 160,000, which is
-    // below the broker's 90% ceiling (180,000). The bank can finance this as requested, so the broker
-    // runs LOWEST_COST: its LTV ceiling for this offer is the requested 80%, and the loan taken is
-    // exactly 160,000 (80%) — the same loan as the bank, only at a cheaper rate.
+    // 200,000 home, 60,000 savings: the savings first cover taxes + formalization, only the rest is the
+    // down payment, so the loan is price - (savings - costs). The bank can finance that as requested, so the
+    // broker runs LOWEST_COST: ceiling = requested 80%, same loan as the bank, only at a cheaper rate.
     const output = computeSimulatorOutput(buildInput(), referenceData);
+    const costs = output.taxBreakdown.totalTaxAmount + output.formalizationCosts.totalAmount;
+    const expectedLoan = 200000 - (60000 - costs);
     expect(output.brokerStrategy.mode).toBe('LOWEST_COST');
     expect(output.broker.ltv.effectiveLtvPercentage).toBe(80);
-    expect(output.broker.loanPrincipal).toBeCloseTo(160000, 6);
-    expect(output.broker.actualLtvPercentage).toBeCloseTo(80, 6);
-    expect(output.broker.actualLtvPercentage).toBeLessThanOrEqual(output.broker.ltv.effectiveLtvPercentage);
+    expect(output.broker.loanPrincipal).toBeCloseTo(expectedLoan, 6);
+    expect(output.broker.actualLtvPercentage).toBeCloseTo((expectedLoan / 200000) * 100, 2);
+    expect(output.broker.actualLtvPercentage).toBeLessThan(output.broker.ltv.effectiveLtvPercentage);
   });
 
   it('rounds actualLtvPercentage to exactly 2 decimal places', () => {
     const output = computeSimulatorOutput(buildInput({ purchaseValue: 300000, appraisalValue: 300000, availableSavings: 100000 }), referenceData);
-    // requiredLoanAmount = 200,000; reference value = 300,000 -> 66.666...% -> 66.67%
-    expect(output.broker.actualLtvPercentage).toBe(66.67);
+    // Loan = 300,000 - (100,000 - costs); LTV = loan / 300,000, rounded to 2 decimals.
+    expect(output.broker.actualLtvPercentage).toBe(Math.round((output.broker.loanPrincipal / 300000) * 10000) / 100);
+  });
+
+  it('puts the savings toward taxes and formalization before the down payment, instead of minimizing the LTV with all of them', () => {
+    const output = computeSimulatorOutput(buildInput({ availableSavings: 60000 }), referenceData);
+    const costs = output.taxBreakdown.totalTaxAmount + output.formalizationCosts.totalAmount;
+    // Old behaviour would have used the full 60,000 as down payment (loan 140,000); now only 60,000 - costs is.
+    expect(output.bankBonified.loanPrincipal).toBeCloseTo(200000 - (60000 - costs), 6);
+    expect(output.bankBonified.loanPrincipal).toBeGreaterThan(140000);
+    const b = output.bankBonified.contributionBreakdown;
+    expect(b.savingsToCosts).toBe(b.taxes + b.formalization);
+    expect(b.savingsToDownPayment + b.savingsToCosts + b.savingsSurplus).toBe(60000);
+    expect(b.savingsShortfall).toBe(0);
+  });
+
+  it('reports a savings shortfall, and not a fully financeable offer, when the savings cannot cover costs plus the down payment the loan ceiling requires', () => {
+    // 20,000 savings: ~7,600 left after costs as down payment -> loan above the bank's 80% ceiling.
+    const output = computeSimulatorOutput(buildInput({ availableSavings: 20000 }), referenceData);
+    expect(output.bankBonified.isFullyFinanceable).toBe(false);
+    expect(output.bankBonified.contributionBreakdown.savingsShortfall).toBeGreaterThan(0);
+    expect(output.bankBonified.contributionBreakdown.savingsSurplus).toBe(0);
   });
 
   it('caps a bank LTV request above the bank max and flags it', () => {
@@ -311,14 +332,17 @@ describe('computeSimulatorOutput', () => {
   });
 
   it('lets the broker exceed the bank 35% DSTI rule to make a tight operation possible, within its own moderate-risk limit', () => {
-    // 200,000 home, 20,000 savings -> 180,000 needed: above the bank's 80% (160,000), exactly the broker's 90%.
-    // At the broker's rate that loan costs ~36% of a 1,900 EUR income: over the bank's 35% but under the broker's 40% limit.
+    // 200,000 home, 33,000 savings: after ~12.4k of costs the down payment is ~20.6k -> a ~179.4k loan, above the
+    // bank's 80% (160,000) but within the broker's 90% (180,000). At the broker's rate that loan costs ~36% of a
+    // 1,900 EUR income: over the bank's 35% but under the broker's 40% limit.
     const output = computeSimulatorOutput(
-      buildInput({ availableSavings: 20000, monthlyNetIncomes: [1900], pendingDebts: 0, pendingDebtsRemainingMonths: 0 }),
+      buildInput({ availableSavings: 33000, monthlyNetIncomes: [1900], pendingDebts: 0, pendingDebtsRemainingMonths: 0 }),
       referenceData
     );
     expect(output.brokerStrategy.mode).toBe('MAX_FINANCING');
-    expect(output.broker.loanPrincipal).toBeCloseTo(180000, 6);
+    expect(output.broker.loanPrincipal).toBeCloseTo(output.broker.requiredLoanAmount, 6);
+    expect(output.broker.requiredLoanAmount).toBeGreaterThan(160000);
+    expect(output.broker.requiredLoanAmount).toBeLessThanOrEqual(180000);
     expect(output.broker.ltv.effectiveLtvPercentage).toBe(90);
     const dsti = output.broker.riskAssessment?.immediate.dstiRatio as number;
     expect(dsti).toBeGreaterThan(0.35);
@@ -380,8 +404,8 @@ describe('computeSimulatorOutput', () => {
   });
 
   it('uses the MAX_FINANCING broker strategy when the bank LTV plus savings do not cover the purchase price', () => {
-    // Savings 20,000 -> 180,000 needed: above the bank's 80% (160,000) but exactly the broker's 90% ceiling.
-    const output = computeSimulatorOutput(buildInput({ availableSavings: 20000 }), referenceData);
+    // Savings 33,000 -> ~179,400 needed after costs: above the bank's 80% (160,000) but within the broker's 90% ceiling.
+    const output = computeSimulatorOutput(buildInput({ availableSavings: 33000 }), referenceData);
     expect(output.brokerStrategy.mode).toBe('MAX_FINANCING');
     expect(output.brokerStrategy.bankSavingsShortfall).toBe(true);
     expect(output.bankBonified.isFullyFinanceable).toBe(false);
@@ -415,6 +439,6 @@ describe('computeSimulatorOutput', () => {
       referenceData
     );
     expect(output.bankBonified.wasAutoAdjustedForViability).toBe(false);
-    expect(output.bankBonified.loanPrincipal).toBeCloseTo(160000, 2);
+    expect(output.bankBonified.loanPrincipal).toBeCloseTo(output.bankBonified.requiredLoanAmount, 2);
   });
 });

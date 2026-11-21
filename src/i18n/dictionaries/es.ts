@@ -105,7 +105,7 @@ export const es: Dictionary = {
         `El banco directo no puede financiar esta operación tal como se plantea (${reasons}). Por eso el bróker prioriza conseguir el mayor porcentaje de financiación posible, aceptando un endeudamiento superior al 35% habitual de los bancos siempre que siga siendo sostenible.`,
       reasonLtv: 'el porcentaje de financiación solicitado supera el límite del banco',
       reasonDsti: (threshold) => `la ratio de endeudamiento (DSTI) superaría el ${threshold}`,
-      reasonSavings: 'los ahorros disponibles más la financiación máxima del banco no cubren el precio de compra',
+      reasonSavings: 'los ahorros disponibles más la financiación máxima del banco no cubren el precio de compra y los costes',
       structureWithExtra: (ceilingLtv, loan, actualLtv, extra, contributionSaving) =>
         `Estructura: el bróker negocia la operación con un límite del ${ceilingLtv} de LTV (el máximo del canal) y la financia con un préstamo de ${loan} (${actualLtv} de LTV real), es decir, ${extra} más que el banco; la aportación inicial se reduce en ${contributionSaving}.`,
       structureNoExtra: (ceilingLtv, loan, actualLtv) =>
@@ -119,7 +119,7 @@ export const es: Dictionary = {
       conditionDstiAboveLimit: (dsti, limit) =>
         `Con este importe, la ratio de endeudamiento (DSTI) sería del ${dsti}, por encima del ${limit} que el bróker considera sostenible: con el nivel de deudas actual la operación no se puede viabilizar de forma sostenible.`,
       conditionNotFullyFinanceable:
-        'Incluso con la máxima financiación sostenible del bróker, los ahorros disponibles no cubren la totalidad del precio de compra.',
+        'Incluso con la máxima financiación sostenible del bróker, los ahorros disponibles no cubren la totalidad de la entrada y los costes.',
       conditionApproval: (ltv) =>
         `El ${ltv} de LTV es la convención de mercado del canal bróker, no una garantía: la aprobación final depende de la entidad financiera.`,
       feesNote: 'Los honorarios del bróker no están incluidos en este cálculo.',
@@ -255,9 +255,20 @@ export const es: Dictionary = {
     formalizationNote: (notary, registry) =>
       `Notaría (compraventa): ${notary} · Registro (compraventa): ${registry} · Notaría, registro y gestoría (hipoteca): 0 € — a cargo del banco por ley (Ley 5/2019, LCCI)`,
     totalLabel: 'Total de fondos iniciales necesarios',
-    notFullyFinanceableWarning: 'Los ahorros disponibles no cubren el precio de compra con esta opción.',
+    notFullyFinanceableWarning: 'Los ahorros disponibles no cubren los impuestos, los gastos y la entrada que requiere esta opción.',
     totalExcludesUnavailableTax:
       'Este total NO incluye el AJD, ya que no hay datos oficiales disponibles para esta comunidad autónoma — el coste real de esta operación podría ser superior al mostrado.',
+  },
+
+  savingsAllocation: {
+    title: 'Distribución de los ahorros',
+    availableLabel: 'Ahorros disponibles',
+    costsLabel: 'Impuestos y gastos de formalización',
+    downPaymentLabel: 'Entrada cubierta con ahorros',
+    loanLabel: 'Préstamo (LTV real)',
+    surplusLabel: 'Ahorros sobrantes',
+    shortfallLabel: 'Faltan por cubrir',
+    note: 'Los ahorros cubren primero los impuestos y los gastos de formalización; con el resto se paga la entrada y el préstamo cubre el resto del precio. La tasación no está incluida (no hay datos oficiales de este coste).',
   },
 
   amortizationChart: {
@@ -397,6 +408,32 @@ export const es: Dictionary = {
     launcherAria: 'Abre el asistente virtual',
     closeAria: 'Cierra el asistente',
     minimizeAria: 'Minimiza el asistente',
+    expandAria: 'Amplía el chat a pantalla completa',
+    collapseAria: 'Cierra la pantalla completa (Esc)',
+    fullscreenHint: 'Pulsa Esc para volver a la vista normal.',
+    userLabel: 'Tú',
+    summaryShow: 'Ver resumen',
+    summaryHide: 'Ocultar resumen',
+    summary: {
+      title: 'Resumen de la simulación',
+      empty: 'Todavía no hay datos. Los irás viendo aquí a medida que respondas.',
+      holdersHeading: 'Titulares',
+      perMonth: '/mes',
+      economyHeading: 'Situación económica',
+      debtsLabel: 'Deudas mensuales',
+      savingsLabel: 'Ahorros',
+      propertyHeading: 'Vivienda',
+      priceLabel: 'Precio',
+      appraisalLabel: 'Tasación',
+      typeLabel: 'Tipo',
+      usageLabel: 'Uso',
+      ccaaLabel: 'Comunidad',
+      financingHeading: 'Financiación',
+      requestedLtvLabel: 'Financiación solicitada',
+      termLabel: 'Plazo',
+      mortgageTypeLabel: 'Tipo de hipoteca',
+      resultsHeading: 'Resultado',
+    },
     inputPlaceholder: 'Escribe tu respuesta...',
     inputAriaLabel: 'Mensaje para el asistente',
     sendCta: 'Enviar',
@@ -569,7 +606,7 @@ export const es: Dictionary = {
     dstiShortTermLabel: 'Ratio DSTI',
     dstiShortTermLabelDual: 'Ratio DSTI (corto plazo)',
     dstiLongTermLabel: 'Ratio DSTI (largo plazo)',
-    notFullyFinanceableWarning: 'Atención: los ahorros disponibles no cubren el precio de compra con este LTV.',
+    notFullyFinanceableWarning: 'Atención: los ahorros disponibles no cubren los impuestos, los gastos y la entrada que requiere este LTV.',
     marketDataUnavailable: 'Dato de mercado no disponible',
     quotaNotComputable: 'No se puede calcular la cuota para esta modalidad con los datos de mercado disponibles.',
     section4Title: '4. Impuestos y gastos de formalización',

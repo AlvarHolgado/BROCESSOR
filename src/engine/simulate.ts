@@ -46,7 +46,7 @@ import {
   type BrokerStrategyResult,
   type BrokerSustainability,
 } from './brokerStrategy';
-import { buildInitialContributionBreakdown, type InitialContributionBreakdown } from './contributionBreakdown';
+import { buildInitialContributionBreakdown, calculateRequiredLoanAmount, type InitialContributionBreakdown } from './contributionBreakdown';
 
 export type MortgagePathChannel = 'BANK_BONIFIED' | 'BANK_NON_BONIFIED' | 'BROKER';
 
@@ -237,7 +237,7 @@ function computeLoanDependentFigures(
     isFullyFinanceable,
     actualLtvPercentage,
     initialContributionRequired,
-    contributionBreakdown: buildInitialContributionBreakdown(input.purchaseValue, loanPrincipal, taxBreakdown, formalizationCosts),
+    contributionBreakdown: buildInitialContributionBreakdown(input.purchaseValue, loanPrincipal, taxBreakdown, formalizationCosts, input.availableSavings),
     monthlyQuota,
     effectiveAnnualRate,
     riskAssessment,
@@ -260,7 +260,8 @@ function buildMortgagePath(
   brokerDstiLimit: number | null
 ): MortgagePathResult {
   const maxFinancingAmount = referenceValue * (ltv.effectiveLtvPercentage / 100);
-  const requiredLoanAmount = Math.max(input.purchaseValue - input.availableSavings, 0);
+  // Savings first cover taxes + formalization; only the rest is the down payment (see contributionBreakdown.ts) — never all of it toward a minimal LTV.
+  const requiredLoanAmount = calculateRequiredLoanAmount(input.purchaseValue, input.availableSavings, taxesAndExpenses);
   const requestedLoanPrincipal = Math.min(requiredLoanAmount, maxFinancingAmount);
 
   if (!rate.dataAvailable || rate.tin === null) {
@@ -274,7 +275,7 @@ function buildMortgagePath(
       isFullyFinanceable: requiredLoanAmount <= maxFinancingAmount,
       actualLtvPercentage: calculateLtvPercentage(requestedLoanPrincipal, referenceValue),
       initialContributionRequired: calculateInitialContribution(input.purchaseValue, taxesAndExpenses, requestedLoanPrincipal),
-      contributionBreakdown: buildInitialContributionBreakdown(input.purchaseValue, requestedLoanPrincipal, taxBreakdown, formalizationCosts),
+      contributionBreakdown: buildInitialContributionBreakdown(input.purchaseValue, requestedLoanPrincipal, taxBreakdown, formalizationCosts, input.availableSavings),
       monthlyQuota: null,
       effectiveAnnualRate: null,
       riskAssessment: null,

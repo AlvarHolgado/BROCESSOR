@@ -471,7 +471,7 @@ export const ALVAR_KNOWLEDGE_BASE: KnowledgeEntry[] = [
     category: 'TAXES_GENERAL',
     question: 'Els impostos de compra es poden finançar dins la hipoteca?',
     answer:
-      'No directament: la banca sol limitar el finançament a un percentatge del valor de l’habitatge (típicament fins al 80% amb un banc, o fins al 90% amb un broker), de manera que els impostos i altres despeses solen haver de pagar-se amb estalvis propis, no amb el préstec hipotecari.',
+      'No directament: la banca sol limitar el finançament a un percentatge del valor de l’habitatge (típicament fins al 80% amb un banc, o fins al 90% amb un broker), de manera que els impostos i altres despeses solen haver de pagar-se amb estalvis propis, no amb el préstec hipotecari. Per això BROSSESSOR destina primer els teus estalvis a cobrir impostos i despeses i, amb la resta, calcula l’entrada i el LTV resultant.',
     keywords: ['finançar impostos amb hipoteca'],
   },
   {
