@@ -59,12 +59,15 @@ export function buildBrokerStrategyText(output: SimulatorOutput, t: Dictionary, 
     reasons.push(s.reasonSavings);
   }
 
+  const dstiLimitLabel = `${f.percent1.format(strategy.brokerDstiLimit * 100)}%`;
   const conditions: string[] = [];
   if (strategy.brokerDstiRatio !== null) {
     conditions.push(
       strategy.brokerDstiWithinThreshold
         ? s.conditionDstiWithin(dstiLabel, dstiThresholdLabel)
-        : s.conditionDstiAbove(dstiLabel, dstiThresholdLabel)
+        : strategy.brokerAcceptsHigherEffort
+          ? s.conditionDstiAboveGreen(dstiLabel, dstiThresholdLabel, dstiLimitLabel)
+          : s.conditionDstiAboveLimit(dstiLabel, dstiLimitLabel)
     );
   }
   if (!strategy.brokerFullyFinanceable) {
@@ -72,6 +75,8 @@ export function buildBrokerStrategyText(output: SimulatorOutput, t: Dictionary, 
   }
   conditions.push(s.conditionApproval(ceilingLtvLabel));
   conditions.push(s.feesNote);
+
+  const limitedBySustainability = strategy.sustainability?.wasLimited === true;
 
   return {
     title: s.maxFinancingTitle,
@@ -86,6 +91,17 @@ export function buildBrokerStrategyText(output: SimulatorOutput, t: Dictionary, 
             f.currency0.format(-strategy.initialContributionDeltaVsBank)
           )
         : s.structureNoExtra(ceilingLtvLabel, loanLabel, actualLtvLabel),
+      ...(limitedBySustainability && strategy.sustainability
+        ? [
+            s.sustainabilityLimited(
+              ceilingLtvLabel,
+              `${f.percent1.format(strategy.sustainability.dstiBeforeLimit * 100)}%`,
+              dstiLimitLabel,
+              loanLabel,
+              actualLtvLabel
+            ),
+          ]
+        : []),
     ],
     conditions,
   };

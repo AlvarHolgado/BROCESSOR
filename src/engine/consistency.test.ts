@@ -158,6 +158,37 @@ describe('simulator consistency audit (real production data)', () => {
     }
   });
 
+  it('keeps every broker offer realistic: never above its 40% effort limit, never below the bank, never above its LTV ceiling', () => {
+    for (const input of scenarios) {
+      const output = computeSimulatorOutput(input, referenceData);
+      const { broker, brokerStrategy } = output;
+      if (broker.riskAssessment === null) {
+        continue;
+      }
+      const label = `${brokerStrategy.mode} ${JSON.stringify(input)}`;
+      const dsti = broker.riskAssessment.immediate.dstiRatio;
+      const debtsAloneExceedLimit = input.pendingDebts / input.monthlyNetIncomes[0] > brokerStrategy.brokerDstiLimit;
+
+      expect(broker.actualLtvPercentage, label).toBeLessThanOrEqual(broker.ltv.maxLtvPercentage + 1e-6);
+
+      if (brokerStrategy.mode === 'MAX_FINANCING') {
+        if (!debtsAloneExceedLimit) {
+          expect(dsti, label).toBeLessThanOrEqual(brokerStrategy.brokerDstiLimit + DSTI_COMPARISON_EPSILON);
+        }
+        // The broker never finances less than the direct bank it is compared with.
+        expect(brokerStrategy.additionalLoanVsBank, label).toBeGreaterThanOrEqual(0);
+        expect(brokerStrategy.sustainability, label).not.toBeNull();
+        expect(brokerStrategy.sustainability?.wasLimited === true, label).toBe(
+          (brokerStrategy.sustainability?.dstiBeforeLimit ?? 0) > brokerStrategy.brokerDstiLimit + DSTI_COMPARISON_EPSILON
+        );
+      } else {
+        // Viable operation: same loan as the bank, within the bank's own 35% rule.
+        expect(brokerStrategy.additionalLoanVsBank, label).toBe(0);
+        expect(dsti, label).toBeLessThanOrEqual(DSTI_GREEN_THRESHOLD + DSTI_COMPARISON_EPSILON);
+      }
+    }
+  });
+
   it('keeps the broker-vs-bank differential consistent with the cards: whole-euro deltas, withheld when the loans differ', () => {
     for (const input of scenarios) {
       const output = computeSimulatorOutput(input, referenceData);

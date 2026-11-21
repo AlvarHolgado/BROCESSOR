@@ -301,13 +301,69 @@ describe('computeSimulatorOutput', () => {
     expect(output.bankBonified.riskAssessment?.immediate.dstiRatio).toBeLessThanOrEqual(0.35 + 1e-9);
   });
 
-  it('never adjusts the broker path, even at a profile where the equivalent bank path would be non-viable', () => {
+  it('does not apply the bank viability adjustment to the broker path', () => {
     const output = computeSimulatorOutput(
       buildInput({ monthlyNetIncomes: [1500], pendingDebts: 100, pendingDebtsRemainingMonths: 0 }),
       referenceData
     );
     expect(output.broker.wasAutoAdjustedForViability).toBe(false);
-    expect(output.broker.loanPrincipal).toBeCloseTo(160000, 2);
+    expect(output.broker.bankViability).toBeNull();
+  });
+
+  it('lets the broker exceed the bank 35% DSTI rule to make a tight operation possible, within its own moderate-risk limit', () => {
+    // 200,000 home, 20,000 savings -> 180,000 needed: above the bank's 80% (160,000), exactly the broker's 90%.
+    // At the broker's rate that loan costs ~36% of a 1,900 EUR income: over the bank's 35% but under the broker's 40% limit.
+    const output = computeSimulatorOutput(
+      buildInput({ availableSavings: 20000, monthlyNetIncomes: [1900], pendingDebts: 0, pendingDebtsRemainingMonths: 0 }),
+      referenceData
+    );
+    expect(output.brokerStrategy.mode).toBe('MAX_FINANCING');
+    expect(output.broker.loanPrincipal).toBeCloseTo(180000, 6);
+    expect(output.broker.ltv.effectiveLtvPercentage).toBe(90);
+    const dsti = output.broker.riskAssessment?.immediate.dstiRatio as number;
+    expect(dsti).toBeGreaterThan(0.35);
+    expect(dsti).toBeLessThanOrEqual(0.4);
+    expect(output.brokerStrategy.brokerAcceptsHigherEffort).toBe(true);
+    expect(output.brokerStrategy.sustainability?.wasLimited).toBe(false);
+    expect(output.broker.isFullyFinanceable).toBe(true);
+    expect(output.broker.loanPrincipal).toBeGreaterThan(output.bankBonified.loanPrincipal);
+  });
+
+  it('never lets the broker go beyond its sustainability limit: the loan is reduced to keep the DSTI at 40%, still above what the bank grants', () => {
+    const output = computeSimulatorOutput(
+      buildInput({ monthlyNetIncomes: [1500], pendingDebts: 100, pendingDebtsRemainingMonths: 0 }),
+      referenceData
+    );
+    const sustainability = output.brokerStrategy.sustainability;
+    expect(output.brokerStrategy.mode).toBe('MAX_FINANCING');
+    expect(sustainability?.wasLimited).toBe(true);
+    expect(sustainability?.dstiBeforeLimit).toBeGreaterThan(0.4);
+    expect(output.broker.loanPrincipal).toBeLessThan(sustainability?.loanBeforeLimit ?? 0);
+    expect(output.broker.riskAssessment?.immediate.dstiRatio).toBeCloseTo(0.4, 6);
+    expect(output.brokerStrategy.brokerAcceptsHigherEffort).toBe(true);
+    // More financing than the bank (35% cap, higher TIN), but a realistic, market-consistent loan: never the unsustainable 90%.
+    expect(output.broker.loanPrincipal).toBeGreaterThan(output.bankBonified.loanPrincipal);
+    expect(output.broker.loanPrincipal).toBeLessThan(output.broker.maxFinancingAmount);
+    expect(output.broker.actualLtvPercentage).toBeLessThan(90);
+  });
+
+  it('reduces the broker loan to 0 rather than proposing an unsustainable operation when existing debts alone exceed its limit', () => {
+    const output = computeSimulatorOutput(
+      buildInput({ monthlyNetIncomes: [1000], pendingDebts: 450, pendingDebtsRemainingMonths: 60 }),
+      referenceData
+    );
+    expect(output.broker.loanPrincipal).toBe(0);
+    expect(output.brokerStrategy.brokerAcceptsHigherEffort).toBe(false);
+    expect(output.brokerStrategy.brokerFullyFinanceable).toBe(false);
+  });
+
+  it('does not limit the broker in LOWEST_COST mode: it keeps the bank loan', () => {
+    const output = computeSimulatorOutput(
+      buildInput({ monthlyNetIncomes: [6000], pendingDebts: 0, pendingDebtsRemainingMonths: 0 }),
+      referenceData
+    );
+    expect(output.brokerStrategy.sustainability).toBeNull();
+    expect(output.broker.loanPrincipal).toBeCloseTo(output.bankBonified.loanPrincipal, 6);
   });
 
   it('uses the MAX_FINANCING broker strategy when the bank offer had to be adjusted, financing more than the bank with a smaller up-front payment', () => {

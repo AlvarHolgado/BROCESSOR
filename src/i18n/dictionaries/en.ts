@@ -71,7 +71,7 @@ export const en: Dictionary = {
     ccaaLabel: 'Autonomous Community',
     ltvHeading: 'Desired financing percentage (%)',
     ltvHelper:
-      "The TIN is determined automatically from market data: you don't need to enter it. This percentage only applies to the bank calculation — the broker adapts the financing to the profile: the maximum possible if the bank cannot finance the operation, or the requested amount on the lowest-cost conditions if it is viable.",
+      "The TIN is determined automatically from market data: you don't need to enter it. This percentage only applies to the bank calculation — the broker adapts the financing to the profile: the maximum possible within a sustainable effort if the bank cannot finance the operation, or the requested amount on the lowest-cost conditions if it is viable.",
     ltvLabel: 'Desired financing percentage (%)',
     ltvHint: (pct) => `${pct}%`,
     durationHeading: 'Term (years)',
@@ -95,20 +95,24 @@ export const en: Dictionary = {
     strategy: {
       maxFinancingTitle: 'Broker strategy: maximum financing',
       maxFinancingWhy: (reasons) =>
-        `A direct bank cannot finance this operation as proposed (${reasons}). The broker therefore prioritizes reaching the highest possible financing percentage.`,
+        `A direct bank cannot finance this operation as proposed (${reasons}). The broker therefore prioritizes reaching the highest possible financing percentage, accepting a debt level above the banks’ usual 35% as long as it remains sustainable.`,
       reasonLtv: 'the requested financing percentage exceeds the bank’s limit',
       reasonDsti: (threshold) => `the debt ratio (DSTI) would exceed ${threshold}`,
       reasonSavings: 'the available savings plus the bank’s maximum financing do not cover the purchase price',
       structureWithExtra: (ceilingLtv, loan, actualLtv, extra, contributionSaving) =>
         `Structure: the broker negotiates the operation with a ${ceilingLtv} LTV limit (the channel maximum) and finances it with a ${loan} loan (${actualLtv} actual LTV), i.e. ${extra} more than the bank; the initial contribution drops by ${contributionSaving}.`,
       structureNoExtra: (ceilingLtv, loan, actualLtv) =>
-        `Structure: the broker negotiates the operation with a ${ceilingLtv} LTV limit (the channel maximum); given the available savings, the loan is ${loan} (${actualLtv} actual LTV), the same amount as with the bank.`,
+        `Structure: the broker negotiates the operation with a ${ceilingLtv} LTV limit (the channel maximum); the resulting loan is ${loan} (${actualLtv} actual LTV), the same amount as with the bank.`,
+      sustainabilityLimited: (ceilingLtv, dstiFull, limit, loan, actualLtv) =>
+        `At the ${ceilingLtv} LTV limit, the debt ratio (DSTI) would reach ${dstiFull}, above the ${limit} the broker considers sustainable. It therefore limits the loan to ${loan} (${actualLtv} actual LTV): the maximum financing that keeps the effort within ${limit}.`,
       conditionDstiWithin: (dsti, threshold) =>
         `At this amount, the debt ratio (DSTI) is ${dsti}, within the ${threshold} limit.`,
-      conditionDstiAbove: (dsti, threshold) =>
-        `At this amount, the debt ratio (DSTI) would be ${dsti}, above the ${threshold} limit: approval would depend on the lender’s risk analysis.`,
+      conditionDstiAboveGreen: (dsti, green, limit) =>
+        `At this amount, the debt ratio (DSTI) is ${dsti}: above the banks’ usual ${green}, but within the ${limit} the broker considers sustainable (moderate risk). Approval will depend on the lender’s risk analysis.`,
+      conditionDstiAboveLimit: (dsti, limit) =>
+        `At this amount, the debt ratio (DSTI) would be ${dsti}, above the ${limit} the broker considers sustainable: with the current level of debts the operation cannot be made viable in a sustainable way.`,
       conditionNotFullyFinanceable:
-        'Even at the broker’s maximum LTV, the available savings do not cover the full purchase price.',
+        'Even at the broker’s maximum sustainable financing, the available savings do not cover the full purchase price.',
       conditionApproval: (ltv) =>
         `${ltv} LTV is the market convention for the broker channel, not a guarantee: final approval depends on the lender.`,
       feesNote: 'Broker fees are not included in this calculation.',

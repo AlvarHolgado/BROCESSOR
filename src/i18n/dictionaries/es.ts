@@ -70,7 +70,7 @@ export const es: Dictionary = {
     ccaaLabel: 'Comunidad Autónoma',
     ltvHeading: 'Porcentaje de financiación deseado (%)',
     ltvHelper:
-      'El TIN se determina automáticamente a partir de datos de mercado: no hace falta introducirlo. Este porcentaje solo aplica al cálculo con banco — el bróker adapta la financiación al perfil: la máxima posible si el banco no puede financiar la operación, o la solicitada con las condiciones más económicas si es viable.',
+      'El TIN se determina automáticamente a partir de datos de mercado: no hace falta introducirlo. Este porcentaje solo aplica al cálculo con banco — el bróker adapta la financiación al perfil: la máxima posible dentro de un esfuerzo sostenible si el banco no puede financiar la operación, o la solicitada con las condiciones más económicas si es viable.',
     ltvLabel: 'Porcentaje de financiación deseado (%)',
     ltvHint: (pct) => `${pct}%`,
     durationHeading: 'Plazo (años)',
@@ -102,20 +102,24 @@ export const es: Dictionary = {
     strategy: {
       maxFinancingTitle: 'Estrategia del bróker: máxima financiación',
       maxFinancingWhy: (reasons) =>
-        `El banco directo no puede financiar esta operación tal como se plantea (${reasons}). Por eso el bróker prioriza conseguir el mayor porcentaje de financiación posible.`,
+        `El banco directo no puede financiar esta operación tal como se plantea (${reasons}). Por eso el bróker prioriza conseguir el mayor porcentaje de financiación posible, aceptando un endeudamiento superior al 35% habitual de los bancos siempre que siga siendo sostenible.`,
       reasonLtv: 'el porcentaje de financiación solicitado supera el límite del banco',
       reasonDsti: (threshold) => `la ratio de endeudamiento (DSTI) superaría el ${threshold}`,
       reasonSavings: 'los ahorros disponibles más la financiación máxima del banco no cubren el precio de compra',
       structureWithExtra: (ceilingLtv, loan, actualLtv, extra, contributionSaving) =>
         `Estructura: el bróker negocia la operación con un límite del ${ceilingLtv} de LTV (el máximo del canal) y la financia con un préstamo de ${loan} (${actualLtv} de LTV real), es decir, ${extra} más que el banco; la aportación inicial se reduce en ${contributionSaving}.`,
       structureNoExtra: (ceilingLtv, loan, actualLtv) =>
-        `Estructura: el bróker negocia la operación con un límite del ${ceilingLtv} de LTV (el máximo del canal); con los ahorros disponibles, el préstamo es de ${loan} (${actualLtv} de LTV real), el mismo importe que con el banco.`,
+        `Estructura: el bróker negocia la operación con un límite del ${ceilingLtv} de LTV (el máximo del canal); el préstamo resultante es de ${loan} (${actualLtv} de LTV real), el mismo importe que con el banco.`,
+      sustainabilityLimited: (ceilingLtv, dstiFull, limit, loan, actualLtv) =>
+        `Con el límite del ${ceilingLtv} de LTV, la ratio de endeudamiento (DSTI) llegaría al ${dstiFull}, por encima del ${limit} que el bróker considera sostenible. Por eso limita el préstamo a ${loan} (${actualLtv} de LTV real): la máxima financiación que mantiene el esfuerzo dentro del ${limit}.`,
       conditionDstiWithin: (dsti, threshold) =>
         `Con este importe, la ratio de endeudamiento (DSTI) es del ${dsti}, dentro del límite del ${threshold}.`,
-      conditionDstiAbove: (dsti, threshold) =>
-        `Con este importe, la ratio de endeudamiento (DSTI) sería del ${dsti}, por encima del límite del ${threshold}: la aprobación dependería del análisis de riesgo de la entidad financiera.`,
+      conditionDstiAboveGreen: (dsti, green, limit) =>
+        `Con este importe, la ratio de endeudamiento (DSTI) es del ${dsti}: por encima del ${green} habitual de los bancos, pero dentro del ${limit} que el bróker considera sostenible (riesgo moderado). La aprobación dependerá del análisis de riesgo de la entidad financiera.`,
+      conditionDstiAboveLimit: (dsti, limit) =>
+        `Con este importe, la ratio de endeudamiento (DSTI) sería del ${dsti}, por encima del ${limit} que el bróker considera sostenible: con el nivel de deudas actual la operación no se puede viabilizar de forma sostenible.`,
       conditionNotFullyFinanceable:
-        'Incluso con el LTV máximo del bróker, los ahorros disponibles no cubren la totalidad del precio de compra.',
+        'Incluso con la máxima financiación sostenible del bróker, los ahorros disponibles no cubren la totalidad del precio de compra.',
       conditionApproval: (ltv) =>
         `El ${ltv} de LTV es la convención de mercado del canal bróker, no una garantía: la aprobación final depende de la entidad financiera.`,
       feesNote: 'Los honorarios del bróker no están incluidos en este cálculo.',

@@ -8,6 +8,11 @@
  *  - MAX_FINANCING: the operation is tight for a direct bank (its offer had
  *    to be auto-adjusted, or the bank LTV plus savings do not cover the
  *    purchase price), so the broker is built at its own maximum LTV ceiling.
+ *    Unlike a direct bank it is NOT bound by the 35% DSTI rule: it may take the
+ *    client's effort into the 35%-40% band (moderate risk) to make the
+ *    purchase possible, but never into the high-risk band above it — if the
+ *    maximum LTV would push the effort past BROKER_MAX_DSTI_RATIO, the loan is
+ *    reduced to the largest amount that keeps the effort at that limit.
  *  - LOWEST_COST: the direct bank can finance the operation as requested, so
  *    the broker does not take on more debt than the client asked for — it
  *    only improves the price (the best real market quote), which is the
@@ -15,7 +20,30 @@
  */
 
 import type { MortgagePathResult } from './simulate';
-import { DSTI_COMPARISON_EPSILON, DSTI_GREEN_THRESHOLD } from './scoring';
+import { DSTI_COMPARISON_EPSILON, DSTI_GREEN_THRESHOLD, DSTI_YELLOW_THRESHOLD } from './scoring';
+
+/**
+ * Highest debt-service ratio the broker accepts when maximizing financing:
+ * the project's own existing boundary between moderate and high risk
+ * (scoring.ts DSTI_YELLOW_THRESHOLD, 40%) — so the broker can go beyond the
+ * bank's 35% rule but never proposes an effort the simulator itself labels
+ * "high risk". Deliberately reuses that constant rather than introducing a new
+ * unsourced figure (.clauderules Rule 1); change it in one place if a
+ * different tolerance is ever agreed.
+ */
+export const BROKER_MAX_DSTI_RATIO = DSTI_YELLOW_THRESHOLD;
+
+/** How the broker's sustainability limit shaped its loan — set only on the broker path in MAX_FINANCING mode. */
+export interface BrokerSustainability {
+  /** The DSTI limit applied (BROKER_MAX_DSTI_RATIO). */
+  dstiLimit: number;
+  /** True when financing at the broker's maximum LTV would have exceeded the limit, so the loan was reduced to fit it. */
+  wasLimited: boolean;
+  /** The loan the broker would have taken at its maximum LTV before applying the limit. */
+  loanBeforeLimit: number;
+  /** The DSTI that loan would have produced. */
+  dstiBeforeLimit: number;
+}
 
 export type BrokerStrategyMode = 'MAX_FINANCING' | 'LOWEST_COST';
 
@@ -42,8 +70,14 @@ export interface BrokerStrategyResult extends BrokerModeDecision {
   initialContributionDeltaVsBank: number;
   /** Immediate DSTI of the broker offer; null when the broker TIN is unavailable and no quota exists. */
   brokerDstiRatio: number | null;
-  /** True when brokerDstiRatio stays within the low-risk threshold; null when it cannot be computed. */
+  /** True when brokerDstiRatio stays within the 35% low-risk threshold; null when it cannot be computed. */
   brokerDstiWithinThreshold: boolean | null;
+  /** True when brokerDstiRatio is above the 35% threshold but within the broker's own limit — the "accepted higher effort" band. */
+  brokerAcceptsHigherEffort: boolean;
+  /** The broker's own DSTI limit (BROKER_MAX_DSTI_RATIO); only meaningful in MAX_FINANCING mode. */
+  brokerDstiLimit: number;
+  /** Set in MAX_FINANCING mode: whether the loan was reduced to respect the limit, and what it would have been otherwise. Null in LOWEST_COST mode or without a TIN. */
+  sustainability: BrokerSustainability | null;
   /** False when the broker's LTV ceiling plus the client's savings still do not cover the purchase price. */
   brokerFullyFinanceable: boolean;
 }
@@ -80,6 +114,12 @@ export function describeBrokerStrategy(
     initialContributionDeltaVsBank: broker.contributionBreakdown.total - baseline.contributionBreakdown.total,
     brokerDstiRatio,
     brokerDstiWithinThreshold: brokerDstiRatio === null ? null : brokerDstiRatio <= DSTI_GREEN_THRESHOLD + DSTI_COMPARISON_EPSILON,
+    brokerAcceptsHigherEffort:
+      brokerDstiRatio !== null &&
+      brokerDstiRatio > DSTI_GREEN_THRESHOLD + DSTI_COMPARISON_EPSILON &&
+      brokerDstiRatio <= BROKER_MAX_DSTI_RATIO + DSTI_COMPARISON_EPSILON,
+    brokerDstiLimit: BROKER_MAX_DSTI_RATIO,
+    sustainability: broker.brokerSustainability,
     brokerFullyFinanceable: broker.isFullyFinanceable,
   };
 }

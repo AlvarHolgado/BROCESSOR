@@ -27,6 +27,7 @@ function buildPath(overrides: Partial<MortgagePathResult> = {}): MortgagePathRes
     },
     bankViability: null,
     wasAutoAdjustedForViability: false,
+    brokerSustainability: null,
     ...overrides,
   };
 }

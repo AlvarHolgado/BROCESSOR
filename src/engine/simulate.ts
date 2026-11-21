@@ -15,11 +15,12 @@ import type { AmortizationRow, SimulatorInput } from '../types/simulator';
 import type { CcaaTaxRate } from '../types/ccaaTax';
 import type { MarketRatesData } from '../types/marketRates';
 import type { FormalizationFeesData } from '../types/formalizationFees';
-import { assessTemporalMortgageRisk, type TemporalDstiAssessment } from './scoring';
+import { DSTI_COMPARISON_EPSILON, assessTemporalMortgageRisk, type TemporalDstiAssessment } from './scoring';
 import {
   calculateFrenchMonthlyQuota,
   calculateInitialContribution,
   calculateLtvPercentage,
+  calculateMaxLoanFromMonthlyBudget,
   calculateRegionalTaxBurden,
   type RegionalTaxResult,
 } from './mortgageEngine';
@@ -38,7 +39,13 @@ import {
 } from './marketTinResolver';
 import { resolveBankLtv, resolveBrokerLtv, type LtvResolutionResult } from './ltvResolver';
 import { computePricingDifferential, type PricingDifferentialResult } from './pricingDifferential';
-import { describeBrokerStrategy, resolveBrokerModeDecision, type BrokerStrategyResult } from './brokerStrategy';
+import {
+  BROKER_MAX_DSTI_RATIO,
+  describeBrokerStrategy,
+  resolveBrokerModeDecision,
+  type BrokerStrategyResult,
+  type BrokerSustainability,
+} from './brokerStrategy';
 import { buildInitialContributionBreakdown, type InitialContributionBreakdown } from './contributionBreakdown';
 
 export type MortgagePathChannel = 'BANK_BONIFIED' | 'BANK_NON_BONIFIED' | 'BROKER';
@@ -92,6 +99,8 @@ export interface MortgagePathResult {
   bankViability: BankViabilityAssessment | null;
   /** True when this bank path's loanPrincipal was reduced below the requested amount because the request exceeded bankViability's LTV/DSTI limits — see bankViability.justificationReason for why. Always false for BROKER. */
   wasAutoAdjustedForViability: boolean;
+  /** Only set for the BROKER path in MAX_FINANCING mode: the sustainability limit on its DSTI and whether it had to reduce the loan to respect it — see brokerStrategy.ts. */
+  brokerSustainability: BrokerSustainability | null;
 }
 
 export interface SimulatorOutput {
@@ -132,7 +141,7 @@ export function computeSimulatorOutput(input: SimulatorInput, referenceData: Sim
   const bankMaxLtv = getBankMaxLtvPercentage(marketRates);
   const brokerMaxLtv = getBrokerMaxLtvPercentage(marketRates);
 
-  const buildPath = (channel: MortgagePathChannel, rate: RateReference, ltv: LtvResolutionResult) =>
+  const buildPath = (channel: MortgagePathChannel, rate: RateReference, ltv: LtvResolutionResult, brokerDstiLimit: number | null = null) =>
     buildMortgagePath(
       channel,
       rate,
@@ -143,7 +152,8 @@ export function computeSimulatorOutput(input: SimulatorInput, referenceData: Sim
       taxesAndExpenses,
       taxBreakdown,
       formalizationCosts,
-      bankMaxLtv
+      bankMaxLtv,
+      brokerDstiLimit
     );
 
   const bankBonified = buildPath(
@@ -161,7 +171,8 @@ export function computeSimulatorOutput(input: SimulatorInput, referenceData: Sim
   const broker = buildPath(
     'BROKER',
     resolveBrokerRate(input.mortgageType, marketRates),
-    resolveBrokerLtv(brokerMaxLtv, brokerModeDecision.mode, input.requestedLtvPercentage)
+    resolveBrokerLtv(brokerMaxLtv, brokerModeDecision.mode, input.requestedLtvPercentage),
+    brokerModeDecision.mode === 'MAX_FINANCING' ? BROKER_MAX_DSTI_RATIO : null
   );
   const pricingDifferential = computePricingDifferential(broker, bankBonified, bankNonBonified);
   const brokerStrategy = describeBrokerStrategy(brokerModeDecision, broker, bankBonified, bankNonBonified);
@@ -245,7 +256,8 @@ function buildMortgagePath(
   taxesAndExpenses: number,
   taxBreakdown: RegionalTaxResult,
   formalizationCosts: FormalizationCostsResult,
-  bankMaxLtvPercentage: number
+  bankMaxLtvPercentage: number,
+  brokerDstiLimit: number | null
 ): MortgagePathResult {
   const maxFinancingAmount = referenceValue * (ltv.effectiveLtvPercentage / 100);
   const requiredLoanAmount = Math.max(input.purchaseValue - input.availableSavings, 0);
@@ -270,6 +282,7 @@ function buildMortgagePath(
       costOfCredit: null,
       bankViability: null,
       wasAutoAdjustedForViability: false,
+      brokerSustainability: null,
     };
   }
 
@@ -286,7 +299,7 @@ function buildMortgagePath(
     formalizationCosts
   );
 
-  // Broker never gets this treatment — its LTV comes from resolveBrokerLtv (max ceiling when the bank was tight, the client's own request otherwise), so there is no bank-style "requested vs. viable" reduction to apply.
+  // The broker has no bank-style viability assessment — its LTV comes from resolveBrokerLtv (max ceiling when the bank was tight, the client's own request otherwise) and its only extra limit is the sustainability cap below.
   const bankViability =
     channel === 'BROKER'
       ? null
@@ -304,20 +317,36 @@ function buildMortgagePath(
   // Never reject outright: when the requested amount isn't viable for a direct bank channel, the offer becomes the
   // largest amount the bank could actually grant this profile — never more than what was requested/needed, only less.
   const wasAutoAdjustedForViability = bankViability !== null && !bankViability.isViable;
-  const finalFigures = wasAutoAdjustedForViability
-    ? computeLoanDependentFigures(
-        Math.min(requestedLoanPrincipal, bankViability!.maxViableLoanAmount),
-        requiredLoanAmount,
-        maxFinancingAmount,
-        rate.tin,
-        input,
-        referenceValue,
-        netAnnualIncome,
-        taxesAndExpenses,
-        taxBreakdown,
-        formalizationCosts
-      )
-    : requestedFigures;
+
+  // Broker maximizing financing: it may take the client's effort above the bank's 35% rule, but never past its own
+  // sustainability limit. If the maximum LTV would, the loan becomes the largest amount that keeps the effort at that limit.
+  let brokerSustainability: BrokerSustainability | null = null;
+  let loanCap: number | null = wasAutoAdjustedForViability ? bankViability!.maxViableLoanAmount : null;
+  if (channel === 'BROKER' && brokerDstiLimit !== null) {
+    const dstiBeforeLimit = requestedFigures.riskAssessment.immediate.dstiRatio;
+    const wasLimited = dstiBeforeLimit > brokerDstiLimit + DSTI_COMPARISON_EPSILON;
+    brokerSustainability = { dstiLimit: brokerDstiLimit, wasLimited, loanBeforeLimit: requestedLoanPrincipal, dstiBeforeLimit };
+    if (wasLimited) {
+      const maxQuotaWithinLimit = Math.max((netAnnualIncome / 12) * brokerDstiLimit - input.pendingDebts, 0);
+      loanCap = calculateMaxLoanFromMonthlyBudget(maxQuotaWithinLimit, rate.tin, input.durationYears);
+    }
+  }
+
+  const finalFigures =
+    loanCap !== null
+      ? computeLoanDependentFigures(
+          Math.min(requestedLoanPrincipal, loanCap),
+          requiredLoanAmount,
+          maxFinancingAmount,
+          rate.tin,
+          input,
+          referenceValue,
+          netAnnualIncome,
+          taxesAndExpenses,
+          taxBreakdown,
+          formalizationCosts
+        )
+      : requestedFigures;
 
   return {
     channel,
@@ -328,5 +357,6 @@ function buildMortgagePath(
     ...finalFigures,
     bankViability,
     wasAutoAdjustedForViability,
+    brokerSustainability,
   };
 }

@@ -73,7 +73,7 @@ export const ca = {
     ccaaLabel: 'Comunitat Autònoma',
     ltvHeading: 'Percentatge de finançament desitjat (%)',
     ltvHelper:
-      'El TIN es determina automàticament a partir de dades de mercat: no cal introduir-lo. Aquest percentatge només aplica al càlcul amb banc — el broker adapta el finançament al perfil: el màxim possible si el banc no pot finançar l’operació, o el sol·licitat amb les condicions més econòmiques si és viable.',
+      'El TIN es determina automàticament a partir de dades de mercat: no cal introduir-lo. Aquest percentatge només aplica al càlcul amb banc — el broker adapta el finançament al perfil: el màxim possible dins d’un esforç sostenible si el banc no pot finançar l’operació, o el sol·licitat amb les condicions més econòmiques si és viable.',
     ltvLabel: 'Percentatge de finançament desitjat (%)',
     ltvHint: (pct: number) => `${pct}%`,
     durationHeading: 'Termini (anys)',
@@ -105,20 +105,24 @@ export const ca = {
     strategy: {
       maxFinancingTitle: 'Estratègia del broker: màxim finançament',
       maxFinancingWhy: (reasons: string) =>
-        `El banc directe no pot finançar aquesta operació tal com es planteja (${reasons}). Per això el broker prioritza aconseguir el major percentatge de finançament possible.`,
+        `El banc directe no pot finançar aquesta operació tal com es planteja (${reasons}). Per això el broker prioritza aconseguir el major percentatge de finançament possible, acceptant un endeutament superior al 35% habitual dels bancs sempre que continuï sent sostenible.`,
       reasonLtv: 'el percentatge de finançament sol·licitat supera el límit del banc',
       reasonDsti: (threshold: string) => `la ràtio d’endeutament (DSTI) superaria el ${threshold}`,
       reasonSavings: 'els estalvis disponibles més el finançament màxim del banc no cobreixen el preu de compra',
       structureWithExtra: (ceilingLtv: string, loan: string, actualLtv: string, extra: string, contributionSaving: string) =>
         `Estructura: el broker negocia l’operació amb un límit de ${ceilingLtv} de LTV (el màxim del canal) i la finança amb un préstec de ${loan} (${actualLtv} de LTV real), és a dir, ${extra} més que el banc; l’aportació inicial es redueix en ${contributionSaving}.`,
       structureNoExtra: (ceilingLtv: string, loan: string, actualLtv: string) =>
-        `Estructura: el broker negocia l’operació amb un límit de ${ceilingLtv} de LTV (el màxim del canal); amb els estalvis disponibles, el préstec és de ${loan} (${actualLtv} de LTV real), el mateix import que amb el banc.`,
+        `Estructura: el broker negocia l’operació amb un límit de ${ceilingLtv} de LTV (el màxim del canal); el préstec resultant és de ${loan} (${actualLtv} de LTV real), el mateix import que amb el banc.`,
+      sustainabilityLimited: (ceilingLtv: string, dstiFull: string, limit: string, loan: string, actualLtv: string) =>
+        `Al límit de ${ceilingLtv} de LTV, la ràtio d’endeutament (DSTI) arribaria al ${dstiFull}, per sobre del ${limit} que el broker considera sostenible. Per això limita el préstec a ${loan} (${actualLtv} de LTV real): el màxim finançament que manté l’esforç dins del ${limit}.`,
       conditionDstiWithin: (dsti: string, threshold: string) =>
         `Amb aquest import, la ràtio d’endeutament (DSTI) és del ${dsti}, dins del límit del ${threshold}.`,
-      conditionDstiAbove: (dsti: string, threshold: string) =>
-        `Amb aquest import, la ràtio d’endeutament (DSTI) seria del ${dsti}, per sobre del límit del ${threshold}: l’aprovació dependria de l’anàlisi de risc de l’entitat financera.`,
+      conditionDstiAboveGreen: (dsti: string, green: string, limit: string) =>
+        `Amb aquest import, la ràtio d’endeutament (DSTI) és del ${dsti}: per sobre del ${green} habitual dels bancs, però dins del ${limit} que el broker considera sostenible (risc moderat). L’aprovació dependrà de l’anàlisi de risc de l’entitat financera.`,
+      conditionDstiAboveLimit: (dsti: string, limit: string) =>
+        `Amb aquest import, la ràtio d’endeutament (DSTI) seria del ${dsti}, per sobre del ${limit} que el broker considera sostenible: amb el nivell de deutes actual l’operació no es pot viabilitzar de manera sostenible.`,
       conditionNotFullyFinanceable:
-        'Fins i tot amb el LTV màxim del broker, els estalvis disponibles no cobreixen la totalitat del preu de compra.',
+        'Fins i tot amb el màxim finançament sostenible del broker, els estalvis disponibles no cobreixen la totalitat del preu de compra.',
       conditionApproval: (ltv: string) =>
         `El ${ltv} de LTV és la convenció de mercat del canal broker, no una garantia: l’aprovació final depèn de l’entitat financera.`,
       feesNote: 'Els honoraris del broker no estan inclosos en aquest càlcul.',

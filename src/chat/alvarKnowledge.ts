@@ -823,7 +823,7 @@ export const ALVAR_KNOWLEDGE_BASE: KnowledgeEntry[] = [
     category: 'SIMULATOR_USAGE',
     question: 'Què són les tres opcions que compara el simulador?',
     answer:
-      'Compara finançament directe amb banc amb condicions bonificades, finançament directe amb banc sense bonificar, i l’alternativa d’un broker que negocia amb múltiples entitats: si el banc no pot finançar l’operació, el broker prioritza el màxim finançament possible (fins a un LTV superior); si és viable, prioritza les condicions més econòmiques sense augmentar l’endeutament.',
+      'Compara finançament directe amb banc amb condicions bonificades, finançament directe amb banc sense bonificar, i l’alternativa d’un broker que negocia amb múltiples entitats: si el banc no pot finançar l’operació, el broker prioritza el màxim finançament possible (fins a un LTV superior), acceptant un endeutament per sobre del 35% dels bancs però sense superar el 40%; si és viable, prioritza les condicions més econòmiques sense augmentar l’endeutament.',
     keywords: ['tres opcions simulador comparar'],
   },
   {
