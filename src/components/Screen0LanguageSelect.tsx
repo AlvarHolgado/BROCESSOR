@@ -1,7 +1,7 @@
 /**
  * Introductory language selector, shown before Screen1Welcome — the very
  * first thing a new user sees. Shares Screen1Welcome/Screen8Closing's hero
- * treatment: a navy/gold radial-mesh gradient background, HeroBackdrop's
+ * treatment: a plain navy gradient background (no gold glow), HeroBackdrop's
  * ultra-faint blueprint-line house/chart motif (see HeroBackdrop.tsx), and
  * the glowing mustard-accented white brand title with its "highlight band"
  * underline — so the flow's cover style stays visually consistent from the
@@ -25,7 +25,7 @@ const pageStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   gap: '1.5rem',
-  backgroundImage: `radial-gradient(ellipse 85% 65% at 12% 30%, rgba(217, 159, 38, 0.16) 0%, rgba(217, 159, 38, 0) 55%), linear-gradient(160deg, ${COLORS.hero.backgroundFrom} 0%, ${COLORS.hero.backgroundTo} 100%)`,
+  backgroundImage: `linear-gradient(160deg, ${COLORS.hero.backgroundFrom} 0%, ${COLORS.hero.backgroundTo} 100%)`,
   padding: '2rem',
   textAlign: 'center',
   overflow: 'hidden',

@@ -27,7 +27,7 @@ const pageStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   gap: '1.25rem',
-  backgroundImage: `radial-gradient(ellipse 85% 65% at 12% 30%, rgba(217, 159, 38, 0.16) 0%, rgba(217, 159, 38, 0) 55%), linear-gradient(160deg, ${COLORS.hero.backgroundFrom} 0%, ${COLORS.hero.backgroundTo} 100%)`,
+  backgroundImage: `linear-gradient(160deg, ${COLORS.hero.backgroundFrom} 0%, ${COLORS.hero.backgroundTo} 100%)`,
   padding: '2rem',
   textAlign: 'center',
   overflow: 'hidden',
